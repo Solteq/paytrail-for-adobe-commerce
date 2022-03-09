@@ -8,8 +8,8 @@ use Magento\Quote\Model\QuoteRepository;
 use Magento\Sales\Api\Data\OrderInterface;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Gateway\Validator\ResponseValidator;
-use Paytrail\PaymentService\Helper\Data;
 use Paytrail\PaymentService\Helper\ProcessPayment;
+use Paytrail\PaymentService\Model\OrderReference;
 use Paytrail\PaymentService\Model\ReceiptDataProvider;
 
 /**
@@ -46,17 +46,18 @@ class Index extends \Magento\Framework\App\Action\Action
      * @var ProcessPayment
      */
     private $processPayment;
+
     /**
      * @var Config
      */
     private $gatewayConfig;
-    /**
-     * @var Data
-     */
-    private $paytrailHelper;
 
     /**
-     * Index constructor.
+     * @var OrderReference
+     */
+    private $orderReference;
+
+    /**
      * @param Context $context
      * @param Session $session
      * @param ResponseValidator $responseValidator
@@ -65,7 +66,7 @@ class Index extends \Magento\Framework\App\Action\Action
      * @param OrderInterface $orderInterface
      * @param ProcessPayment $processPayment
      * @param Config $gatewayConfig
-     * @param Data $paytrailHelper
+     * @param OrderReference $orderReference
      */
     public function __construct(
         Context $context,
@@ -76,7 +77,7 @@ class Index extends \Magento\Framework\App\Action\Action
         OrderInterface $orderInterface,
         ProcessPayment $processPayment,
         Config $gatewayConfig,
-        Data $paytrailHelper
+        OrderReference $orderReference
     ) {
         parent::__construct($context);
         $this->session = $session;
@@ -86,7 +87,7 @@ class Index extends \Magento\Framework\App\Action\Action
         $this->orderInterface = $orderInterface;
         $this->processPayment = $processPayment;
         $this->gatewayConfig = $gatewayConfig;
-        $this->paytrailHelper = $paytrailHelper;
+        $this->orderReference = $orderReference;
     }
 
     /**
@@ -106,7 +107,7 @@ class Index extends \Magento\Framework\App\Action\Action
 
         /** @var string $orderNo */
         $orderNo = $this->gatewayConfig->getGenerateReferenceForOrder()
-            ? $this->paytrailHelper->getIdFromOrderReferenceNumber($reference)
+            ? $this->orderReference->getIdFromOrderReferenceNumber($reference)
             : $reference;
 
         /** @var \Magento\Sales\Model\Order $order */

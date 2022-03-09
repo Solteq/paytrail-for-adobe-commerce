@@ -8,6 +8,7 @@ use Magento\Quote\Model\QuoteRepository;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Gateway\Validator\ResponseValidator;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
+use Paytrail\PaymentService\Model\OrderReference;
 use Paytrail\PaymentService\Model\ReceiptDataProvider;
 use Paytrail\PaymentService\Exceptions\TransactionSuccessException;
 
@@ -44,18 +45,17 @@ class ProcessPayment
     private $gatewayConfig;
 
     /**
-     * @var Data
+     * @var OrderReference
      */
-    private $paytrailHelper;
+    private $orderReference;
 
     /**
-     * ProcessPayment constructor.
      * @param ResponseValidator $responseValidator
      * @param ReceiptDataProvider $receiptDataProvider
      * @param QuoteRepository $quoteRepository
      * @param CacheInterface $cache
      * @param Config $gatewayConfig
-     * @param Data $paytrailHelper
+     * @param OrderReference $orderReference
      */
     public function __construct(
         ResponseValidator $responseValidator,
@@ -63,14 +63,14 @@ class ProcessPayment
         QuoteRepository $quoteRepository,
         CacheInterface $cache,
         Config $gatewayConfig,
-        Data $paytrailHelper
+        OrderReference $orderReference
     ) {
         $this->responseValidator = $responseValidator;
         $this->receiptDataProvider = $receiptDataProvider;
         $this->quoteRepository = $quoteRepository;
         $this->cache = $cache;
         $this->gatewayConfig = $gatewayConfig;
-        $this->paytrailHelper = $paytrailHelper;
+        $this->orderReference = $orderReference;
     }
 
     /**
@@ -103,7 +103,7 @@ class ProcessPayment
 
         /** @var string $orderNo */
         $orderNo = $this->gatewayConfig->getGenerateReferenceForOrder()
-            ? $this->paytrailHelper->getIdFromOrderReferenceNumber($reference)
+            ? $this->orderReference->getIdFromOrderReferenceNumber($reference)
             : $reference;
 
         /** @var int $count */

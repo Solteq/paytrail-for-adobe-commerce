@@ -17,6 +17,7 @@ use Magento\Tax\Helper\Data as TaxHelper;
 use Paytrail\PaymentService\Helper\Data as CheckoutHelper;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
+use Paytrail\PaymentService\Model\OrderReference;
 use Paytrail\SDK\Model\Address;
 use Paytrail\SDK\Model\CallbackUrl;
 use Paytrail\SDK\Model\Customer;
@@ -103,6 +104,12 @@ class ApiData
     private $taxItems;
 
     /**
+     * @var OrderReference
+     */
+    private $orderReference;
+
+    /**
+     * @param LoggerInterface $log
      * @param UrlInterface $urlBuilder
      * @param RequestInterface $request
      * @param Json $json
@@ -117,6 +124,7 @@ class ApiData
      * @param EmailRefundRequest $emailRefundRequest
      * @param \Paytrail\PaymentService\Model\Payment\DiscountSplitter $discountSplitter
      * @param \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem
+     * @param OrderReference $orderReference
      */
     public function __construct(
         LoggerInterface $log,
@@ -133,7 +141,8 @@ class ApiData
         RefundRequest $refundRequest,
         EmailRefundRequest $emailRefundRequest,
         \Paytrail\PaymentService\Model\Payment\DiscountSplitter $discountSplitter,
-        \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem
+        \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem,
+        OrderReference $orderReference
     ) {
         $this->log = $log;
         $this->urlBuilder = $urlBuilder;
@@ -149,6 +158,7 @@ class ApiData
         $this->emailRefundRequest = $emailRefundRequest;
         $this->discountSplitter = $discountSplitter;
         $this->taxItems = $taxItem;
+        $this->orderReference = $orderReference;
     }
 
     /**
@@ -281,7 +291,7 @@ class ApiData
 
         $paytrailPayment->setStamp(hash('sha256', time() . $order->getIncrementId()));
 
-        $reference = $this->helper->getReference($order);
+        $reference = $this->orderReference->getReference($order);
 
         $paytrailPayment->setReference($reference);
 
