@@ -18,6 +18,7 @@ use Paytrail\PaymentService\Helper\Data as CheckoutHelper;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
 use Paytrail\PaymentService\Model\OrderReference;
+use Paytrail\PaymentService\Model\StaticDataProvider;
 use Paytrail\SDK\Model\Address;
 use Paytrail\SDK\Model\CallbackUrl;
 use Paytrail\SDK\Model\Customer;
@@ -109,6 +110,11 @@ class ApiData
     private $orderReference;
 
     /**
+     * @var StaticDataProvider
+     */
+    private $staticDataProvider;
+
+    /**
      * @param LoggerInterface $log
      * @param UrlInterface $urlBuilder
      * @param RequestInterface $request
@@ -125,6 +131,7 @@ class ApiData
      * @param \Paytrail\PaymentService\Model\Payment\DiscountSplitter $discountSplitter
      * @param \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem
      * @param OrderReference $orderReference
+     * @param StaticDataProvider $staticDataProvider
      */
     public function __construct(
         LoggerInterface $log,
@@ -142,7 +149,8 @@ class ApiData
         EmailRefundRequest $emailRefundRequest,
         \Paytrail\PaymentService\Model\Payment\DiscountSplitter $discountSplitter,
         \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem,
-        OrderReference $orderReference
+        OrderReference $orderReference,
+        StaticDataProvider $staticDataProvider
     ) {
         $this->log = $log;
         $this->urlBuilder = $urlBuilder;
@@ -159,6 +167,7 @@ class ApiData
         $this->discountSplitter = $discountSplitter;
         $this->taxItems = $taxItem;
         $this->orderReference = $orderReference;
+        $this->staticDataProvider = $staticDataProvider;
     }
 
     /**
@@ -245,7 +254,7 @@ class ApiData
             } elseif ($requestType === 'payment_providers') {
                 $response["data"] = $paytrailClient->getGroupedPaymentProviders(
                     $amount,
-                    $this->helper->getStoreLocaleForPaymentProvider()
+                    $this->staticDataProvider->getStoreLocaleForPaymentProvider()
                 );
                 $this->log->debugLog(
                     'response',
@@ -308,7 +317,7 @@ class ApiData
             $paytrailPayment->setDeliveryAddress($deliveryAddress);
         }
 
-        $paytrailPayment->setLanguage($this->helper->getStoreLocaleForPaymentProvider());
+        $paytrailPayment->setLanguage($this->staticDataProvider->getStoreLocaleForPaymentProvider());
 
         $items = $this->getOrderItemLines($order);
 

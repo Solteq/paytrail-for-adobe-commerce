@@ -3,17 +3,16 @@ namespace Paytrail\PaymentService\Gateway\Validator;
 
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Paytrail\PaymentService\Helper\Data as paytrailHelper;
 use Paytrail\PaymentService\Helper\ApiData;
 use Paytrail\PaymentService\Gateway\Config\Config;
+use Paytrail\PaymentService\Model\StaticDataProvider;
 
 class ResponseValidator extends AbstractValidator
 {
-
     /**
-     * @var paytrailHelper
+     * @var StaticDataProvider
      */
-    private $paytrailHelper;
+    private $staticDataProvider;
 
     /**
      * @var ApiData
@@ -25,20 +24,19 @@ class ResponseValidator extends AbstractValidator
     private $gatewayConfig;
 
     /**
-     * ResponseValidator constructor.
-     * @param paytrailHelper $paytrailHelper
+     * @param StaticDataProvider $staticDataProvider
      * @param Config $gatewayConfig
      * @param ResultInterfaceFactory $resultFactory
      * @param ApiData $apiData
      */
     public function __construct(
-        paytrailHelper $paytrailHelper,
+        StaticDataProvider $staticDataProvider,
         Config $gatewayConfig,
         ResultInterfaceFactory $resultFactory,
         ApiData $apiData
     ) {
         parent::__construct($resultFactory);
-        $this->paytrailHelper = $paytrailHelper;
+        $this->staticDataProvider = $staticDataProvider;
         $this->apiData = $apiData;
         $this->gatewayConfig = $gatewayConfig;
     }
@@ -116,7 +114,7 @@ class ResponseValidator extends AbstractValidator
      */
     public function validateAlgorithm($algorithm)
     {
-        return in_array($algorithm, $this->paytrailHelper->getValidAlgorithms(), true);
+        return in_array($algorithm, $this->staticDataProvider->getValidAlgorithms(), true);
     }
 
     /**
