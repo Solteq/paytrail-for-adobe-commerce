@@ -171,6 +171,8 @@ class ReceiptDataProvider
      */
     protected $logger;
 
+    private $orderReference;
+
     /**
      * ReceiptDataProvider constructor.
      * @param Context $context
@@ -214,7 +216,8 @@ class ReceiptDataProvider
         transactionBuilder $transactionBuilder,
         Config $gatewayConfig,
         ApiData $apiData,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        OrderReference $orderReference
     ) {
         $this->urlBuilder = $context->getUrl();
         $this->cache = $cache;
@@ -237,6 +240,7 @@ class ReceiptDataProvider
         $this->gatewayConfig = $gatewayConfig;
         $this->apiData = $apiData;
         $this->logger = $logger;
+        $this->orderReference = $orderReference;
     }
 
     /**
@@ -248,7 +252,7 @@ class ReceiptDataProvider
     {
         if ($this->gatewayConfig->getGenerateReferenceForOrder()) {
             $this->orderIncrementalId
-                = $this->paytrailHelper->getIdFromOrderReferenceNumber(
+                = $this->orderReference->getIdFromOrderReferenceNumber(
                 $params["checkout-reference"]
             );
         } else {
