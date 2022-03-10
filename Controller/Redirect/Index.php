@@ -13,8 +13,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
+use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
 use Paytrail\PaymentService\Helper\ApiData;
-use Paytrail\PaymentService\Helper\Data as paytrailHelper;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\SDK\Model\Provider;
 use Paytrail\SDK\Response\PaymentResponse;
@@ -68,9 +68,9 @@ class Index extends \Magento\Framework\App\Action\Action
     protected $apiData;
 
     /**
-     * @var paytrailHelper
+     * @var CheckoutExceptionLogger
      */
-    protected $paytrailHelper;
+    protected $checkoutExceptionLogger;
 
     /**
      * @var Config
@@ -83,18 +83,16 @@ class Index extends \Magento\Framework\App\Action\Action
     protected $errorMsg = null;
 
     /**
-     * Index constructor.
-     *
      * @param Context $context
      * @param Session $checkoutSession
      * @param OrderFactory $orderFactory
      * @param JsonFactory $jsonFactory
      * @param OrderRepositoryInterface $orderRepositoryInterface
      * @param OrderManagementInterface $orderManagementInterface
-     * @param PageFactory  $pageFactory
+     * @param PageFactory $pageFactory
      * @param LoggerInterface $logger
      * @param ApiData $apiData
-     * @param paytrailHelper $paytrailHelper
+     * @param CheckoutExceptionLogger $checkoutExceptionLogger
      * @param Config $gatewayConfig
      */
     public function __construct(
@@ -107,7 +105,7 @@ class Index extends \Magento\Framework\App\Action\Action
         PageFactory $pageFactory,
         LoggerInterface $logger,
         ApiData $apiData,
-        paytrailHelper $paytrailHelper,
+        CheckoutExceptionLogger $checkoutExceptionLogger,
         Config $gatewayConfig
     ) {
         $this->urlBuilder = $context->getUrl();
@@ -119,7 +117,7 @@ class Index extends \Magento\Framework\App\Action\Action
         $this->pageFactory = $pageFactory;
         $this->logger = $logger;
         $this->apiData = $apiData;
-        $this->paytrailHelper = $paytrailHelper;
+        $this->checkoutExceptionLogger = $checkoutExceptionLogger;
         $this->gatewayConfig = $gatewayConfig;
         parent::__construct($context);
     }
@@ -267,7 +265,7 @@ class Index extends \Magento\Framework\App\Action\Action
 
         if (isset($errorMsg)) {
             $this->errorMsg = ($errorMsg);
-            $this->paytrailHelper->processError($errorMsg);
+            $this->checkoutExceptionLogger->processError($errorMsg);
         }
 
         return $response["data"];

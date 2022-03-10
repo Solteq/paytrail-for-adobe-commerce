@@ -10,6 +10,7 @@ use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Store\Model\StoreManagerInterface;
+use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Helper\ApiData as apiData;
 use Paytrail\PaymentService\Helper\Data as paytrailHelper;
@@ -27,8 +28,9 @@ class ConfigProvider implements ConfigProviderInterface
     protected $methodCodes = [
         self::CODE,
     ];
-    protected $paytrailHelper;
     protected $apidata;
+
+    protected $checkoutExceptionLogger;
     /**
      * @var Session
      */
@@ -74,7 +76,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @throws LocalizedException
      */
     public function __construct(
-        paytrailHelper $paytrailHelper,
+        CheckoutExceptionLogger $checkoutExceptionLogger,
         apiData $apidata,
         PaymentHelper $paymentHelper,
         Session $checkoutSession,
@@ -85,7 +87,7 @@ class ConfigProvider implements ConfigProviderInterface
         Adapter $paytrailAdapter,
         LoggerInterface $log
     ) {
-        $this->paytrailHelper = $paytrailHelper;
+        $this->checkoutExceptionLogger = $checkoutExceptionLogger;
         $this->apidata = $apidata;
         $this->checkoutSession = $checkoutSession;
         $this->gatewayConfig = $gatewayConfig;
@@ -198,7 +200,7 @@ class ConfigProvider implements ConfigProviderInterface
                 'Error occurred during email refund: '
                 . $errorMsg
             );
-            $this->paytrailHelper->processError($errorMsg);
+            $this->checkoutExceptionLogger->processError($errorMsg);
         }
 
         return $response["data"];

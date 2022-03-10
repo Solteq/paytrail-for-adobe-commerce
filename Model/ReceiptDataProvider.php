@@ -20,10 +20,11 @@ use Magento\Sales\Model\Order\Payment\Transaction\Builder as transactionBuilder;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface as transactionBuilderInterface;
 use Magento\Sales\Model\Service\InvoiceService;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
+use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
+use Paytrail\PaymentService\Exceptions\TransactionSuccessException;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Gateway\Validator\ResponseValidator;
 use Paytrail\PaymentService\Helper\ApiData;
-use Paytrail\PaymentService\Helper\Data as paytrailHelper;
 use Paytrail\PaymentService\Setup\Recurring;
 use Psr\Log\LoggerInterface;
 
@@ -105,9 +106,9 @@ class ReceiptDataProvider
     protected $transactionFactory;
 
     /**
-     * @var paytrailHelper
+     * @var CheckoutExceptionLogger
      */
-    protected $paytrailHelper;
+    protected $checkoutExceptionLogger;
 
     /**
      * @var OrderInterface
@@ -171,10 +172,12 @@ class ReceiptDataProvider
      */
     protected $logger;
 
+    /**
+     * @var OrderReference
+     */
     private $orderReference;
 
     /**
-     * ReceiptDataProvider constructor.
      * @param Context $context
      * @param Session $session
      * @param TransactionRepositoryInterface $transactionRepository
@@ -189,12 +192,13 @@ class ReceiptDataProvider
      * @param InvoiceService $invoiceService
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      * @param TransactionFactory $transactionFactory
-     * @param paytrailHelper $paytrailHelper
+     * @param CheckoutExceptionLogger $checkoutExceptionLogger
      * @param OrderInterface $orderInterface
      * @param transactionBuilder $transactionBuilder
      * @param Config $gatewayConfig
      * @param ApiData $apiData
      * @param LoggerInterface $logger
+     * @param OrderReference $orderReference
      */
     public function __construct(
         Context $context,
@@ -211,7 +215,7 @@ class ReceiptDataProvider
         InvoiceService $invoiceService,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
         TransactionFactory $transactionFactory,
-        paytrailHelper $paytrailHelper,
+        CheckoutExceptionLogger $checkoutExceptionLogger,
         OrderInterface $orderInterface,
         transactionBuilder $transactionBuilder,
         Config $gatewayConfig,
@@ -234,7 +238,7 @@ class ReceiptDataProvider
         $this->invoiceService = $invoiceService;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
         $this->transactionFactory = $transactionFactory;
-        $this->paytrailHelper = $paytrailHelper;
+        $this->checkoutExceptionLogger = $checkoutExceptionLogger;
         $this->orderInterface = $orderInterface;
         $this->transactionBuilder = $transactionBuilder;
         $this->gatewayConfig = $gatewayConfig;
@@ -374,7 +378,7 @@ class ReceiptDataProvider
                     $this->currentOrder
                 )->save();
             } catch (\Exception $exception) {
-                $this->paytrailHelper->processError($exception->getMessage());
+                $this->checkoutExceptionLogger->processError($exception->getMessage());
             }
         }
     }
@@ -440,7 +444,7 @@ class ReceiptDataProvider
     {
         $order = $this->orderInterface->loadByIncrementId($this->orderIncrementalId);
         if (!$order->getId()) {
-            $this->paytrailHelper->processError('Order not found');
+            $this->checkoutExceptionLogger->processError('Order not found');
         }
         return $order;
     }
@@ -462,7 +466,7 @@ class ReceiptDataProvider
             $this->currentOrder->addCommentToStatusHistory(__('Order canceled. Failed to complete the payment.'));
             $this->orderRepositoryInterface->save($this->currentOrder);
             $this->orderManagementInterface->cancel($this->currentOrder->getId());
-            $this->paytrailHelper->processError(
+            $this->checkoutExceptionLogger->processError(
                 'Failed to complete the payment. Please try again or contact the customer service.'
             );
         }
@@ -482,7 +486,7 @@ class ReceiptDataProvider
                 $this->orderId
             );
         } catch (InputException $e) {
-            $this->paytrailHelper->processError($e->getMessage());
+            $this->checkoutExceptionLogger->processError($e->getMessage());
         }
 
         return $transaction;
@@ -495,7 +499,7 @@ class ReceiptDataProvider
     {
         $details = $transaction->getAdditionalInformation(Transaction::RAW_DETAILS);
         if (is_array($details)) {
-            $this->paytrailHelper->processSuccess();
+            throw new TransactionSuccessException(__('Success'));
         }
     }
 
@@ -508,7 +512,7 @@ class ReceiptDataProvider
         $transaction = $this->loadTransaction();
         if ($transaction) {
             $this->processExistingTransaction($transaction);
-            $this->paytrailHelper->processError('Payment failed');
+            $this->checkoutExceptionLogger->processError('Payment failed');
         }
         return true;
     }

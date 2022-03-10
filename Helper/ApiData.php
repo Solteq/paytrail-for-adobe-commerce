@@ -14,6 +14,7 @@ use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Store\Model\StoreManagerInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Magento\Tax\Helper\Data as TaxHelper;
+use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
 use Paytrail\PaymentService\Helper\Data as CheckoutHelper;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
@@ -115,6 +116,11 @@ class ApiData
     private $staticDataProvider;
 
     /**
+     * @var CheckoutExceptionLogger
+     */
+    private $checkoutExceptionLogger;
+
+    /**
      * @param LoggerInterface $log
      * @param UrlInterface $urlBuilder
      * @param RequestInterface $request
@@ -150,7 +156,8 @@ class ApiData
         \Paytrail\PaymentService\Model\Payment\DiscountSplitter $discountSplitter,
         \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem,
         OrderReference $orderReference,
-        StaticDataProvider $staticDataProvider
+        StaticDataProvider $staticDataProvider,
+        CheckoutExceptionLogger $checkoutExceptionLogger
     ) {
         $this->log = $log;
         $this->urlBuilder = $urlBuilder;
@@ -168,6 +175,7 @@ class ApiData
         $this->taxItems = $taxItem;
         $this->orderReference = $orderReference;
         $this->staticDataProvider = $staticDataProvider;
+        $this->checkoutExceptionLogger = $checkoutExceptionLogger;
     }
 
     /**
@@ -341,7 +349,7 @@ class ApiData
     protected function setRefundRequestData($paytrailRefund, $amount)
     {
         if ($amount <= 0) {
-            $this->helper->processError('Refund amount must be above 0');
+            $this->checkoutExceptionLogger->processError('Refund amount must be above 0');
         }
 
         $paytrailRefund->setAmount(round($amount * 100));
