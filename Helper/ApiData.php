@@ -15,7 +15,6 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Magento\Tax\Helper\Data as TaxHelper;
 use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
-use Paytrail\PaymentService\Helper\Data as CheckoutHelper;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
 use Paytrail\PaymentService\Model\OrderReference;
@@ -35,11 +34,6 @@ use Psr\Log\LoggerInterface;
  */
 class ApiData
 {
-    /**
-     * @var CheckoutHelper
-     */
-    private $helper;
-
     /**
      * @var PaytrailLogger
      */
@@ -127,7 +121,6 @@ class ApiData
      * @param Json $json
      * @param CountryInformationAcquirerInterface $countryInformationAcquirer
      * @param TaxHelper $taxHelper
-     * @param Data $helper
      * @param Config $resourceConfig
      * @param StoreManagerInterface $storeManager
      * @param Adapter $paytrailAdapter
@@ -138,6 +131,7 @@ class ApiData
      * @param \Magento\Sales\Model\ResourceModel\Order\Tax\Item $taxItem
      * @param OrderReference $orderReference
      * @param StaticDataProvider $staticDataProvider
+     * @param CheckoutExceptionLogger $checkoutExceptionLogger
      */
     public function __construct(
         LoggerInterface $log,
@@ -146,7 +140,6 @@ class ApiData
         Json $json,
         CountryInformationAcquirerInterface $countryInformationAcquirer,
         TaxHelper $taxHelper,
-        CheckoutHelper $helper,
         Config $resourceConfig,
         StoreManagerInterface $storeManager,
         Adapter $paytrailAdapter,
@@ -165,7 +158,6 @@ class ApiData
         $this->json = $json;
         $this->countryInfo = $countryInformationAcquirer;
         $this->taxHelper = $taxHelper;
-        $this->helper = $helper;
         $this->paytrailAdapter = $paytrailAdapter;
         $this->paymentRequest = $paymentRequest;
         $this->refundRequest = $refundRequest;
