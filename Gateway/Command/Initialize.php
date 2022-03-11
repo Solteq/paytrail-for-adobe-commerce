@@ -8,17 +8,12 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
-use Paytrail\PaymentService\Helper\Data;
 
 /**
  * Class Initialize
  */
 class Initialize implements CommandInterface
 {
-    /**
-     * @var Data $paytrailHelper
-     */
-    protected $paytrailHelper;
 
     /**
      * @var SubjectReader
@@ -26,16 +21,11 @@ class Initialize implements CommandInterface
     private $subjectReader;
 
     /**
-     * Initialize constructor.
-     *
-     * @param Data $paytrailHelper
      * @param SubjectReader $subjectReader
      */
     public function __construct(
-        Data $paytrailHelper,
         SubjectReader $subjectReader
     ) {
-        $this->paytrailHelper = $paytrailHelper;
         $this->subjectReader = $subjectReader;
     }
 

@@ -13,7 +13,6 @@ use Magento\Store\Model\StoreManagerInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutExceptionLogger;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Helper\ApiData as apiData;
-use Paytrail\PaymentService\Helper\Data as paytrailHelper;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
 use Psr\Log\LoggerInterface;
 
@@ -30,40 +29,48 @@ class ConfigProvider implements ConfigProviderInterface
     ];
     protected $apidata;
 
+    /**
+     * @var CheckoutExceptionLogger
+     */
     protected $checkoutExceptionLogger;
+
     /**
      * @var Session
      */
     protected $checkoutSession;
+
     /**
      * @var Config
      */
     private $gatewayConfig;
+
     /**
      * @var AssetRepository
      */
     private $assetRepository;
+
     /**
      * @var StoreManagerInterface
      */
     private $storeManager;
+
     /**
      * @var Resolver
      */
     private $localeResolver;
+
     /**
      * @var Adapter
      */
     private $paytrailAdapter;
+
     /**
      * @var LoggerInterface
      */
     private $log;
 
     /**
-     * ConfigProvider constructor
-     *
-     * @param paytrailHelper $paytrailHelper
+     * @param CheckoutExceptionLogger $checkoutExceptionLogger
      * @param apiData $apidata
      * @param PaymentHelper $paymentHelper
      * @param Session $checkoutSession

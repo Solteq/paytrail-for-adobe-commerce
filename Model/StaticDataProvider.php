@@ -10,6 +10,8 @@ use Magento\Framework\Locale\Resolver;
  */
 class StaticDataProvider
 {
+    const LOGO = 'payment/paytrail/logo';
+
     /**
      * @var Resolver
      */

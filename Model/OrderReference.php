@@ -3,14 +3,13 @@ declare(strict_types=1);
 
 namespace Paytrail\PaymentService\Model;
 
-use Magento\Framework\App\Helper\Context;
 use Magento\Sales\Model\Order;
 use Paytrail\PaymentService\Gateway\Config\Config;
 
 /**
  * OrderReference class
  */
-class OrderReference extends \Magento\Framework\App\Helper\AbstractHelper
+class OrderReference
 {
     /**
      * @var Config
@@ -21,11 +20,9 @@ class OrderReference extends \Magento\Framework\App\Helper\AbstractHelper
      * @param Config $gatewayConfig
      */
     public function __construct(
-        Context $context,
         Config $gatewayConfig
     ) {
         $this->gatewayConfig = $gatewayConfig;
-        parent::__construct($context);
     }
 
     /**

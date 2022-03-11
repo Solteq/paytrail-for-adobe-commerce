@@ -2,9 +2,9 @@
 namespace Paytrail\PaymentService\Block\Info;
 
 use Magento\Framework\View\Element\Template;
-use Paytrail\PaymentService\Helper\Data;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Magento\Store\Model\StoreManagerInterface;
+use Paytrail\PaymentService\Model\StaticDataProvider;
 
 /**
  * Class Paytrail
@@ -50,7 +50,7 @@ class Paytrail extends \Magento\Payment\Block\Info
     public function getPaytrailLogo()
     {
         return $this->_scopeConfig->getValue(
-            Data::LOGO,
+            StaticDataProvider::LOGO,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
