@@ -31,12 +31,10 @@ class CheckoutDataLogger
     }
 
     /**
-     * @param string $logType
-     * @param string $level
-     * @param mixed $data
-     *
-     * @deprecated implementation replaced by dedicated logger class
-     * @see \Paytrail\PaymentService\Logger\PaytrailLogger::logData
+     * @param $logType
+     * @param $level
+     * @param $data
+     * @return void
      */
     public function logCheckoutData($logType, $level, $data)
     {

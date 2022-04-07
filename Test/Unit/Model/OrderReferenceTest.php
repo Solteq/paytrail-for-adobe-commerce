@@ -3,10 +3,6 @@ declare(strict_types=1);
 
 namespace Paytrail\PaymentService\Test\Unit\Model;
 
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\HTTP\Header;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
-use Magento\Framework\Module\Manager;
 use Magento\Sales\Model\Order;
 use Paytrail\PaymentService\Gateway\Config\Config as GatewayConfig;
 use Paytrail\PaymentService\Model\OrderReference;
@@ -25,47 +21,10 @@ class OrderReferenceTest extends TestCase
 
     protected function setUp(): void
     {
-        $encoderMock = $this->getMockForAbstractClass(\Magento\Framework\Url\EncoderInterface::class);
-        $decoderMock = $this->getMockForAbstractClass(\Magento\Framework\Url\DecoderInterface::class);
-        $loggerMock = $this->getMockForAbstractClass(\Psr\Log\LoggerInterface::class);
-        $managerMock = new Manager(
-            $this->getMockForAbstractClass(\Magento\Framework\Module\Output\ConfigInterface::class),
-            $this->getMockForAbstractClass(\Magento\Framework\Module\ModuleListInterface::class)
-        );
-        $requestMock = $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class);
-        $configInterfaceMock = $this->getMockForAbstractClass(\Magento\Framework\Cache\ConfigInterface::class);
-        $managerInterfaceMock = $this->getMockForAbstractClass(\Magento\Framework\Event\ManagerInterface::class);
-        $urlMock = $this->getMockForAbstractClass(\Magento\Framework\UrlInterface::class);
-        $headerMock = new Header(
-            $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class),
-            $this->getMockForAbstractClass(\Magento\Framework\Stdlib\StringUtils::class)
-        );
-        $remoteMock = new RemoteAddress(
-            $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class)
-        );
-        $scopeConfigMock = $this->getMockForAbstractClass(\Magento\Framework\App\Config\ScopeConfigInterface::class);
-        $configMock = new GatewayConfig(
-            $this->getMockForAbstractClass(\Magento\Framework\App\Config\ScopeConfigInterface::class),
-            $this->getMockForAbstractClass(\Magento\Framework\Encryption\EncryptorInterface::class)
-        );
-
-        $contextMock = new Context(
-            $encoderMock,
-            $decoderMock,
-            $loggerMock,
-            $managerMock,
-            $requestMock,
-            $configInterfaceMock,
-            $managerInterfaceMock,
-            $urlMock,
-            $headerMock,
-            $remoteMock,
-            $scopeConfigMock
-        );
+        $configMock = $this->getMockBuilder(GatewayConfig::class)->disableOriginalConstructor()->getMock();
 
         /** @var \Paytrail\PaymentService\Model\OrderReference $orderReference */
         $this->orderReference = new OrderReference(
-            $contextMock,
             $configMock
         );
     }
