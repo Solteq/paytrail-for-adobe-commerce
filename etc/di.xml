@@ -1,18 +1,13 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
   <preference for="Paytrail\PaymentService\Api\RedirectInterface" type="Paytrail\PaymentService\Model\Redirect" />
+
+  <type name="Magento\Sales\Block\Adminhtml\Order\View">
+    <plugin name="paytrail_restore_order_button" type="Paytrail\PaymentService\Plugin\Magento\Sales\Block\Adminhtml\Order\ViewPlugin"/>
+  </type>
+
   <type name="Magento\Tax\Model\Config">
     <plugin name="paytrail_payment_service_tax_config_plugin" type="Paytrail\PaymentService\Plugin\Model\TaxConfigPlugin" sortOrder="1" disabled="false" />
-  </type>
-  <virtualType name="SalesOrderViewWidgetContext" type="\Magento\Backend\Block\Widget\Context">
-    <arguments>
-      <argument name="buttonList" xsi:type="object">Paytrail\PaymentService\Block\Adminhtml\Order\View\ButtonList</argument>
-    </arguments>
-  </virtualType>
-  <type name="Magento\Sales\Block\Adminhtml\Order\View">
-    <arguments>
-      <argument name="context" xsi:type="object">SalesOrderViewWidgetContext</argument>
-    </arguments>
   </type>
 
   <virtualType name="PaytrailAdapter" type="Magento\Payment\Model\Method\Adapter">
@@ -26,6 +21,17 @@
     </arguments>
   </virtualType>
 
+  <type name="Paytrail\PaymentService\Helper\ApiData">
+    <arguments>
+      <argument name="log" xsi:type="object">Paytrail\PaymentService\Logger\PaytrailLogger</argument>
+    </arguments>
+  </type>
+
+  <type name="Paytrail\PaymentService\Model\ReceiptDataProvider">
+    <arguments>
+      <argument name="logger" xsi:type="object">Paytrail\PaymentService\Logger\PaytrailLogger</argument>
+    </arguments>
+  </type>
 
   <virtualType name="PaytrailConfig" type="Magento\Payment\Gateway\Config\Config">
     <arguments>
@@ -85,31 +91,25 @@
     </arguments>
   </virtualType>
 
+  <!-- start log configuration -->
+  <type name="Paytrail\PaymentService\Logger\PaytrailLogger">
+    <arguments>
+      <argument name="handlers" xsi:type="array">
+        <item name="info" xsi:type="object">Paytrail\PaymentService\Logger\Request</item>
+        <item name="notice" xsi:type="object">Paytrail\PaymentService\Logger\Response</item>
+      </argument>
+    </arguments>
+  </type>
+
   <type name="Paytrail\PaymentService\Logger\Request\Request">
     <arguments>
       <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
-    </arguments>
-  </type>
-  <type name="Paytrail\PaymentService\Logger\Request\RequestLogger">
-    <arguments>
-      <argument name="name" xsi:type="string">Paytrail Request Logger</argument>
-      <argument name="handlers"  xsi:type="array">
-        <item name="debug" xsi:type="object">Paytrail\PaymentService\Logger\Request\Request</item>
-      </argument>
     </arguments>
   </type>
 
   <type name="Paytrail\PaymentService\Logger\Response\Response">
     <arguments>
       <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
-    </arguments>
-  </type>
-  <type name="Paytrail\PaymentService\Logger\Response\ResponseLogger">
-    <arguments>
-      <argument name="name" xsi:type="string">Paytrail Response Logger</argument>
-      <argument name="handlers"  xsi:type="array">
-        <item name="debug" xsi:type="object">Paytrail\PaymentService\Logger\Response\Response</item>
-      </argument>
     </arguments>
   </type>
 </config>
