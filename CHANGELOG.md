@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.2.0] - 2022-05-20
-- Changed Composer to support PHP versions 7.4+ and 8.0+ ("php": "^7.3|^8.0")
-- Changed SDK
+- Added support for PHP 8
+- Added dependency to Paytrail PHP SDK to version 2.0
 
 ## [1.1.2] - 2022-04-25
 Fixes:
