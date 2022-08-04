@@ -3,16 +3,17 @@
 namespace Paytrail\PaymentService\Model\Subscription;
 
 use Magento\Backend\Model\Session\Quote;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Model\AdminOrder\Create;
 use Magento\Sales\Model\Order\Reorder\UnavailableProductsProvider;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Magento\Vault\Model\PaymentTokenManagement;
 use Psr\Log\LoggerInterface;
-use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
 class OrderCloner
@@ -55,9 +56,13 @@ class OrderCloner
     private $cartRepositoryInterface;
 
     /**
+     * @var OrderItemRepositoryInterface
+     */
+    private $orderItemRepositoryInterface;
+
+    /**
      * @param CollectionFactory $orderCollection
      * @param UnavailableProductsProvider $unavailableProducts
-     * @param Create $orderCreate
      * @param Quote $quoteSession
      * @param JoinProcessorInterface $joinProcessor
      * @param QuoteManagement $quoteManagement
@@ -65,6 +70,8 @@ class OrderCloner
      * @param PaymentTokenManagement $paymentTokenManagement
      * @param SerializerInterface $serializer
      * @param CartRepositoryInterface $cartRepositoryInterface
+     * @param OrderItemRepositoryInterface $orderItemRepositoryInterface
+     * @param ProductRepositoryInterface $productRepositoryInterface
      */
     public function __construct(
         CollectionFactory $orderCollection,
@@ -75,7 +82,9 @@ class OrderCloner
         LoggerInterface $logger,
         PaymentTokenManagement $paymentTokenManagement,
         SerializerInterface  $serializer,
-        CartRepositoryInterface $cartRepositoryInterface
+        CartRepositoryInterface $cartRepositoryInterface,
+        OrderItemRepositoryInterface $orderItemRepositoryInterface,
+        ProductRepositoryInterface $productRepositoryInterface
     ) {
         $this->orderCollection = $orderCollection;
         $this->unavailableProducts = $unavailableProducts;
@@ -86,6 +95,8 @@ class OrderCloner
         $this->paymentTokenManagement = $paymentTokenManagement;
         $this->serializer = $serializer;
         $this->cartRepositoryInterface = $cartRepositoryInterface;
+        $this->orderItemRepositoryInterface = $orderItemRepositoryInterface;
+        $this->productRepositoryInterface = $productRepositoryInterface;
     }
 
     /**
@@ -137,6 +148,14 @@ class OrderCloner
         $oldOrder->setData('reordered', true);
 
         $quote = $this->getQuote($oldOrder);
+
+        // adding original_price to item quote
+        $oldItemIds = array_keys($oldOrder->getItems());
+        $i = 0;
+        foreach ($quote->getItemsCollection()->getItems() as $item) {
+            $item->setData('original_price', $this->orderItemRepositoryInterface->get($oldItemIds[$i])->getOriginalPrice());
+            $i++;
+        }
 
         return $this->quoteManagement->submit($quote);
     }
