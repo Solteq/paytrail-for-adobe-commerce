@@ -1,6 +1,6 @@
 <?php
 
-use Magento\Sales\Api\Data\OrderInterfaceFactory;
+use Magento\Sales\Model\OrderFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\Workaround\Override\Fixture\Resolver;
 
@@ -20,7 +20,7 @@ $subscriptionLinkRepo = $objectManager->create(\Paytrail\PaymentService\Api\Subs
 
 $collection = $objectManager->create(\Magento\Sales\Model\ResourceModel\Order\Collection::class);
 $collection->addFieldToFilter('customer_id', ['eq' => 1]); // customer_order fixture uses hardcoded customer id 1
-$order = $objectManager->get(OrderInterfaceFactory::class)->create()->loadByIncrementId('55555555');
+$order = $objectManager->get(OrderFactory::class)->create()->loadByIncrementId('55555555');
 $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
 $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
 $order->save();
