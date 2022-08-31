@@ -153,8 +153,7 @@ class Index implements HttpPostActionInterface
                 }
 
                 /** @var Order $order */
-                $order = $this->orderFactory->create();
-                $order = $order->loadByIncrementId(
+                $order = $this->orderFactory->create()->loadByIncrementId(
                     $this->checkoutSession->getLastRealOrderId()
                 );
 
