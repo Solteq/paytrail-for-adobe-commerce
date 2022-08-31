@@ -9,6 +9,7 @@ use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\OrderFactory;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Gateway\Validator\ResponseValidator;
 use Paytrail\PaymentService\Helper\Data;
@@ -58,6 +59,8 @@ class Index implements HttpGetActionInterface
      * @var Data
      */
     private $paytrailHelper;
+
+    private $orderFactory;
     private RequestInterface $request;
     private Context $context;
     private RedirectFactory $redirectFactory;
@@ -88,6 +91,7 @@ class Index implements HttpGetActionInterface
         ProcessPayment $processPayment,
         Config $gatewayConfig,
         Data $paytrailHelper,
+        OrderFactory $orderFactory,
         RequestInterface $request,
         RedirectFactory $redirectFactory,
         ManagerInterface $messageManager
@@ -100,6 +104,7 @@ class Index implements HttpGetActionInterface
         $this->processPayment = $processPayment;
         $this->gatewayConfig = $gatewayConfig;
         $this->paytrailHelper = $paytrailHelper;
+        $this->orderFactory = $orderFactory;
         $this->request = $request;
         $this->context = $context;
         $this->redirectFactory = $redirectFactory;
@@ -127,7 +132,7 @@ class Index implements HttpGetActionInterface
             : $reference;
 
         /** @var \Magento\Sales\Model\Order $order */
-        $order = $this->orderInterface->loadByIncrementId($orderNo);
+        $order = $this->orderFactory->create()->loadByIncrementId($orderNo);
 
         sleep(2); //giving callback time to get processed
 
@@ -143,7 +148,7 @@ class Index implements HttpGetActionInterface
         }
 
         if ($status == 'pending_payment') { // status could be changed by callback, if not, it needs to be forced
-            $order = $this->orderInterface->loadByIncrementId($orderNo); // refreshing order
+            $order = $this->orderFactory->create()->loadByIncrementId($orderNo); //refreshing order
             $status = $order->getStatus(); // getting current status
         }
 
