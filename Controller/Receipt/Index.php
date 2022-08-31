@@ -59,7 +59,9 @@ class Index implements HttpGetActionInterface
      * @var Data
      */
     private $paytrailHelper;
-
+    /**
+     * @var OrderFactory
+     */
     private $orderFactory;
     private RequestInterface $request;
     private Context $context;
@@ -77,6 +79,7 @@ class Index implements HttpGetActionInterface
      * @param ProcessPayment $processPayment
      * @param Config $gatewayConfig
      * @param Data $paytrailHelper
+     * @param OrderFactory $orderFactory
      * @param RequestInterface $request
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager

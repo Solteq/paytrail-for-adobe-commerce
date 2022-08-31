@@ -203,7 +203,8 @@ class ReceiptDataProvider
      * @param ApiData $apiData
      * @param LoggerInterface $logger
      * @param UrlInterface $backendUrl
-     * @param bool $skipHmac
+     * @param OrderFactory $orderFactory
+     * @param $skipHmac
      */
     public function __construct(
         Context $context,
