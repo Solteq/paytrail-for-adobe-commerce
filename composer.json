@@ -20,6 +20,9 @@
     "paytrail/paytrail-php-sdk": "2.3.*",
     "ext-curl": "*"
   },
+  "require-dev": {
+    "magento/magento-coding-standard": "*"
+  },
   "conflict": {
     "markup/module-paytrail": "*"
   },
