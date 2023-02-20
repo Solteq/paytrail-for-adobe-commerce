@@ -1,9 +1,7 @@
 name: Run code validation checks
 on:
-  push:
-    branches: [ master, staging ]
-  pull_request:
-    branches: [ master, staging ]
+  - push
+  - pull_request
 
 jobs:
   coding-standard-validation:
