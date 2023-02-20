@@ -1,0 +1,45 @@
+name: Run code validation checks
+on:
+  push:
+    branches: [ master, staging ]
+  pull_request:
+    branches: [ master, staging ]
+
+jobs:
+  coding-standard-validation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php-version:
+          - "8.1"
+        dependencies:
+          - "lowest"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          ini-file: development
+
+      - name: Validate Composer Files
+        run: composer validate
+
+      - name: Run Composer install
+        uses: "ramsey/composer-install@v1"
+        with:
+          dependency-versions: "${{ matrix.dependencies }}"
+          composer-options: "${{ matrix.composer-options }}"
+
+      - name: Configure coding standard
+        run: vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/
+
+      - name: Run code style suite
+        run: vendor/bin/phpcs --standard=Magento2 Magento2/Helpers Magento2/Sniffs Magento2/Rector Magento2Framework/Sniffs
+
+      - name: Run framework suite
+        run: vendor/bin/phpcs --standard=Magento2Framework Magento2/Helpers Magento2/Sniffs Magento2/Rector Magento2Framework/Sniffs
