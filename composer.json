@@ -38,6 +38,12 @@
       "Paytrail\\PaymentService\\": ""
     }
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
+    }
+  ],
   "keywords": [
     "magento 2",
     "adobe commerce",
