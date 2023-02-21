@@ -22,7 +22,8 @@
     "ext-curl": "*"
   },
   "require-dev": {
-    "magento/magento-coding-standard": "*"
+    "magento/magento-coding-standard": "*",
+    "phpmd/phpmd": "^2.12.0"
   },
   "conflict": {
     "markup/module-paytrail": "*"

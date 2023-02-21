@@ -4,10 +4,7 @@ on:
   pull_request:
     types:
       - opened
-  push:
-    branches:
-      - master
-      - SQMAGOPC-447-validation-setup
+      - edited
 
 jobs:
   changed-files:
@@ -113,7 +110,10 @@ jobs:
           dependency-versions: "${{ matrix.dependencies }}"
           composer-options: "${{ matrix.composer-options }}"
 
-      - name: Detect PHP coding standard violations
+      - name: Detect PhpCs violations
         run: |
           vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/,../../phpcompatibility/php-compatibility 
           vendor/bin/phpcs --standard=Magento2 -q --report=checkstyle ${{needs.changed-files.outputs.php}} | cs2pr --graceful-warnings
+
+      - name: Detect PhpMd violations
+        run: vendor/bin/phpmd ${{needs.changed-files.outputs.php}} checkstyle dev/tests/static/testsuite/Magento/Test/Php/_files/phpmd/ruleset.xml | cs2pr --graceful-warnings
