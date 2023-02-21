@@ -148,7 +148,7 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * Create payment page styles from the values entered in Paytrail configuration.
      *
-     * @param $storeId
+     * @param int $storeId
      * @return string
      */
     protected function wrapPaymentMethodStyles($storeId)
