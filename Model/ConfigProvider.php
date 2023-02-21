@@ -207,7 +207,7 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * Create array for payment providers and groups containing unique method id
      *
-     * @param $responseData
+     * @param array $responseData
      * @return array
      */
     protected function handlePaymentProviderGroupData($responseData)
@@ -233,8 +233,8 @@ class ConfigProvider implements ConfigProviderInterface
     /**
      * Add payment method data to group
      *
-     * @param $responseData
-     * @param $groupId
+     * @param array $responseData
+     * @param int $groupId
      * @return array
      */
     protected function addProviderDataToGroup($responseData, $groupId)
