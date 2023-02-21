@@ -54,7 +54,4 @@ jobs:
         run: vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/
 
       - name: Run code style suite
-        run: vendor/bin/phpcs --standard=Magento2 Magento2/Helpers Magento2/Sniffs Magento2/Rector Magento2Framework/Sniffs
-
-      - name: Run framework suite
-        run: vendor/bin/phpcs --standard=Magento2Framework Magento2/Helpers Magento2/Sniffs Magento2/Rector Magento2Framework/Sniffs
+        run: vendor/bin/phpcs -q --report=checkstyle # TODO add cs2pr
