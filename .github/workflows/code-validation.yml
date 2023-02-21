@@ -30,7 +30,7 @@ on:
   push:
     branches:
       - master
-      - SQMAGOPC-447
+      - SQMAGOPC-447-validation-setup
 
 jobs:
   changed-files:
