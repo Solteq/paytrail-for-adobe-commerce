@@ -39,7 +39,7 @@ jobs:
     name: Gather Changelist
 
     outputs:
-      all: ${{ steps.changes.outputs.all}}
+      all: ${{ steps.changes.outputs.all }}
       php: ${{ steps.changes.outputs.php }}
 
     steps:
@@ -52,14 +52,18 @@ jobs:
         id: changes
         run: |
           BASE_SHA="${{ github.event.before }}"
+
           if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
             BASE_SHA="${{ inputs.base-branch }}"
           fi
+    
           if [[ ! -z "${{ github.event.pull_request.base.sha }}" ]]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
           fi
+          
           echo "all=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
           echo "php=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs)" >> $GITHUB_OUTPUT
+          echo "js=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep .js$ | xargs)" >> $GITHUB_OUTPUT
 
   validate-php:
     runs-on: ubuntu-latest
