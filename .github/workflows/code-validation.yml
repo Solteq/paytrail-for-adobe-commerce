@@ -1,27 +1,6 @@
 name: Run code validation checks
+
 on:
-  workflow_call:
-    inputs:
-      fetch-depth:
-        type: number
-        required: false
-        default: 2
-        description: "Number of code revisions to check out (\"0\" for all)"
-      base-branch:
-        type: string
-        required: false
-        default: master
-        description: "Base Git branch (i.e. \"develop\" or \"main\")"
-      php-version:
-        type: string
-        required: false
-        default: 8.1
-        description: "Version of PHP to use for running PHP checks"
-      node-version:
-        type: string
-        required: false
-        default: 16
-        description: "Version of Node.js to use"
   pull_request:
     types:
       - opened
@@ -36,6 +15,11 @@ jobs:
 
     name: Gather Changelist
 
+    strategy:
+      matrix:
+        fetch-depth: 2
+        base-branch: "master"
+
     outputs:
       all: ${{ steps.changes.outputs.all }}
       php: ${{ steps.changes.outputs.php }}
@@ -44,7 +28,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          fetch-depth: ${{ inputs.fetch-depth }}
+          fetch-depth: ${{ matrix.fetch-depth }}
 
       - name: Get changed files
         id: changes
@@ -52,7 +36,7 @@ jobs:
           BASE_SHA="${{ github.event.before }}"
 
           if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BASE_SHA="${{ inputs.base-branch }}"
+            BASE_SHA="${{ matrix.base-branch }}"
           fi
     
           if [[ ! -z "${{ github.event.pull_request.base.sha }}" ]]; then
@@ -61,7 +45,6 @@ jobs:
           
           echo "all=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
           echo "php=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs)" >> $GITHUB_OUTPUT
-          echo "js=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep .js$ | xargs)" >> $GITHUB_OUTPUT
 
   validate-php:
     runs-on: ubuntu-latest
@@ -74,6 +57,8 @@ jobs:
 
     strategy:
       matrix:
+        node-version: 16
+        php-version: 8.1
         dependencies:
           - "highest"
         composer-options:
@@ -83,7 +68,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ inputs.node_version }}
+          node-version: ${{ matrix.node_version }}
 
       - name: Check out code
         uses: actions/checkout@v3
@@ -91,7 +76,7 @@ jobs:
       - name: Setup Php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ inputs.php-version }}
+          php-version: ${{ matrix.php-version }}
           ini-file: development
           tools: composer:2.2, cs2pr
         env:
