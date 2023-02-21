@@ -149,6 +149,8 @@ class Data
     }
 
     /**
+     * Get or Calculate order reference number
+     *
      * @param Order $order
      * @return string reference number
      */

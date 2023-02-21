@@ -66,8 +66,7 @@ jobs:
         dependencies:
           - "highest"
         composer-options:
-          - "--no-plugins"
-          - "--no-progress"
+          - "--no-plugins --no-progress"
     steps:
       - name: Setup node
         uses: actions/setup-node@v2
