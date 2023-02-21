@@ -29,7 +29,15 @@ jobs:
           php-version: ${{ matrix.php-version }}
           ini-file: development
         env:
-          COMPOSER_TOKEN: ${{ secrets.COMPOSER_TOKEN }}
+          COMPOSER_AUTH_JSON: |
+            {
+              "http-basic": {
+                "repo.magento.com": {
+                  "username": "${{ secrets.REPO_MAGENTO_USER }}",
+                  "password": "${{ secrets.REPO_MAGENTO_PASSWORD }}"
+                }
+              }
+            }
 
       - name: Validate Composer Files
         run: composer validate
