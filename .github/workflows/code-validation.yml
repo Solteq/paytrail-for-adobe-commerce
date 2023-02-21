@@ -113,8 +113,7 @@ jobs:
           dependency-versions: "${{ matrix.dependencies }}"
           composer-options: "${{ matrix.composer-options }}"
 
-      - name: Configure coding standard
-        run: vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/
-
       - name: Detect PHP coding standard violations
-        run: vendor/bin/phpcs -q --report=checkstyle ${{needs.changed-files.outputs.php}} | cs2pr --graceful-warnings
+        run: |
+          vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/
+          vendor/bin/phpcs --standard=Magento2 -q --report=checkstyle ${{needs.changed-files.outputs.php}} | cs2pr --graceful-warnings
