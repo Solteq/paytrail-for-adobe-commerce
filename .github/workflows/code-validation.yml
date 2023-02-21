@@ -28,6 +28,8 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           ini-file: development
+        env:
+          COMPOSER_TOKEN: ${{ secrets.COMPOSER_TOKEN }}
 
       - name: Validate Composer Files
         run: composer validate
