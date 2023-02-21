@@ -22,11 +22,9 @@ on:
         required: false
         default: 16
         description: "Version of Node.js to use"
-
   pull_request:
     types:
       - opened
-
   push:
     branches:
       - master
