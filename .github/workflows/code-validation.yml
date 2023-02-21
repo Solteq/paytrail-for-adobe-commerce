@@ -115,5 +115,5 @@ jobs:
 
       - name: Detect PHP coding standard violations
         run: |
-          vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/
+          vendor/bin/phpcs --config-set installed_paths ../../magento/magento-coding-standard/,../../phpcompatibility/php-compatibility 
           vendor/bin/phpcs --standard=Magento2 -q --report=checkstyle ${{needs.changed-files.outputs.php}} | cs2pr --graceful-warnings
