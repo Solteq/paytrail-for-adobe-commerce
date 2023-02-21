@@ -78,6 +78,7 @@ class Data
 
     /**
      * Calculate Finnish reference number from order increment id
+     *
      * @param string $incrementId
      * @return string
      */
