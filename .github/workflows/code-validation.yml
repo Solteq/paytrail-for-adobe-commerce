@@ -22,6 +22,7 @@ jobs:
     outputs:
       all: ${{ steps.changes.outputs.all }}
       php: ${{ steps.changes.outputs.php }}
+      phpmd: ${{ steps.changes.outputs.phpmd }}
 
     steps:
       - name: Check out code
@@ -44,6 +45,7 @@ jobs:
           
           echo "all=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
           echo "php=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs)" >> $GITHUB_OUTPUT
+          echo "phpmd=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs | sed 's/ /,/g')" >> $GITHUB_OUTPUT
 
   validate-php:
     runs-on: ubuntu-latest
@@ -116,4 +118,4 @@ jobs:
           vendor/bin/phpcs --standard=Magento2 -q --report=checkstyle ${{needs.changed-files.outputs.php}} | cs2pr --graceful-warnings
 
       - name: Detect PhpMd violations
-        run: vendor/bin/phpmd ${{needs.changed-files.outputs.php}} checkstyle dev/tests/static/testsuite/Magento/Test/Php/_files/phpmd/ruleset.xml | cs2pr --graceful-warnings
+        run: vendor/bin/phpmd ${{needs.changed-files.outputs.phpmd}} checkstyle dev/tests/static/testsuite/Magento/Test/Php/_files/phpmd/ruleset.xml | cs2pr --graceful-warnings
