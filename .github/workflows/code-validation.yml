@@ -2,9 +2,6 @@ name: Run code validation checks
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
 
 jobs:
   changed-files:
@@ -92,17 +89,6 @@ jobs:
 
       - name: Validate Composer Files
         run: composer validate
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Set up cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
 
       - name: Run Composer install
         uses: "ramsey/composer-install@v1"
