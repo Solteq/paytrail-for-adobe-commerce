@@ -260,7 +260,7 @@ class RequestData
             $itemSum += floatval($orderItem->getUnitPrice() * $orderItem->getUnits());
             $itemQty += $orderItem->getUnits();
         }
-
+      
         return $items;
     }
 
