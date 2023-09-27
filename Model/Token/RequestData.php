@@ -264,6 +264,10 @@ class RequestData
         if ($itemSum != $orderTotal) {
             $diffValue = (int) abs($itemSum - $orderTotal);
 
+            if (fmod((float)$order->getTotalQtyOrdered(), 1) !== 0.00) {
+                throw new LocalizedException(__('Decimal quantities are not supported'));
+            }
+
             if ($diffValue > $itemQty) {
                 throw new LocalizedException(__('Difference in rounding the prices is too big'));
             }
