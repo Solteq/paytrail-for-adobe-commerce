@@ -2,61 +2,26 @@ name: Run Paytrail Unit Tests
 
 on:
   pull_request:
+    branches:
+      - staging
+      - master
 
 jobs:
-  changed-files:
-    runs-on: ubuntu-latest
-
-    name: Gather Changelist
-
-    strategy:
-      matrix:
-        fetch-depth:
-          - 2
-        base-branch:
-          - "master"
-
-    outputs:
-      all: ${{ steps.changes.outputs.all }}
-      php: ${{ steps.changes.outputs.php }}
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: ${{ matrix.fetch-depth }}
-
-      - name: Get changed files
-        id: changes
-        run: |
-          BASE_SHA="${{ github.event.before }}"
-
-          if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BASE_SHA="${{ matrix.base-branch }}"
-          fi
-
-          if [[ ! -z "${{ github.event.pull_request.base.sha }}" ]]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          fi
-
-          echo "all=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
-          echo "php=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs)" >> $GITHUB_OUTPUT
-
-  validate-php:
+  phpunit-test:
     runs-on: ubuntu-latest
 
     name: Run php code validation
-
-    needs: changed-files
-
-    if: ${{needs.changed-files.outputs.php}}
 
     strategy:
       matrix:
         node-version:
           - 16
         php-version:
-          - 7.4
+          [
+            7.4,
+            8.1,
+            8.2,
+          ]
         dependencies:
           - "highest"
         composer-options:
@@ -70,12 +35,12 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Setup Php
+      - name: Setup Php ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           ini-file: development
-          tools: composer:2.2, cs2pr
+          tools: composer:2.2, cs2pr, phpunit
         env:
           COMPOSER_AUTH_JSON: |
             {
@@ -96,6 +61,6 @@ jobs:
           dependency-versions: "${{ matrix.dependencies }}"
           composer-options: "${{ matrix.composer-options }}"
 
-      - name: Detect PhpCs violations
+      - name: Run Unit test
         run: |
-          vendor/bin/phpunit app/code/Paytrail/PaymentService/Tests/unit/Model/
+          vendor/bin/phpunit Tests/unit/Model/
