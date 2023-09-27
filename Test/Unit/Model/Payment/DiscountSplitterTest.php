@@ -131,7 +131,7 @@ class DiscountSplitterTest extends TestCase
         return $items;
     }
 
-    public function processDataProvider()
+    public static function processDataProvider()
     {
         // expectations are calculated using following formula
         // expectation = productPrice - (discountAmount * (productPrice * amount / orderTotal) / productAmount)
