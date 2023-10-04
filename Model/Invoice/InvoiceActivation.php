@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Paytrail\PaymentService\Model\Invoice;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Paytrail\PaymentService\Model\ConfigProvider;
 
 /**
  * Class InvoiceActivate
@@ -28,15 +31,22 @@ class InvoiceActivation
     private array $activationOverride;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param string[] $activationOverride
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
+        OrderRepositoryInterface $orderRepository,
         array $activationOverride = []
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->activationOverride = $activationOverride;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -78,5 +88,23 @@ class InvoiceActivation
     private function getInvoiceMethods(): array
     {
         return array_merge(self::SUB_METHODS_WITH_MANUAL_ACTIVATION_SUPPORT, $this->activationOverride);
+    }
+
+    /**
+     * Process order when response status='ok'.
+     *
+     * @param string $responseStatus
+     * @param Order $order
+     * @return void
+     */
+    public function processInvoiceActivationResponse($responseStatus, $order)
+    {
+        if ($responseStatus === 'ok') {
+            $order->setState(Order::STATE_COMPLETE);
+            $order->setStatus(Order::STATE_COMPLETE);
+            $order->setTotalPaid($order->getGrandTotal());
+            $order->addCommentToStatusHistory(__('Payment has been completed'));
+            $this->orderRepository->save($order);
+        }
     }
 }

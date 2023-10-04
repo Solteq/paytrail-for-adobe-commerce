@@ -312,6 +312,7 @@ class ApiData
                 );
             } elseif ($requestType === 'invoice_activation') {
                 $response["data"] = $paytrailClient->activateInvoice($transactionId);
+                $this->invoiceActivate->processInvoiceActivationResponse($response['data']->getStatus(), $order);
                 $this->log->debugLog(
                     'response',
                     'Successful response for invoice activation'
