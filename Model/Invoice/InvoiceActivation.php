@@ -121,8 +121,7 @@ class InvoiceActivation
             }
             $order->setState(Order::STATE_COMPLETE);
             $order->setStatus(Order::STATE_COMPLETE);
-            $order->setTotalPaid($order->getGrandTotal());
-            $order->addCommentToStatusHistory(__('Invoice has been created and activated.'));
+            $order->addCommentToStatusHistory(__('Invoice has been created and activated.555555'));
             $this->orderRepository->save($order);
         }
     }
