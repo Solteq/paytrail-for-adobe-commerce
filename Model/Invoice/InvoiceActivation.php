@@ -7,6 +7,8 @@ namespace Paytrail\PaymentService\Model\Invoice;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Service\InvoiceService;
 use Paytrail\PaymentService\Model\ConfigProvider;
 
 /**
@@ -36,17 +38,28 @@ class InvoiceActivation
     private $orderRepository;
 
     /**
+     * @var InvoiceService
+     */
+    private $invoiceService;
+
+    /**
+     * InvoiceActivation constructor.
+     *
      * @param ScopeConfigInterface $scopeConfig
-     * @param string[] $activationOverride
+     * @param OrderRepositoryInterface $orderRepository
+     * @param InvoiceService $invoiceService
+     * @param array $activationOverride
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         OrderRepositoryInterface $orderRepository,
+        InvoiceService $invoiceService,
         array $activationOverride = []
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->activationOverride = $activationOverride;
         $this->orderRepository = $orderRepository;
+        $this->invoiceService = $invoiceService;
     }
 
     /**
@@ -100,10 +113,16 @@ class InvoiceActivation
     public function processInvoiceActivationResponse($responseStatus, $order)
     {
         if ($responseStatus === 'ok') {
+            if ($order->canInvoice()) {
+                $invoice = $this->invoiceService->prepareInvoice($order);
+                $invoice->register();
+                $invoice->setState(Invoice::STATE_PAID);
+                $invoice->save();
+            }
             $order->setState(Order::STATE_COMPLETE);
             $order->setStatus(Order::STATE_COMPLETE);
             $order->setTotalPaid($order->getGrandTotal());
-            $order->addCommentToStatusHistory(__('Payment has been completed'));
+            $order->addCommentToStatusHistory(__('Invoice has been created and activated.'));
             $this->orderRepository->save($order);
         }
     }
