@@ -67,7 +67,7 @@ class ReceiptIndexUnitTest extends TestCase
         $this->orderMock = $this->getSimpleMock(Order::class);
     }
 
-    public function testExecute()
+    public function testExecuteSuccess()
     {
         $this->requestMock
             ->expects($this->atLeast(1))
@@ -83,6 +83,41 @@ class ReceiptIndexUnitTest extends TestCase
             ->expects($this->once())
             ->method('getStatus')
             ->willReturn('processing');
+
+        $this->resultFactoryMock
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($this->resultInterfaceMock);
+
+        $this->resultInterfaceMock
+            ->method('setPath')
+            ->willReturn($this->resultInterfaceMock);
+
+        $this->indexController->execute();
+    }
+
+    public function testExecuteFail()
+    {
+        $this->requestMock
+            ->expects($this->atLeast(1))
+            ->method('getParam')
+            ->willReturn('checkout-reference');
+
+        $this->referenceNumberMock
+            ->expects($this->once())
+            ->method('getOrderByReference')
+            ->willReturn($this->orderMock);
+
+        $this->orderMock
+            ->expects($this->once())
+            ->method('getStatus')
+            ->willReturn('canceled');
+
+        $failMessage = ['failMessage'];
+
+        $this->processPaymentMock
+            ->method('process')
+            ->willReturn($failMessage);
 
         $this->resultFactoryMock
             ->expects($this->once())
