@@ -120,7 +120,7 @@ class RedirectIndexUnitTest extends TestCase
     /**
      * @return void
      */
-    public function testExecuteFailed(): void
+    public function testExecuteFail(): void
     {
         $this->requestMock
             ->expects($this->atLeast(1))
@@ -134,6 +134,20 @@ class RedirectIndexUnitTest extends TestCase
 
         $this->expectException(\Error::class);
         $this->expectExceptionMessage(__('Call to a member function executeByCode() on null'));
+        $this->redirectIndex->execute();
+    }
+
+    public function testExecuteAjaxRequestFail(): void
+    {
+        $this->requestMock
+            ->expects($this->atLeast(1))
+            ->method('getParam')
+            ->willReturn('false');
+
+        $this->loggerMock
+            ->method('error');
+
+        $this->expectException(\Error::class);
         $this->redirectIndex->execute();
     }
 }
