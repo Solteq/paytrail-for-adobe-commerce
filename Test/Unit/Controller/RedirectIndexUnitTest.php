@@ -1,5 +1,6 @@
 <?php
 
+namespace Paytrail\PaymentService\Test\Unit\Controller;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
@@ -14,7 +15,6 @@ use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Model\Email\Order\PendingOrderEmailConfirmation;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
 use PHPUnit\Framework\TestCase;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Psr\Log\LoggerInterface;
 
 class RedirectIndexUnitTest extends TestCase
@@ -74,7 +74,14 @@ class RedirectIndexUnitTest extends TestCase
      */
     private $redirectIndex;
 
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject
+     */
     private $jsonMock;
+
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject
+     */
     private $orderFactoryMock;
 
     private function getSimpleMock($originalClassName)
@@ -137,6 +144,9 @@ class RedirectIndexUnitTest extends TestCase
         $this->redirectIndex->execute();
     }
 
+    /**
+     * @return void
+     */
     public function testExecuteAjaxRequestFail(): void
     {
         $this->requestMock
