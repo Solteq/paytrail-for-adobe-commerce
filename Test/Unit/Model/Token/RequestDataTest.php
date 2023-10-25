@@ -89,13 +89,29 @@ class RequestDataTest extends TestCase
     {
         $this->prepareRequestDataMock($input);
 
-        $order = $this->objectManager->getObject(Order::class);
-        $order->setData($input['order']);
-        $order->setData('gift_cards_amount', $discounts['giftcard']);
-        $order->setData('grand_total', $expected['total']);
+
+        /** Mock Order */
+        //Add a magic method to the list of mocked class methods
+        $orderMethods = \array_merge(
+            \get_class_methods(Order::class),
+            ['getGiftCardsAmount']
+        );
+
+        $order = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->setMethods($orderMethods)->getMock();
 
         $items = $this->prepareOrderItemsMock($input['items']);
         $order->setItems($items);
+        $order->method('getAllItems')->willReturn(
+            $items
+        );
+        $order->setData($input['order']);
+        $order->method('getShippingAmount')->willReturn($input['order']['shipping_amount']);
+        $order->method('getGrandTotal')->willReturn($expected['total']);
+        $order->method('getShippingTaxAmount')->willReturn($input['order']['shipping_tax_amount']);
+        $order->method('getGiftCardsAmount')->willReturn($discounts['giftcard']);
+
 
         $paytrailItems = $this->requestDataObject->getOrderItemLines($order);
 
@@ -112,7 +128,7 @@ class RequestDataTest extends TestCase
     public static function itemArgsDataProvider(): array
     {
         $cases = [
-            '#1 discount 10.00, giftcard 10.00'  => [
+            '#1 discount 10.00, giftcard 10.00'   => [
                 'price'          => 100,
                 'qty'            => 3,
                 'discount'       => 10.00,
@@ -121,16 +137,16 @@ class RequestDataTest extends TestCase
                 'shipping_tax'   => 1,
                 'expected_total' => 294.90,
             ],
-            '#2 discount 10.00 , giftcard 0'     => [
-                'price'        => 100,
-                'qty'          => 3,
-                'discount'     => 10.00,
-                'giftcard'     => 0.00,
-                'discount_tax' => 1,
-                'shipping_tax' => 1,
+            '#2 discount 10.00 , giftcard 0'      => [
+                'price'          => 100,
+                'qty'            => 3,
+                'discount'       => 10.00,
+                'giftcard'       => 0.00,
+                'discount_tax'   => 1,
+                'shipping_tax'   => 1,
                 'expected_total' => 304.90,
             ],
-            '#3 discount 10.00 , giftcard 0 '    => [
+            '#3 discount 10.00 , giftcard 0 '     => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 0.00,
@@ -138,7 +154,7 @@ class RequestDataTest extends TestCase
                 'discount_tax' => 1,
                 'shipping_tax' => 1,
             ],
-            '#4 discount 0 , giftcard 0'         => [
+            '#4 discount 0 , giftcard 0'          => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 0.00,
@@ -146,17 +162,17 @@ class RequestDataTest extends TestCase
                 'discount_tax' => 1,
                 'shipping_tax' => 1,
             ],
-            '#5 discount 10.01 , giftcard 0'     => [
-                'price'        => 124,
-                'qty'          => 3,
-                'discount'     => 10.00,
-                'giftcard'     => 0,
+            '#5 discount 10.01 , giftcard 0'      => [
+                'price'                      => 124,
+                'qty'                        => 3,
+                'discount'                   => 10.00,
+                'giftcard'                   => 0,
                 'catalog_price_includes_tax' => 0,
-                'discount_tax' => 1,
-                'shipping_tax' => 1,
-                'expected_total' => 374.50,
+                'discount_tax'               => 1,
+                'shipping_tax'               => 1,
+                'expected_total'             => 374.50,
             ],
-            '#6 discount 10.01 , giftcard 10.01' => [
+            '#6 discount 10.01 , giftcard 10.01'  => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 10.01,
@@ -164,7 +180,7 @@ class RequestDataTest extends TestCase
                 'discount_tax' => 1,
                 'shipping_tax' => 1,
             ],
-            '#7 discount 0 , giftcard 10.01'     => [
+            '#7 discount 0 , giftcard 10.01'      => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 0,
@@ -172,7 +188,7 @@ class RequestDataTest extends TestCase
                 'discount_tax' => 1,
                 'shipping_tax' => 1,
             ],
-            '#8 discount 0 , giftcard 10.01'     => [
+            '#8 discount 0 , giftcard 10.01'      => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 10.00,
@@ -180,7 +196,7 @@ class RequestDataTest extends TestCase
                 'discount_tax' => 0,
                 'shipping_tax' => 1,
             ],
-            '#9 discount 10.01 , giftcard 10.01' => [
+            '#9 discount 10.01 , giftcard 10.01'  => [
                 'price'        => 100,
                 'qty'          => 3,
                 'discount'     => 10.01,
@@ -207,8 +223,8 @@ class RequestDataTest extends TestCase
             $result[$key]    = [
                 'input'     => [
                     'config'   => [
-                        'discount_tax' => $case['discount_tax'],
-                        'shipping_tax' => $case['shipping_tax'],
+                        'discount_tax'               => $case['discount_tax'],
+                        'shipping_tax'               => $case['shipping_tax'],
                         'catalog_price_includes_tax' => $case['catalog_price_includes_tax'] ?? true,
                     ],
                     'shipping' => $shippingExclTax,
