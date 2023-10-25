@@ -4,17 +4,13 @@ namespace Paytrail\PaymentService\Model\Token;
 
 use Magento\Directory\Api\CountryInformationAcquirerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Magento\Framework\UrlInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\ResourceModel\Order\Tax\Item as TaxItem;
 use Magento\SalesRule\Model\DeltaPriceRound;
 use Magento\Tax\Helper\Data as TaxHelper;
-use Paytrail\PaymentService\Gateway\Command\PaymentData;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Company\CompanyRequestData;
@@ -33,9 +29,23 @@ class RequestDataTest extends TestCase
     protected function setUp(): void
     {
         $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
+    }
 
+    /**
+     * @param $input
+     *
+     * @return void
+     */
+    public function prepareRequestDataMock($input): void
+    {
         $config    = $this->objectManager->getObject(Config::class);
-        $taxHelper = $this->objectManager->getObject(TaxHelper::class);
+        $taxHelper = $this->createMock(TaxHelper::class);
+        $taxHelper->method('applyTaxAfterDiscount')->willReturn(
+            $input['config']['discount_tax']
+        );
+        $taxHelper->method('priceIncludesTax')->willReturn(
+            $input['config']['catalog_price_includes_tax'] ?? true
+        );
 
         $priceCurrency = $this->getMockForAbstractClass(PriceCurrencyInterface::class);
         $priceCurrency->method('round')
@@ -47,12 +57,10 @@ class RequestDataTest extends TestCase
         $configMock = $this->getMockForAbstractClass(ScopeConfigInterface::class);
         $configMock->method('getValue')->willReturn(24);
 
-
         $discountSplitter = new DiscountSplitter(
             new DeltaPriceRound($priceCurrency),
             $configMock
         );
-
 
         $taxItems = $this->createMock(TaxItem::class);
         $taxItems->method('getTaxItemsByOrderId')->willReturn([]);
@@ -71,7 +79,6 @@ class RequestDataTest extends TestCase
         );
     }
 
-
     /**
      * @dataProvider itemArgsDataProvider
      * @return void
@@ -80,20 +87,20 @@ class RequestDataTest extends TestCase
      */
     public function testItemArgsDiscountTax($input, $discounts, $expected)
     {
+        $this->prepareRequestDataMock($input);
 
         $order = $this->objectManager->getObject(Order::class);
         $order->setData($input['order']);
+        $order->setData('gift_cards_amount', $discounts['giftcard']);
+        $order->setData('grand_total', $expected['total']);
 
-//        $order->method('getDiscountAmount')->willReturn($discounts);
-//        $order->method('getBaseDiscountAmount')->willReturn($discounts);
         $items = $this->prepareOrderItemsMock($input['items']);
         $order->setItems($items);
-
 
         $paytrailItems = $this->requestDataObject->getOrderItemLines($order);
 
         $this->assertEquals(
-            number_format($expected['total'] * 100, 2, '.', ''),
+            number_format($expected['total'] * 100, 0, '.', ''),
             array_reduce($paytrailItems, fn($carry, $item) => $carry + $item->getUnitPrice() * $item->getUnits(), 0),
             'Total does not match'
         );
@@ -102,63 +109,140 @@ class RequestDataTest extends TestCase
     /**
      * @return array[]
      */
-    public static function itemArgsDataProvider()
+    public static function itemArgsDataProvider(): array
     {
-        return [
-            'base case' => [
+        $cases = [
+            '#1 discount 10.00, giftcard 10.00'  => [
+                'price'          => 100,
+                'qty'            => 3,
+                'discount'       => 10.00,
+                'giftcard'       => 10.00,
+                'discount_tax'   => 1,
+                'shipping_tax'   => 1,
+                'expected_total' => 294.90,
+            ],
+            '#2 discount 10.00 , giftcard 0'     => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 10.00,
+                'giftcard'     => 0.00,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+                'expected_total' => 304.90,
+            ],
+            '#3 discount 10.00 , giftcard 0 '    => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 0.00,
+                'giftcard'     => 10.00,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+            ],
+            '#4 discount 0 , giftcard 0'         => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 0.00,
+                'giftcard'     => 0.00,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+            ],
+            '#5 discount 10.01 , giftcard 0'     => [
+                'price'        => 124,
+                'qty'          => 3,
+                'discount'     => 10.00,
+                'giftcard'     => 0,
+                'catalog_price_includes_tax' => 0,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+                'expected_total' => 374.50,
+            ],
+            '#6 discount 10.01 , giftcard 10.01' => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 10.01,
+                'giftcard'     => 10.01,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+            ],
+            '#7 discount 0 , giftcard 10.01'     => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 0,
+                'giftcard'     => 10.01,
+                'discount_tax' => 1,
+                'shipping_tax' => 1,
+            ],
+            '#8 discount 0 , giftcard 10.01'     => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 10.00,
+                'giftcard'     => 10.01,
+                'discount_tax' => 0,
+                'shipping_tax' => 1,
+            ],
+            '#9 discount 10.01 , giftcard 10.01' => [
+                'price'        => 100,
+                'qty'          => 3,
+                'discount'     => 10.01,
+                'giftcard'     => 0,
+                'discount_tax' => 0,
+                'shipping_tax' => 0,
+            ],
+            '#10 discount 10.01 , giftcard 10.01' => [
+                'price'        => 124,
+                'qty'          => 2,
+                'discount'     => 10.01,
+                'giftcard'     => 10.01,
+                'discount_tax' => 0,
+                'shipping_tax' => 0,
+            ],
+        ];
+
+        $result = [];
+        foreach ($cases as $key => $case) {
+            $shippingExclTax = 12.02;
+            $shippingTax     = $case['shipping_tax'] ? $shippingExclTax * 0.24 : 0;
+            $discountTax     = $case['discount_tax'] ? $case['discount'] * 0.24 : 0;
+            $expectedTotal   = $case['price'] * $case['qty'] - $case['discount'] - $discountTax - $case['giftcard'] + $shippingExclTax + $shippingTax;
+            $result[$key]    = [
                 'input'     => [
                     'config'   => [
-                        'discount_tax' => 1,
-                        'shipping_tax' => 1,
+                        'discount_tax' => $case['discount_tax'],
+                        'shipping_tax' => $case['shipping_tax'],
+                        'catalog_price_includes_tax' => $case['catalog_price_includes_tax'] ?? true,
                     ],
-                    'shipping' => 12.02,
+                    'shipping' => $shippingExclTax,
                     'items'    => [
                         [
                             'qty'             => 3,
-                            'price'           => 100,
+                            'price'           => $case['price'],
                             'tax_percent'     => 24,
-                            'row_total'       => 300,
+                            'row_total'       => $case['price'] * $case['qty'],
                             'name'            => 'test',
-                            'discount_amount' => 10,
+                            'discount_amount' => $case['discount'],
                         ],
-
-
                     ],
                     'order'    =>
                         [
-                            'discount_amount'                           => 10,
-                            'shipping_amount'                           => 12.02,
-                            'shipping_tax_amount'                       => 12.02 * 0.24,
+                            'discount_amount'                           => $case['discount'],
+                            'shipping_amount'                           => $shippingExclTax,
+                            'shipping_tax_amount'                       => $shippingTax,
                             'shipping_discount_amount'                  => 0,
                             'shipping_discount_tax_compensation_amount' => 0,
                         ]
 
                 ],
                 'discounts' => [
-                    'giftcard' => 10,
+                    'giftcard' => $case['giftcard'],
                 ],
                 'expected'  => [
-                    'total' => number_format(300 - 10 + 12.02 + 12.02 * 0.24, 2, '.', ''),
-                    'items' => [
-                        [
-                            'qty'             => 3,
-                            'price'           => 100,
-                            'tax_percent'     => 24,
-                            'name'            => 'test',
-                            'discount_amount' => 10,
-                        ],
-                        [
-                            //shipping item
-                            'qty'             => 1,
-                            'price'           => 12.02,
-                            'tax_percent'     => 24,
-                            'name'            => 'Shipping',
-                            'discount_amount' => 0,
-                        ]
-                    ],
+                    'total' => $case['expected_total']
+                        ?? $expectedTotal
                 ],
-            ]
-        ];
+            ];
+        }
+
+        return $result;
     }
 
     private function prepareOrderItemsMock($items)
