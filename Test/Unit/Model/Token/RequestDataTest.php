@@ -97,9 +97,12 @@ class RequestDataTest extends TestCase
             ['getGiftCardsAmount']
         );
 
+
         $order = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->setMethods($orderMethods)->getMock();
+            ->addMethods( ['getGiftCardsAmount'])
+            ->onlyMethods(['getShippingAmount', 'getGrandTotal', 'getShippingTaxAmount','getAllItems'])
+            ->getMock();
 
         $items = $this->prepareOrderItemsMock($input['items']);
         $order->setItems($items);
@@ -111,7 +114,6 @@ class RequestDataTest extends TestCase
         $order->method('getGrandTotal')->willReturn($expected['total']);
         $order->method('getShippingTaxAmount')->willReturn($input['order']['shipping_tax_amount']);
         $order->method('getGiftCardsAmount')->willReturn($discounts['giftcard']);
-
 
         $paytrailItems = $this->requestDataObject->getOrderItemLines($order);
 
