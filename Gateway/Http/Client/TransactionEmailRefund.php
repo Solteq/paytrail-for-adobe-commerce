@@ -58,7 +58,7 @@ class TransactionEmailRefund implements ClientInterface
      */
     public function emailRefund(
         OrderAdapterInterface $order = null,
-        float $amount = null,
+        float|string $amount = null,
         string $transactionId = null
     ):array {
         $response= [];
@@ -120,7 +120,7 @@ class TransactionEmailRefund implements ClientInterface
      */
     private function setEmailRefundRequestData(
         EmailRefundRequest $paytrailEmailRefund,
-        float $amount,
+        float|string $amount,
         OrderAdapterInterface $order
     ) {
         $paytrailEmailRefund->setEmail($order->getBillingAddress()->getEmail());

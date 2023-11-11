@@ -35,20 +35,20 @@ class RefundResponseValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface|bool
     {
-        $response      = $this->subjectReader->readResponse($validationSubject);
+        $response      = $validationSubject['response'];
         $errorMessages = [];
 
-        if (isset($response['status']) && $response['status'] === 'ok') {
+        if ($response->getStatus() && $response->getStatus() === 'ok') {
             return $this->createResult(
                 true,
-                ['status' => $response['status']]
+                ['status' => $response->getStatus()]
             );
         }
 
-        if (isset($response['error'])) {
-            $errorMessages[] = $response['error'];
+        if ($response->getError()) {
+            $errorMessages[] = $response->getError();
             $this->log->error(
-                'Error occurred email refund: ' . $response["error"]
+                'Error occurred email refund: ' . $response->getError()
             );
         }
 

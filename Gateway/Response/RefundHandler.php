@@ -5,6 +5,7 @@ namespace Paytrail\PaymentService\Gateway\Response;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
+use Paytrail\SDK\Response\RefundResponse;
 
 class RefundHandler implements HandlerInterface
 {
@@ -24,9 +25,10 @@ class RefundHandler implements HandlerInterface
      * Handle function
      *
      * @param array $handlingSubject
-     * @param array $response
+     * @param array|RefundResponse $response
+     * @return void
      */
-    public function handle(array $handlingSubject, array $response): void
+    public function handle(array $handlingSubject, array|RefundResponse $response): void
     {
         $payment = $this->subjectReader->readPayment($handlingSubject);
 
