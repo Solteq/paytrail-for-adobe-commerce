@@ -7,6 +7,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
+use Paytrail\PaymentService\Model\Refund\RefundDataProvider;
 use Paytrail\PaymentService\Model\RefundCallback;
 use Paytrail\SDK\Request\RefundRequest;
 use Psr\Log\LoggerInterface;
@@ -27,7 +28,7 @@ class RefundDataBuilder implements BuilderInterface
         private readonly SubjectReader $subjectReader,
         private readonly LoggerInterface $log,
         private readonly RefundRequest $refundRequest,
-        private readonly RefundCallback $refundCallback
+        private readonly RefundDataProvider $refundDataProvider
     ) {
     }
 
@@ -69,7 +70,7 @@ class RefundDataBuilder implements BuilderInterface
 
         // Handle request
         $paytrailRefund = $this->refundRequest;
-        $this->setRefundRequestData($paytrailRefund, $amount);
+        $this->refundDataProvider->setRefundRequestData($paytrailRefund, $amount, $order->getCustomerId());
 
         return [
             'payment'               => $payment,
@@ -78,28 +79,6 @@ class RefundDataBuilder implements BuilderInterface
             'order'                 => $order,
             'refund_request'        => $paytrailRefund,
         ];
-    }
-
-    /**
-     * SetRefundRequestData function
-     *
-     * @param RefundRequest $paytrailRefund
-     * @param float         $amount
-     *
-     * @throws CheckoutException
-     */
-    private function setRefundRequestData(RefundRequest $paytrailRefund, float $amount): void
-    {
-        if ($amount <= 0) {
-            $message = 'Refund amount must be above 0';
-            $this->log->logData(\Monolog\Logger::ERROR, $message);
-            throw new CheckoutException(__($message));
-        }
-
-        $paytrailRefund->setAmount(round($amount * 100));
-
-        $callback = $this->refundCallback->createRefundCallback();
-        $paytrailRefund->setCallbackUrls($callback);
     }
 
     /**
