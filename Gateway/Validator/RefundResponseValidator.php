@@ -39,10 +39,10 @@ class RefundResponseValidator extends AbstractValidator
         $errorMessages = [];
 
         if (!isset($response['error'])) {
-            if ($response->getStatus() && $response->getStatus() === 'ok') {
+            if ($response['data']->getStatus() && $response['data']->getStatus() === 'ok') {
                 return $this->createResult(
                     true,
-                    ['status' => $response->getStatus()]
+                    ['status' => $response['data']->getStatus()]
                 );
             }
         } elseif (isset($response['error'])) {
