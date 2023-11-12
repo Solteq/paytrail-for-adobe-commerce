@@ -70,7 +70,7 @@ class RefundDataBuilder implements BuilderInterface
 
         // Handle request
         $paytrailRefund = $this->refundRequest;
-        $this->refundDataProvider->setRefundRequestData($paytrailRefund, $amount, $order->getCustomerId());
+        $this->refundDataProvider->setRefundRequestData($paytrailRefund, $amount, $order->getId());
 
         return [
             'payment'               => $payment,
