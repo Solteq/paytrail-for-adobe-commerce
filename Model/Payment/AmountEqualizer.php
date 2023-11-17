@@ -4,6 +4,7 @@ namespace Paytrail\PaymentService\Model\Payment;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Paytrail\SDK\Request\PaymentRequest;
 
 class AmountEqualizer
 {
@@ -33,12 +34,12 @@ class AmountEqualizer
     /**
      * Equals request total amount and items amounts.
      *
-     * @param \Paytrail\SDK\Request\PaymentRequest $paytrailPayment
-     * @return \Paytrail\SDK\Request\PaymentRequest
+     * @param PaymentRequest $paytrailPayment
+     * @return PaymentRequest
      */
-    public function equal(\Paytrail\SDK\Request\PaymentRequest $paytrailPayment)
+    public function equal(PaymentRequest $paytrailPayment)
     {
-        $totalAmount = $paytrailPayment->getAmount()+1;
+        $totalAmount = $paytrailPayment->getAmount();
         $summaryAmount = 0;
 
         foreach ($paytrailPayment->getItems() as $item) {
