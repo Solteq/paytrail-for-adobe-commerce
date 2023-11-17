@@ -21,7 +21,10 @@ class AmountEqualizer
             $summaryAmount += $item->getUnitPrice();
         }
 
-        var_dump('BEFORE'.$paytrailPayment);
+        var_dump([
+            'total_amount' => $totalAmount,
+            'summary_amount' => $summaryAmount
+        ]);
 
         if ($totalAmount === $summaryAmount) {
             return $paytrailPayment;
@@ -45,7 +48,15 @@ class AmountEqualizer
             }
         }
 
-        var_dump($paytrailPayment);
+        $varDumpSummary = 0;
+        foreach ($paytrailPayment->getItems() as $item) {
+            $varDumpSummary += $item->getUnitPrice();
+        }
+        $varDump = [
+            'total_amount' => $paytrailPayment->getAmount(),
+            'summary_amount' => $varDumpSummary
+        ];
+        var_dump($varDump);
 
         return $paytrailPayment;
     }
