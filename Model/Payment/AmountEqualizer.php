@@ -18,13 +18,8 @@ class AmountEqualizer
         $summaryAmount = 0;
 
         foreach ($paytrailPayment->getItems() as $item) {
-            $summaryAmount += $item->getUnitPrice();
+            $summaryAmount += $item->getUnitPrice() * $item->getUnits();
         }
-
-        var_dump([
-            'total_amount' => $totalAmount,
-            'summary_amount' => $summaryAmount
-        ]);
 
         if ($totalAmount === $summaryAmount) {
             return $paytrailPayment;
@@ -47,16 +42,6 @@ class AmountEqualizer
                 }
             }
         }
-
-        $varDumpSummary = 0;
-        foreach ($paytrailPayment->getItems() as $item) {
-            $varDumpSummary += $item->getUnitPrice();
-        }
-        $varDump = [
-            'total_amount' => $paytrailPayment->getAmount(),
-            'summary_amount' => $varDumpSummary
-        ];
-        var_dump($varDump);
 
         return $paytrailPayment;
     }
