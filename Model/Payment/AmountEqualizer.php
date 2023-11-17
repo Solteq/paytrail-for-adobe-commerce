@@ -2,42 +2,17 @@
 
 namespace Paytrail\PaymentService\Model\Payment;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Paytrail\SDK\Request\PaymentRequest;
 
 class AmountEqualizer
 {
     /**
-     * @var DiscountGetterInterface[]
-     */
-    private $discountGetters;
-    /**
-     * @var \Magento\SalesRule\Model\DeltaPriceRound
-     */
-    private $deltaPriceRound;
-    /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    public function __construct(
-        \Magento\SalesRule\Model\DeltaPriceRound $deltaPriceRound,
-        ScopeConfigInterface $scopeConfig,
-        $discountGetters = []
-    ) {
-        $this->deltaPriceRound = $deltaPriceRound;
-        $this->discountGetters = $discountGetters;
-        $this->scopeConfig = $scopeConfig;
-    }
-
-    /**
      * Equals request total amount and items amounts.
      *
-     * @param PaymentRequest $paytrailPayment
+     * @param $paytrailPayment
      * @return PaymentRequest
      */
-    public function equal(PaymentRequest $paytrailPayment)
+    public function equal($paytrailPayment)
     {
         $totalAmount = $paytrailPayment->getAmount();
         $summaryAmount = 0;
@@ -45,6 +20,8 @@ class AmountEqualizer
         foreach ($paytrailPayment->getItems() as $item) {
             $summaryAmount += $item->getUnitPrice();
         }
+
+        var_dump($totalAmount.' - '.$summaryAmount);
 
         if ($totalAmount === $summaryAmount) {
             return $paytrailPayment;
