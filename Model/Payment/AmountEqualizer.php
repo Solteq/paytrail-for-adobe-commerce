@@ -21,7 +21,7 @@ class AmountEqualizer
             $summaryAmount += $item->getUnitPrice();
         }
 
-//        var_dump($totalAmount.' - '.$summaryAmount);
+        var_dump('BEFORE'.$paytrailPayment);
 
         if ($totalAmount === $summaryAmount) {
             return $paytrailPayment;
