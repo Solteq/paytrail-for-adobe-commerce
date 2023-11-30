@@ -32,7 +32,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public const BYPASS_PATH                           = 'Paytrail_PaymentService/payment/checkout-bypass';
     public const CHECKOUT_PATH                         = 'Paytrail_PaymentService/payment/checkout';
     public const KEY_GENERATE_REFERENCE                = 'generate_reference';
-    public const KEY_RECOMMENDED_TAX_ALGORITHM         = 'recommended_tax_algorithm';
     public const KEY_PAYMENTGROUP_BG_COLOR             = 'paytrail_personalization/payment_group_bg';
     public const KEY_PAYMENTGROUP_HIGHLIGHT_BG_COLOR   = 'paytrail_personalization/payment_group_highlight_bg';
     public const KEY_PAYMENTGROUP_TEXT_COLOR           = 'paytrail_personalization/payment_group_text';
@@ -268,18 +267,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getGenerateReferenceForOrder($storeId = null)
     {
         return $this->getValue(self::KEY_GENERATE_REFERENCE, $storeId);
-    }
-
-    /**
-     * Get use recommended tax algorithm value.
-     *
-     * @param int|null $storeId
-     *
-     * @return bool
-     */
-    public function getUseRecommendedTaxAlgorithm($storeId = null)
-    {
-        return $this->getValue(self::KEY_RECOMMENDED_TAX_ALGORITHM, $storeId);
     }
 
     /**
