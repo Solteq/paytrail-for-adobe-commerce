@@ -6,11 +6,6 @@
                 type="Paytrail\PaymentService\Plugin\Magento\Sales\Block\Adminhtml\Order\ViewPlugin"/>
     </type>
 
-    <type name="Magento\Tax\Model\Config">
-        <plugin name="paytrail_payment_service_tax_config_plugin"
-                type="Paytrail\PaymentService\Plugin\Model\TaxConfigPlugin" sortOrder="1" disabled="false"/>
-    </type>
-
     <virtualType name="PaytrailAdapter" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
             <argument name="code" xsi:type="const">Paytrail\PaymentService\Gateway\Config\Config::CODE</argument>
