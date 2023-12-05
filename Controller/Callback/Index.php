@@ -16,6 +16,7 @@ class Index implements \Magento\Framework\App\ActionInterface
     /**
      * Index constructor.
      *
+     *
      * @param Session $session
      * @param ProcessPayment $processPayment
      * @param RequestInterface $request
@@ -26,6 +27,7 @@ class Index implements \Magento\Framework\App\ActionInterface
     public function __construct(
         private Session $session,
         private ProcessPayment $processPayment,
+
         private RequestInterface $request,
         private ResultFactory $resultFactory,
         private Config $gatewayConfig,
@@ -42,7 +44,8 @@ class Index implements \Magento\Framework\App\ActionInterface
     public function execute(): ResultInterface
     {
         $reference = $this->request->getParam('checkout-reference');
-        $response = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $response = $this->resultFactory->create(ResultFactory::TYPE_JSON
+        );
 
         /** @var string $orderNo */
         $orderNo = $this->gatewayConfig->getGenerateReferenceForOrder()
