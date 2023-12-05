@@ -44,7 +44,8 @@ class Index implements \Magento\Framework\App\ActionInterface
     public function execute(): ResultInterface
     {
         $reference = $this->request->getParam('checkout-reference');
-        $response = $this->resultFactory->create(ResultFactory::TYPE_JSON
+        $response = $this->resultFactory->create(
+            ResultFactory::TYPE_JSON
         );
 
         /** @var string $orderNo */
