@@ -32,20 +32,20 @@ class ResponseValidatorUnitTest extends TestCase
      * @var array
      */
     private $shouldFail = [
-        'checkout-account' => 'test-merchant-id',
+        'checkout-account'   => 'test-merchant-id',
         'checkout-reference' => 123123123123123,
         'checkout-algorithm' => 'sha256',
-        'signature' => 'test-signature'
+        'signature'          => 'test-signature'
     ];
 
     /**
      * @var array
      */
     private $shouldPass = [
-        'checkout-account' => 'invalid-checkout-accountid',
+        'checkout-account'   => 'invalid-checkout-accountid',
         'checkout-reference' => 'invalid-checkout-reference',
         'checkout-algorithm' => 'sha257',
-        'signature' => 'test-signature'
+        'signature'          => 'test-signature'
     ];
 
     private function getSimpleMock($originalClassName)
@@ -58,7 +58,20 @@ class ResponseValidatorUnitTest extends TestCase
     public function setUp(): void
     {
         $this->gatewayConfigMock = $this->getSimpleMock(Config::class);
-        $this->resultInterfaceFactoryMock = $this->getSimpleMock(ResultInterfaceFactory::class);
+        // Create a mock for the factory class
+        $this->resultInterfaceFactoryMock = $this->getMockBuilder(
+            \Magento\Payment\Gateway\Validator\ResultInterfaceFactory::class
+        )
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+
+
+        // Create a mock for the result interface
+        $this->resultMock = $this->getMockBuilder(ResultInterface::class)
+            ->getMock();
+
+
         $this->hmacValidatorMock = $this->getSimpleMock(HmacValidator::class);
 
         $this->responseValidator = new ResponseValidator(
@@ -74,15 +87,15 @@ class ResponseValidatorUnitTest extends TestCase
     public function testValidateCreatesValidResult()
     {
         $this->resultInterfaceFactoryMock->expects($this->once())->method('create')->with([
-            'isValid' => false,
-            'failsDescription' => [
-                0 => 'Request MerchantId is empty',
-                1 => 'Response and Request merchant ids does not match',
-                2 => 'Invalid response data from Paytrail',
-                3 => 'Invalid response data from Paytrail'
-            ],
-            'errorCodes' => []
-            ]);
+                                                                                              'isValid'          => false,
+                                                                                              'failsDescription' => [
+                                                                                                  0 => 'Request MerchantId is empty',
+                                                                                                  1 => 'Response and Request merchant ids does not match',
+                                                                                                  2 => 'Invalid response data from Paytrail',
+                                                                                                  3 => 'Invalid response data from Paytrail'
+                                                                                              ],
+                                                                                              'errorCodes'       => []
+                                                                                          ]);
 
         $this->responseValidator->validate($this->shouldPass);
     }
@@ -93,13 +106,14 @@ class ResponseValidatorUnitTest extends TestCase
     public function testValidateCreatesInValidResult()
     {
         $this->resultInterfaceFactoryMock->expects($this->once())->method('create')->with([
-            'isValid' => false,
-            'failsDescription' => [
-                0 => 'Request MerchantId is empty',
-                1 => 'Response and Request merchant ids does not match',
-                2 => 'Invalid response data from Paytrail',
-                3 => 'Invalid response data from Paytrail'],
-            'errorCodes' => []]);
+                                                                                              'isValid'          => false,
+                                                                                              'failsDescription' => [
+                                                                                                  0 => 'Request MerchantId is empty',
+                                                                                                  1 => 'Response and Request merchant ids does not match',
+                                                                                                  2 => 'Invalid response data from Paytrail',
+                                                                                                  3 => 'Invalid response data from Paytrail'],
+                                                                                              'errorCodes'       => []]
+        );
 
         $this->responseValidator->validate($this->shouldFail);
     }
