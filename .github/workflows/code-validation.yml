@@ -30,7 +30,6 @@ jobs:
         id: changes
         run: |
           BASE_SHA="${{ github.event.before }}"
-
           if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
             BASE_SHA="${{ matrix.base-branch }}"
           fi
@@ -41,7 +40,6 @@ jobs:
           
           echo "all=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | xargs)" >> $GITHUB_OUTPUT
           echo "php=$(git diff --name-only --diff-filter=ACMRT $BASE_SHA ${{ github.sha }} | grep -E '.ph(p|tml)$' | xargs)" >> $GITHUB_OUTPUT
-
   validate-php:
     runs-on: ubuntu-latest
 
@@ -86,7 +84,6 @@ jobs:
                 }
               }
             }
-
       - name: Validate Composer Files
         run: composer validate
 
