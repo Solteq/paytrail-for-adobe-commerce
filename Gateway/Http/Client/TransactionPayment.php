@@ -80,6 +80,9 @@ class TransactionPayment implements ClientInterface
 
             // Handle payment requests
             $response["data"] = $paytrailClient->createPayment($paytrailPayment);
+            // TODO: remove var_dump
+            var_dump($response);
+            die;
 
             $loggedData = $this->json->serialize([
                 'transactionId' => $response["data"]->getTransactionId(),
