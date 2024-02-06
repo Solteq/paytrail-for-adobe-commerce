@@ -83,7 +83,9 @@ class TransactionPayment implements ClientInterface
 
             $loggedData = $this->json->serialize([
                 'transactionId' => $response["data"]->getTransactionId(),
-                'href' => $response["data"]->getHref()
+                'href' => $response["data"]->getHref(),
+                // TODO: to remove or to keep
+                'response_data' => $response["data"]
             ]);
 
             $this->log->debugLog(
