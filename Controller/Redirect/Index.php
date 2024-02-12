@@ -85,6 +85,15 @@ class Index implements ActionInterface
 
                 $order = $this->checkoutSession->getLastRealOrder();
                 $responseData = $this->getResponseData($order, $selectedPaymentMethodId);
+
+                if ($selectedPaymentMethodId === 'applepay') {
+                    return $resultJson->setData([
+                        'success' => true,
+                        'applePay' => true,
+                        // TODO: change to real customProviders from the $responseData
+                        'customProviders' => $responseData->getProviders()[21]
+                    ]);
+                }
                 $formData = $this->getFormFields(
                     $responseData,
                     $selectedPaymentMethodId
