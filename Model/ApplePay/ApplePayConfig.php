@@ -3,6 +3,7 @@
 namespace Paytrail\PaymentService\Model\ApplePay;
 
 use Magento\Framework\View\Asset\Repository;
+use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\SDK\Model\Provider;
 
 class ApplePayConfig
@@ -10,10 +11,25 @@ class ApplePayConfig
     /**
      * ApplePayConfig constructor.
      *
+     * @param Config $gatewayConfig
+     * @param Repository $assetRepository
      */
     public function __construct(
+        private Config     $gatewayConfig,
         private Repository $assetRepository
     ) {
+    }
+
+    public function canApplePay(): bool
+    {
+        // TODO: remove always true
+        // return always true for development purpose
+        return true;
+//        if ($this->isSafariBrowser() && $this->gatewayConfig->isApplePayEnabled()) {
+//            return true;
+//        }
+//
+//        return false;
     }
 
     /**
@@ -56,5 +72,23 @@ class ApplePayConfig
             ->setSvg($this->assetRepository->getUrl('Paytrail_PaymentService::images/apple-pay-logo.svg'));
 
         return $applePayProvider;
+    }
+
+    /**
+     * Checks if user browser is Safari.
+     *
+     * @return bool
+     */
+    private function isSafariBrowser(): bool
+    {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        if (stripos($user_agent, 'Chrome') !== false && stripos($user_agent, 'Safari') !== false) {
+            return false;
+        } elseif (stripos($user_agent, 'Safari') !== false) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
