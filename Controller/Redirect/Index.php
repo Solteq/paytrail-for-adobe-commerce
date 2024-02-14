@@ -97,7 +97,7 @@ class Index implements ActionInterface
                         'success' => true,
                         'applePay' => true,
                         // TODO: change to real customProviders from the $responseData
-                        'customProviders' => $paytrailPayment->getProviders()[19]
+                        'customProviders' => $paytrailPayment->getProviders()[17]
                     ]);
                 }
 
