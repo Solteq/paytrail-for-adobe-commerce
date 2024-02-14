@@ -81,9 +81,6 @@ class TransactionPayment implements ClientInterface
 
             // Handle payment requests
             $response["data"] = $paytrailClient->createPayment($paytrailPayment);
-            // TODO: remove var_dump
-            var_dump($response);
-            die;
 
             // TODO: remove after testing
             $this->setApplePayCustomProviders($response['data'], $paytrailPayment->getAmount());
