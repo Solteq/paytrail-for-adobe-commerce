@@ -81,12 +81,6 @@ class TransactionPayment implements ClientInterface
 
             // Handle payment requests
             $response["data"] = $paytrailClient->createPayment($paytrailPayment);
-            // TODO: remove var_dump
-            var_dump($response);
-            die;
-
-            // TODO: remove after testing
-            $this->setApplePayCustomProviders($response['data'], $paytrailPayment->getAmount());
 
             $loggedData = $this->json->serialize([
                 'transactionId' => $response["data"]->getTransactionId(),
@@ -127,70 +121,5 @@ class TransactionPayment implements ClientInterface
         }
 
         return $response;
-    }
-
-    // TODO: remove after success testing on staging
-    /**
-     * @param $responseData
-     * @return PaymentResponse
-     */
-    protected function setApplePayCustomProviders($responseData, $amount): \Paytrail\SDK\Response\PaymentResponse
-    {
-        $customProvidersData = $this->getCustomProvidersData($responseData->getProviders()[0]->getParameters());
-        $applePayProvider = new \Paytrail\SDK\Model\Provider();
-        $customProvidersData[] = [
-            'name' => 'amount',
-            'value' => (string)(float)($amount/100)
-        ];
-        $customProvidersData[] = [
-            'name' => 'label',
-            'value' => 'Paytrail Oyj'
-        ];
-        $customProvidersData[] = [
-            'name' => 'currency',
-            'value' => 'EUR'
-        ];
-
-        $applePayProvider
-            ->setId('apple-pay')
-            ->setGroup('mobile')
-            ->setName('Apple Pay')
-            ->setParameters($customProvidersData);
-
-        $allProviders = $responseData->getProviders();
-        $allProviders[] = $applePayProvider;
-        $responseData->setProviders($allProviders);
-
-        return $responseData;
-    }
-
-    // TODO: remove after success testing on staging
-    /**
-     * @param $parametersData
-     * @return array
-     */
-    protected function getCustomProvidersData($parametersData): array
-    {
-        $customProvidersArray = [];
-        $parametersArray = [
-            'checkout-transaction-id',
-            'checkout-account',
-            'checkout-method',
-            'checkout-algorithm',
-            'checkout-timestamp',
-            'checkout-nonce',
-            'signature'
-        ];
-        $i = 0;
-
-        foreach ($parametersData as $parameter) {
-            $customProvidersArray[] = [
-                'name' => $parametersArray[$i],
-                'value' => get_object_vars($parameter)['value']
-            ];
-            $i++;
-        }
-
-        return $customProvidersArray;
     }
 }
