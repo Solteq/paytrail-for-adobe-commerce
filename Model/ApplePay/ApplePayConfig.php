@@ -22,14 +22,11 @@ class ApplePayConfig
 
     public function canApplePay(): bool
     {
-        // TODO: remove always true
-        // return always true for development purpose
-        return true;
-//        if ($this->isSafariBrowser() && $this->gatewayConfig->isApplePayEnabled()) {
-//            return true;
-//        }
-//
-//        return false;
+        if ($this->isSafariBrowser() && $this->gatewayConfig->isApplePayEnabled()) {
+            return true;
+        }
+    
+        return false;
     }
 
     /**
