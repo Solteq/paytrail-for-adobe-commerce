@@ -463,7 +463,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      *
      * @return array
      */
-    private function getIconUrl($type)
+    protected function getIconUrl($type)
     {
         if (isset($this->paymenticons[$type])) {
             return $this->paymenticons[$type];
@@ -547,7 +547,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getVersion()
     {
-        $setupVersion = 0;
         $composerVersion = $this->getComposerVersion('Paytrail_PaymentService');
         if ($moduleInfo = $this->moduleList->getOne('Paytrail_PaymentService')) {
             $setupVersion = $moduleInfo['setup_version'];

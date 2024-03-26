@@ -1,5 +1,4 @@
 <?php
-
 namespace Paytrail\PaymentService\Model\Token;
 
 use Magento\Framework\Model\AbstractModel;
@@ -16,9 +15,8 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
     }
 
     /**
-     * @param string $entityId
-     *
-     * @return $this
+     * @param $entityId
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setEntityId($entityId): self
     {
@@ -37,8 +35,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $customerId
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setCustomerId($customerId): self
     {
@@ -57,8 +54,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $publicHash
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setPublicHash($publicHash): self
     {
@@ -77,8 +73,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $type
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setType($type): self
     {
@@ -97,8 +92,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $code
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setPaymentMethodCode($code): self
     {
@@ -117,8 +111,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $data
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setCreatedAt($data): self
     {
@@ -137,8 +130,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $data
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setExpiresAt($data): self
     {
@@ -157,8 +149,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $cardType
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setCardType($cardType): self
     {
@@ -177,8 +168,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $maskedCC
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setMaskedCC($maskedCC): self
     {
@@ -197,8 +187,7 @@ class CustomerTokensResult extends AbstractModel implements CustomerTokensResult
 
     /**
      * @param $cardIcon
-     *
-     * @return $this
+     * @return \Paytrail\PaymentService\Api\Data\CustomerTokensResultInterface
      */
     public function setCardIcon($cardIcon): self
     {

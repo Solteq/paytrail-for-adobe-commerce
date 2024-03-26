@@ -2,16 +2,10 @@
 
 namespace Paytrail\PaymentService\Controller\Adminhtml\Recurring;
 
-use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface as HttpGetActionInterface;
 
-class Index implements HttpGetActionInterface
+class Index extends \Magento\Backend\App\Action implements HttpGetActionInterface
 {
-    public function __construct(
-        private Context $context,
-    ) {
-    }
-
     public function execute()
     {
         $page = $this->initialize();
@@ -23,7 +17,7 @@ class Index implements HttpGetActionInterface
     private function initialize()
     {
         /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
-        $resultPage = $this->context->getResultFactory()->create(\Magento\Framework\Controller\ResultFactory::TYPE_PAGE);
+        $resultPage = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_PAGE);
         $resultPage->setActiveMenu('Magento_Sales::sales_order');
 
         return $resultPage;

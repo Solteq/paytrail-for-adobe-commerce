@@ -47,16 +47,16 @@ class SelectedToken implements \Magento\Framework\Data\OptionSourceInterface
      * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepoInterface
      */
     public function __construct(
-        OrderRepository                     $orderRepository,
-        Http                                $request,
-        PaymentTokenManagement              $paymentTokenManagement,
-        SerializerInterface                 $serializer,
+        OrderRepository $orderRepository,
+        Http $request,
+        PaymentTokenManagement $paymentTokenManagement,
+        SerializerInterface $serializer,
         SubscriptionLinkRepositoryInterface $subscriptionLinkRepoInterface
     ) {
-        $this->orderRepository               = $orderRepository;
-        $this->request                       = $request;
-        $this->paymentTokenManagement        = $paymentTokenManagement;
-        $this->serializer                    = $serializer;
+        $this->orderRepository = $orderRepository;
+        $this->request = $request;
+        $this->paymentTokenManagement = $paymentTokenManagement;
+        $this->serializer = $serializer;
         $this->subscriptionLinkRepoInterface = $subscriptionLinkRepoInterface;
     }
 
@@ -67,16 +67,13 @@ class SelectedToken implements \Magento\Framework\Data\OptionSourceInterface
      */
     public function toOptionArray()
     {
-        $returnArray = [];
-        $orderId     = $this->getOrderIdFromUrl();
-        $customerId  = $this->getCustomerIdFromOrderId($orderId);
+        $orderId = $this->getOrderIdFromUrl();
+        $customerId = $this->getCustomerIdFromOrderId($orderId);
         foreach ($this->getVaultCardToken($customerId) as $paymentToken) {
             if ($paymentToken->getIsActive() && $paymentToken->getIsVisible()) {
                 $returnArray[] = [
                     'value' => $paymentToken->getId(),
-                    'label' => '**** **** **** ' . $this->serializer->unserialize(
-                            $paymentToken->getTokenDetails()
-                        )[self::MASKED_CC_VALUE]
+                    'label' => '**** **** **** '.$this->serializer->unserialize($paymentToken->getTokenDetails())[self::MASKED_CC_VALUE]
                 ];
             }
         }
@@ -91,14 +88,13 @@ class SelectedToken implements \Magento\Framework\Data\OptionSourceInterface
     private function getOrderIdFromUrl()
     {
         $subscriptionId = (int)$this->request->getParams()['id'];
-        $orderIds       = $this->subscriptionLinkRepoInterface->getOrderIdsBySubscriptionId($subscriptionId);
+        $orderIds = $this->subscriptionLinkRepoInterface->getOrderIdsBySubscriptionId($subscriptionId);
 
         return reset($orderIds);
     }
 
     /**
      * @param $orderId
-     *
      * @return int|null
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -112,7 +108,6 @@ class SelectedToken implements \Magento\Framework\Data\OptionSourceInterface
 
     /**
      * @param $customerId
-     *
      * @return array
      */
     private function getVaultCardToken($customerId)

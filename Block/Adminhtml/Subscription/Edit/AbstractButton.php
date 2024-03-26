@@ -2,8 +2,6 @@
 
 namespace Paytrail\PaymentService\Block\Adminhtml\Subscription\Edit;
 
-use Magento\Backend\Block\Widget\Context;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 abstract class AbstractButton implements ButtonProviderInterface
@@ -13,27 +11,27 @@ abstract class AbstractButton implements ButtonProviderInterface
      *
      * @var \Magento\Framework\UrlInterface
      */
-    private $urlBuilder;
+    protected $urlBuilder;
 
     /**
      * Registry
      *
-     * @var RequestInterface
+     * @var \Magento\Framework\App\RequestInterface
      */
-    private $request;
+    protected $request;
 
     /**
      * Constructor
      *
-     * @param Context $context
-     * @param RequestInterface $request
+     * @param \Magento\Backend\Block\Widget\Context $context
+     * @param \Magento\Framework\Registry $registry
      */
     public function __construct(
-        Context          $context,
-        RequestInterface $request
+        \Magento\Backend\Block\Widget\Context $context,
+        \Magento\Framework\App\RequestInterface $request
     ) {
         $this->urlBuilder = $context->getUrlBuilder();
-        $this->request    = $request;
+        $this->request = $request;
     }
 
     /**
@@ -49,9 +47,8 @@ abstract class AbstractButton implements ButtonProviderInterface
     /**
      * Generate url by route and parameters
      *
-     * @param string $route
-     * @param array $params
-     *
+     * @param   string $route
+     * @param   array $params
      * @return  string
      */
     public function getUrl($route = '', $params = [])

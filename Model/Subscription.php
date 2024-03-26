@@ -3,6 +3,9 @@ namespace Paytrail\PaymentService\Model;
 
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 
+/**
+ * @method
+ */
 class Subscription extends \Magento\Framework\Model\AbstractModel implements SubscriptionInterface
 {
     /**

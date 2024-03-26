@@ -2,21 +2,21 @@
 
 namespace Paytrail\PaymentService\Controller\Tokenization;
 
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Exception\NotFoundException;
-use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
 use Psr\Log\LoggerInterface;
 
-class ProcessToken implements ActionInterface
+class ProcessToken extends Action
 {
-
-    private $errorMsg = null;
+    /**
+     * @var $errorMsg
+     */
+    protected $errorMsg = null;
 
     /**
      * ProcessToken constructor
@@ -28,12 +28,13 @@ class ProcessToken implements ActionInterface
      * @param CommandManagerPoolInterface $commandManagerPool
      */
     public function __construct(
-        private Context                     $context,
-        private JsonFactory                 $jsonFactory,
-        private LoggerInterface             $logger,
-        private ProcessService              $processService,
+        Context $context,
+        private JsonFactory $jsonFactory,
+        private LoggerInterface $logger,
+        private ProcessService $processService,
         private CommandManagerPoolInterface $commandManagerPool
     ) {
+        parent::__construct($context);
     }
 
     /**
@@ -47,15 +48,15 @@ class ProcessToken implements ActionInterface
         $resultJson = $this->jsonFactory->create();
 
         try {
-            if ($this->context->getRequest()->getParam('is_ajax')) {
+            if ($this->getRequest()->getParam('is_ajax')) {
 
                 $responseData = $this->getResponseData();
                 $redirect_url = $responseData->getHeader('Location')[0];
 
                 return $resultJson->setData(
                     [
-                        'success'  => true,
-                        'data'     => 'redirect',
+                        'success' => true,
+                        'data' => 'redirect',
                         'redirect' => $redirect_url
                     ]
                 );
@@ -78,13 +79,11 @@ class ProcessToken implements ActionInterface
      *
      * @return mixed
      * @throws CheckoutException
-     * @throws NotFoundException
-     * @throws CommandException
      */
-    private function getResponseData()
+    protected function getResponseData()
     {
         $commandExecutor = $this->commandManagerPool->get('paytrail');
-        $response        = $commandExecutor->executeByCode('add_card');
+        $response = $commandExecutor->executeByCode('add_card');
 
         $errorMsg = $response['error'];
 

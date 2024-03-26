@@ -42,7 +42,5 @@ class NotifyTaxConfigPatch implements DataPatchInterface
             'Paytrail Discount calculation tax settings need attention',
             'Paytrail module discount calculation has been updated. New update includes rounding correction row tax percent, please check that the setting is correct for your webstore'
         );
-
-        return $this;
     }
 }

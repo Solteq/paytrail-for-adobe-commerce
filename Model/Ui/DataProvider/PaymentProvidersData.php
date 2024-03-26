@@ -146,7 +146,7 @@ class PaymentProvidersData
      *
      * @return array
      */
-    private function addProviderDataToGroup($responseData, $groupId)
+    protected function addProviderDataToGroup($responseData, $groupId)
     {
         $methods = [];
         $i       = 1;

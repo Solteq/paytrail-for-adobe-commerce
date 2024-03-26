@@ -4,7 +4,7 @@ namespace Paytrail\PaymentService\Model\Payment;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\SalesRule\Model\DeltaPriceRound;
+use function Symfony\Component\Translation\t;
 
 class DiscountSplitter
 {
@@ -17,7 +17,7 @@ class DiscountSplitter
      */
     private $discountGetters;
     /**
-     * @var DeltaPriceRound
+     * @var \Magento\SalesRule\Model\DeltaPriceRound
      */
     private $deltaPriceRound;
     /**
@@ -26,7 +26,7 @@ class DiscountSplitter
     private $scopeConfig;
 
     public function __construct(
-        DeltaPriceRound $deltaPriceRound,
+        \Magento\SalesRule\Model\DeltaPriceRound $deltaPriceRound,
         ScopeConfigInterface                     $scopeConfig,
                                                  $discountGetters = []
     ) {
@@ -207,11 +207,11 @@ class DiscountSplitter
     }
 
     /**
-     * @return float
+     * @return int
      */
     private function getRoundingRowTax(): float
     {
-        return (float)$this->scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             self::CONFIG_PATH_ROUNDING_ROW_TAX,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );

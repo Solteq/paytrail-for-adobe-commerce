@@ -8,7 +8,7 @@ $registry = Bootstrap::getObjectManager()->get(\Magento\Framework\Registry::clas
 $registry->unregister('isSecureArea');
 $registry->register('isSecureArea', true);
 
-/** @var \Magento\Sales\Model\Order $order */
+/** @var $order \Magento\Sales\Model\Order */
 $paymentCollection = Bootstrap::getObjectManager()->create(Collection::class);
 foreach ($paymentCollection as $payment) {
     $payment->delete();

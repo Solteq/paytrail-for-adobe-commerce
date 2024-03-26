@@ -103,11 +103,13 @@ class ProcessService
     {
         if ($currentOrder->canInvoice()) {
             try {
+                /** @var /Magento/Sales/Api/Data/InvoiceInterface|/Magento/Sales/Model/Order/Invoice $invoice */
                 $invoice = $this->invoiceService->prepareInvoice($currentOrder);
                 //TODO: catch \InvalidArgumentException which extends \Exception
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
                 $invoice->setTransactionId($this->currentOrderPayment->getLastTransId());
                 $invoice->register();
+                /** @var /Magento/Framework/DB/Transaction $transactionSave */
                 $transactionSave = $this->transactionFactory->create();
                 $transactionSave->addObject(
                     $invoice
@@ -148,7 +150,7 @@ class ProcessService
      * @return void
      * @throws \Paytrail\PaymentService\Exceptions\TransactionSuccessException
      */
-    private function processExistingTransaction($transaction)
+    protected function processExistingTransaction($transaction)
     {
         $details = $transaction->getAdditionalInformation(Transaction::RAW_DETAILS);
         if (is_array($details)) {
@@ -220,7 +222,7 @@ class ProcessService
      * @throws \Paytrail\PaymentService\Exceptions\TransactionSuccessException thrown if previous transaction got "ok"
      * @throws CheckoutException thrown if multiple transaction ids are present.
      */
-    private function validateOldTransaction($transaction, $transactionId)
+    protected function validateOldTransaction($transaction, $transactionId)
     {
         if ($transaction) {
             if ($transaction->getTxnId() !== $transactionId) {

@@ -41,17 +41,17 @@ class ReceiptIndexUnitTest extends TestCase
     private $resultFactoryMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|null
+     * @var \PHPUnit\Framework\MockObject\MockObject
      */
-    private \PHPUnit\Framework\MockObject\MockObject $messageManagerMock;
+    private $messageManagerMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|null
+     * @var \PHPUnit\Framework\MockObject\MockObject
      */
-    private \PHPUnit\Framework\MockObject\MockObject $orderMock;
+    private $orderMock;
 
     /**
-     * @var (\Magento\Framework\Controller\ResultInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject|null
+     * @var (\Magento\Framework\Controller\ResultInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
     private $resultInterfaceMock;
 

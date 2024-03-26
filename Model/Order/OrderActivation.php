@@ -36,12 +36,10 @@ class OrderActivation
      * Activate order.
      *
      * @param string $orderId
-     *
      * @return void
      * @throws InputException
-     * @throws LocalizedException
      */
-    public function activateOrder($orderId): void
+    public function activateOrder($orderId)
     {
         $order = $this->orderRepository->get($orderId);
 
@@ -63,7 +61,7 @@ class OrderActivation
      * @return bool
      * @throws InputException
      */
-    public function isCanceled($orderId): bool
+    public function isCanceled($orderId)
     {
         $order = $this->orderRepository->get($orderId);
         $i = 0;
@@ -90,7 +88,7 @@ class OrderActivation
      * @return false
      * @throws InputException
      */
-    private function getCaptureTransaction($order): bool
+    protected function getCaptureTransaction($order)
     {
         $transactionId = false;
         $paymentId =  $order->getPayment()->getId();
@@ -110,7 +108,7 @@ class OrderActivation
      * @throws InputException
      * @throws LocalizedException
      */
-    private function processInvoice($order): void
+    protected function processInvoice($order)
     {
         $transactionId = $this->getCaptureTransaction($order);
 

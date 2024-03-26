@@ -2,7 +2,6 @@
 
 namespace Paytrail\PaymentService\Tests\Gateway\Validator;
 
-use Magento\Payment\Gateway\Validator\ResultInterface;
 use Paytrail\PaymentService\Gateway\Config\Config;
 use Paytrail\PaymentService\Gateway\Validator\HmacValidator;
 use Paytrail\PaymentService\Gateway\Validator\ResponseValidator;
@@ -42,14 +41,12 @@ class ResponseValidatorUnitTest extends TestCase
     /**
      * @var array
      */
-    private                                                                                                     $shouldPass = [
+    private $shouldPass = [
         'checkout-account'   => 'invalid-checkout-accountid',
         'checkout-reference' => 'invalid-checkout-reference',
         'checkout-algorithm' => 'sha257',
         'signature'          => 'test-signature'
     ];
-
-    private  $resultMock;
 
     private function getSimpleMock($originalClassName)
     {

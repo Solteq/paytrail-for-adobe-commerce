@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace Paytrail\PaymentService\Plugin;
 
 use Magento\Catalog\Model\Product;
-use Magento\Catalog\Model\Product\Type\AbstractType;
-use Magento\Framework\DataObject;
+use Magento\Checkout\Model\Cart;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Model\Quote;
 
 class PreventDifferentScheduledCart
 {
@@ -16,24 +14,18 @@ class PreventDifferentScheduledCart
     /**
      * BeforeAddProduct plugin.
      *
-     * @param Quote $subject
-     * @param mixed $product
-     * @param null|float|DataObject $request
-     * @param null|string $processMode
-     *
+     * @param Cart $subject
+     * @param Product $productInfo
+     * @param array $requestInfo
      * @return array
      * @throws LocalizedException
      */
-    public function beforeAddProduct(
-        Quote   $subject,
-        Product $product,
-                $request = null,
-                $processMode = AbstractType::PROCESS_MODE_FULL
-    ) {
-        $cartItems       = $subject->getQuote()->getItems() ?: [];
-        $addItemSchedule = $product->getCustomAttribute(self::SCHEDULE_CODE);
+    public function beforeAddProduct(Cart $subject, $productInfo, $requestInfo = null)
+    {
+        $cartItems = $subject->getQuote()->getItems() ?: [];
+        $addItemSchedule = $productInfo->getCustomAttribute(self::SCHEDULE_CODE);
         if (!$addItemSchedule) {
-            return [$product, $request, $processMode];
+            return [$productInfo, $requestInfo];
         }
         foreach ($cartItems as $item) {
             $cartItemSchedule = $item->getProduct()->getCustomAttribute(self::SCHEDULE_CODE);
@@ -42,6 +34,6 @@ class PreventDifferentScheduledCart
             }
         }
 
-        return [$product, $request, $processMode];
+        return [$productInfo, $requestInfo];
     }
 }

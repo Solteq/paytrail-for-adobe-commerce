@@ -3,9 +3,9 @@
 namespace Paytrail\PaymentService\Model\Config\Source;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Framework\Option\ArrayInterface;
 
-class CallbackDelay implements OptionSourceInterface
+class CallbackDelay implements ArrayInterface
 {
     private const CALLBACK_DELAY_PATH = 'payment/paytrail/callback_delay';
 
@@ -39,7 +39,8 @@ class CallbackDelay implements OptionSourceInterface
     public function getCallbackDelay(): int
     {
         return $this->scopeConfig->getValue(
-            self::CALLBACK_DELAY_PATH
+            self::CALLBACK_DELAY_PATH,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
     }
 }

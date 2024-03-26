@@ -3,21 +3,23 @@
 namespace Paytrail\PaymentService\Controller\Tokenization;
 
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Validation\ValidationException;
-use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
 use Paytrail\PaymentService\Model\Validation\PreventAdminActions;
 use Psr\Log\LoggerInterface;
 
-class AddCard implements \Magento\Framework\App\ActionInterface
+class AddCard extends Action
 {
-
-    private $errorMsg = null;
+    /**
+     * @var $errorMsg
+     */
+    protected $errorMsg = null;
 
     /**
      * AddCard constructor.
@@ -31,21 +33,21 @@ class AddCard implements \Magento\Framework\App\ActionInterface
      * @param CommandManagerPoolInterface $commandManagerPool
      */
     public function __construct(
-        private Context                     $context,
-        private JsonFactory                 $jsonFactory,
-        private LoggerInterface             $logger,
-        private CustomerSession             $customerSession,
-        private PreventAdminActions         $preventAdminActions,
-        private ProcessService              $processService,
+        Context $context,
+        private JsonFactory $jsonFactory,
+        private LoggerInterface $logger,
+        private CustomerSession $customerSession,
+        private PreventAdminActions $preventAdminActions,
+        private ProcessService $processService,
         private CommandManagerPoolInterface $commandManagerPool
     ) {
+        parent::__construct($context);
     }
 
     /**
      * Execute
      *
      * @return mixed
-     * @throws ValidationException
      */
     public function execute()
     {
@@ -53,17 +55,18 @@ class AddCard implements \Magento\Framework\App\ActionInterface
             throw new ValidationException(__('Admin user is not authorized for this operation'));
         }
 
+        /** @var Json $resultJson */
         $resultJson = $this->jsonFactory->create();
 
         try {
-            if ($this->customerSession->getCustomerId() && $this->context->getRequest()->getParam('is_ajax')) {
+            if ($this->customerSession->getCustomerId() && $this->getRequest()->getParam('is_ajax')) {
                 $responseData = $this->getResponseData();
                 $redirect_url = $responseData->getHeader('Location')[0];
 
                 return $resultJson->setData(
                     [
-                        'success'  => true,
-                        'data'     => 'redirect',
+                        'success' => true,
+                        'data' => 'redirect',
                         'redirect' => $redirect_url
                     ]
                 );
@@ -86,17 +89,15 @@ class AddCard implements \Magento\Framework\App\ActionInterface
      *
      * @return mixed
      * @throws CheckoutException
-     * @throws NotFoundException
-     * @throws CommandException
      */
-    private function getResponseData()
+    protected function getResponseData()
     {
         $commandExecutor = $this->commandManagerPool->get('paytrail');
-        $response        = $commandExecutor->executeByCode(
+        $response = $commandExecutor->executeByCode(
             'add_card',
             null,
             [
-                'custom_redirect_url' => $this->context->getRequest()->getParam('custom_redirect_url')
+                'custom_redirect_url' => $this->getRequest()->getParam('custom_redirect_url')
             ]
         );
 

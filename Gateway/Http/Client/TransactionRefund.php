@@ -94,7 +94,7 @@ class TransactionRefund implements ClientInterface
                 \sprintf(
                     'Creating %s request to Paytrail API %s',
                     'refund',
-                    $order ? 'With order id: ' . $order->getId() : ''
+                    isset($order) ? 'With order id: ' . $order->getId() : ''
                 )
             );
 

@@ -2,17 +2,10 @@
 
 namespace Paytrail\PaymentService\Controller\Adminhtml\Recurring;
 
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ActionInterface;
+use Magento\Framework\App\ResponseInterface;
 
-class View implements ActionInterface
+class View extends \Magento\Backend\App\Action
 {
-
-    public function __construct(
-        private Context $context,
-    ) {
-    }
-
     public function execute()
     {
         $page = $this->initialize();
@@ -23,9 +16,8 @@ class View implements ActionInterface
 
     private function initialize()
     {
-        $resultPage = $this->context->getResultFactory()->create(
-            \Magento\Framework\Controller\ResultFactory::TYPE_PAGE
-        );
+        /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
+        $resultPage = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_PAGE);
         $resultPage->setActiveMenu('Magento_Sales::sales_order');
 
         return $resultPage;

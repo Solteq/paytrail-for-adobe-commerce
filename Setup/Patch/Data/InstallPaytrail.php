@@ -36,8 +36,6 @@ class InstallPaytrail implements DataPatchInterface
     {
         $this->installPaytrailStatus();
         $this->installPaytrailState();
-
-        return $this;
     }
 
     /**

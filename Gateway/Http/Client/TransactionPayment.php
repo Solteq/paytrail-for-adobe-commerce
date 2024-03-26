@@ -75,7 +75,7 @@ class TransactionPayment implements ClientInterface
                 \sprintf(
                     'Creating %s request to Paytrail API %s',
                     'payment',
-                    'With order id: ' . $order->getId()
+                    isset($order) ? 'With order id: ' . $order->getId() : ''
                 )
             );
 

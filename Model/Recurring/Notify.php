@@ -33,9 +33,7 @@ class Notify
     /**
      * @var SubscriptionLinkRepository
      */
-    private                 $subscriptionLinkRepository;
-
-    private LoggerInterface $logger;
+    private $subscriptionLinkRepository;
 
     /**
      * @param OrderCloner $orderCloner
