@@ -8,15 +8,9 @@ use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
 
 class Attributes extends AbstractModifier
 {
-    /**
-     * @var Magento\Framework\Stdlib\ArrayManager
-     */
-    private $arrayManager;
+    private ArrayManager $arrayManager;
 
-    /**
-     * @var TotalConfigProvider
-     */
-    private $totalConfigProvider;
+    private TotalConfigProvider $totalConfigProvider;
 
     /**
      * @param ArrayManager $arrayManager
@@ -26,7 +20,7 @@ class Attributes extends AbstractModifier
         ArrayManager        $arrayManager,
         TotalConfigProvider $totalConfigProvider
     ) {
-        $this->arrayManager = $arrayManager;
+        $this->arrayManager        = $arrayManager;
         $this->totalConfigProvider = $totalConfigProvider;
     }
 
@@ -34,6 +28,7 @@ class Attributes extends AbstractModifier
      * ModifyData
      *
      * @param array $data
+     *
      * @return array
      */
     public function modifyData(array $data)
@@ -45,6 +40,7 @@ class Attributes extends AbstractModifier
      * ModifyMeta.
      *
      * @param array $meta
+     *
      * @return array
      */
     public function modifyMeta(array $meta)
