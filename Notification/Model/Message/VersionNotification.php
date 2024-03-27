@@ -14,6 +14,7 @@ class VersionNotification implements MessageInterface
 
     /**
      * VersionNotification constructor.
+     * test chagne 2
      *
      * @param Session $authSession
      * @param InboxFactory $inboxFactory
