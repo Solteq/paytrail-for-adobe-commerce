@@ -1,0 +1,64 @@
+name: Run Paytrail Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - master
+
+jobs:
+  phpunit-test:
+    runs-on: ubuntu-latest
+
+    name: Run php code validation
+
+    strategy:
+      matrix:
+        node-version:
+          - 16
+        php-version:
+          [
+            8.1
+          ]
+        dependencies:
+          - "highest"
+        composer-options:
+          - "--no-plugins --no-progress"
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Setup Php ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          ini-file: development
+          tools: composer:2.2, cs2pr, phpunit
+        env:
+          COMPOSER_AUTH_JSON: |
+            {
+              "http-basic": {
+                "repo.magento.com": {
+                  "username": "${{ secrets.REPO_MAGENTO_USER }}",
+                  "password": "${{ secrets.REPO_MAGENTO_PASSWORD }}"
+                }
+              }
+            }
+
+      - name: Validate Composer Files
+        run: composer validate
+
+      - name: Run Composer install
+        uses: "ramsey/composer-install@v1"
+        with:
+          dependency-versions: "${{ matrix.dependencies }}"
+          composer-options: "${{ matrix.composer-options }}"
+
+      - name: Run Unit test
+        run: |
+          vendor/bin/phpunit Test/Unit/
