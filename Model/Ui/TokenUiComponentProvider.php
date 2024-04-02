@@ -35,7 +35,7 @@ class TokenUiComponentProvider implements TokenUiComponentProviderInterface
         return $this->componentFactory->create(
             [
                 'config' => [
-                    'code' => Config::VAULT_CODE,
+                    'code' => Config::CC_VAULT_CODE,
                     TokenUiComponentProviderInterface::COMPONENT_DETAILS => $jsonDetails,
                     TokenUiComponentProviderInterface::COMPONENT_PUBLIC_HASH => $paymentToken->getPublicHash()
                 ],
