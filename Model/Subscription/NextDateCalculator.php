@@ -3,9 +3,12 @@
 namespace Paytrail\PaymentService\Model\Subscription;
 
 use Carbon\Carbon;
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
+use Paytrail\PaymentService\Api\Data\RecurringProfileInterface;
 use Paytrail\PaymentService\Api\RecurringProfileRepositoryInterface;
 
 class NextDateCalculator
@@ -20,16 +23,29 @@ class NextDateCalculator
     private $serializer;
 
     /**
-     * @var \Paytrail\PaymentService\Api\Data\RecurringProfileInterface[]
+     * @var RecurringProfileInterface[]
      */
-    private                      $profiles = [];
-    private ScopeConfigInterface $scopeConfig;
-    private bool                 $forceWeekdays;
+    private $profiles = [];
 
+    /**
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
+
+    /**
+     * @var bool
+     */
+    private bool $forceWeekdays;
+
+    /**
+     * @param RecurringProfileRepositoryInterface $profileRepository
+     * @param SerializerInterface $serializer
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(
         RecurringProfileRepositoryInterface $profileRepository,
-        SerializerInterface                                              $serializer,
-        ScopeConfigInterface                                             $scopeConfig
+        SerializerInterface                 $serializer,
+        ScopeConfigInterface                $scopeConfig
     ) {
         $this->profileRepo = $profileRepository;
         $this->serializer  = $serializer;
@@ -37,11 +53,14 @@ class NextDateCalculator
     }
 
     /**
-     * @param $profileId
+     * Calculate next date for a profile.
+     *
+     * @param int $profileId
      * @param string $startDate
      *
      * @return string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
+     * @throws Exception
      */
     public function getNextDate($profileId, $startDate = 'now')
     {
@@ -51,11 +70,13 @@ class NextDateCalculator
     }
 
     /**
-     * @param $schedule
-     * @param $startDate
+     * Calculate next date based on the schedule.
+     *
+     * @param string $schedule
+     * @param string $startDate
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     private function calculateNextDate($schedule, $startDate)
     {
@@ -87,12 +108,14 @@ class NextDateCalculator
     }
 
     /**
-     * @param $profileId
+     * Get profile by id
      *
-     * @return \Paytrail\PaymentService\Api\Data\RecurringProfileInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param int $profileId
+     *
+     * @return RecurringProfileInterface
+     * @throws NoSuchEntityException
      */
-    private function getProfileById($profileId): \Paytrail\PaymentService\Api\Data\RecurringProfileInterface
+    private function getProfileById($profileId): RecurringProfileInterface
     {
         if (!isset($this->profiles[$profileId])) {
             $this->profiles[$profileId] = $this->profileRepo->get($profileId);
@@ -102,7 +125,9 @@ class NextDateCalculator
     }
 
     /**
-     * @return false
+     * Get force weekdays config
+     *
+     * @return bool
      */
     private function isForceWeekdays()
     {
@@ -113,7 +138,9 @@ class NextDateCalculator
     }
 
     /**
-     * @param $nextDate
+     * Get next weekday
+     *
+     * @param Carbon $nextDate
      *
      * @return Carbon
      */
@@ -130,10 +157,12 @@ class NextDateCalculator
     }
 
     /**
-     * @param \Carbon\Carbon $carbonDate
+     * Add months no overflow
+     *
+     * @param Carbon $carbonDate
      * @param int $interval
      *
-     * @return \Carbon\Carbon
+     * @return Carbon
      */
     private function addMonthsNoOverflow($carbonDate, $interval)
     {
