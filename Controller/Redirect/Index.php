@@ -87,13 +87,14 @@ class Index implements ActionInterface
                     throw new LocalizedException(__('No payment method selected'));
                 }
 
-                $order           = $this->checkoutSession->getLastRealOrder();
+                $order = $this->checkoutSession->getLastRealOrder();
                 $paytrailPayment = $this->getPaytrailPayment($order, $selectedPaymentMethodId);
 
                 if ($selectedPaymentMethodId === Config::APPLE_PAY_PAYMENT_CODE) {
                     return $resultJson->setData([
                         'success' => true,
                         'applePay' => true,
+                      // TODO: change to real customProviders from the $responseData
                         'customProviders' => $paytrailPayment->getCustomProvider()
                     ]);
                 }
@@ -108,8 +109,8 @@ class Index implements ActionInterface
 
                     return $resultJson->setData(
                         [
-                            'success'  => true,
-                            'data'     => 'redirect',
+                            'success' => true,
+                            'data' => 'redirect',
                             'redirect' => $redirect_url
                         ]
                     );
@@ -139,9 +140,9 @@ class Index implements ActionInterface
                     ->setParams($this->getInputs($formParams['inputs']));
 
                 return $resultJson->setData([
-                                                'success' => true,
-                                                'data'    => $block->toHtml(),
-                                            ]);
+                    'success' => true,
+                    'data' => $block->toHtml(),
+                ]);
             }
         } catch (\Exception $e) {
             // Error will be handled below
@@ -159,9 +160,9 @@ class Index implements ActionInterface
         $this->checkoutSession->restoreQuote();
 
         return $resultJson->setData([
-                                        'success' => false,
-                                        'message' => $this->errorMsg
-                                    ]);
+            'success' => false,
+            'message' => $this->errorMsg
+        ]);
     }
 
     /**
@@ -178,11 +179,11 @@ class Index implements ActionInterface
     private function getPaytrailPayment(Order $order, string $paymentMethod)
     {
         $commandExecutor = $this->commandManagerPool->get('paytrail');
-        $response        = $commandExecutor->executeByCode(
+        $response = $commandExecutor->executeByCode(
             'payment',
             null,
             [
-                'order'          => $order,
+                'order' => $order,
                 'payment_method' => $paymentMethod
             ]
         );

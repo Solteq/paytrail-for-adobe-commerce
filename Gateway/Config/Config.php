@@ -47,7 +47,6 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public const KEY_DEFAULT_ORDER_STATUS              = 'order_status';
     public const KEY_NOTIFICATION_EMAIL                = 'recipient_email';
     public const KEY_CANCEL_ORDER_ON_FAILED_PAYMENT    = 'failed_payment_cancel';
-    public const VAULT_CODE                            = 'paytrail_cc_vault';
     public const LOGO                                  = 'payment/paytrail/logo';
     public const KEY_MANUAL_INVOICE                    = 'manual_invoice';
 
@@ -61,6 +60,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public const PAYTRAIL_API_PAYMENT_STATUS_PENDING = 'pending';
     public const PAYTRAIL_API_PAYMENT_STATUS_DELAYED = 'delayed';
     public const PAYTRAIL_API_PAYMENT_STATUS_FAIL    = 'fail';
+
+    public const APPLE_PAY_PAYMENT_CODE = 'applepay';
 
     /**
      * @var array
@@ -485,7 +486,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         $t      = [];
 
         foreach ($tokens as $token) {
-            if ($token->getPaymentMethodCode() == self::VAULT_CODE && $token->getIsActive() && $token->getIsVisible()) {
+            if ($token->getPaymentMethodCode() == self::CC_VAULT_CODE && $token->getIsActive() && $token->getIsVisible()) {
                 $cdata                                = json_decode($token->getTokenDetails(), true);
                 $t[$token->getEntityId()]["expires"]  = $cdata['expirationDate'];
                 $t[$token->getEntityId()]["url"]      = $this->getIconUrl($cdata["type"])['url'];

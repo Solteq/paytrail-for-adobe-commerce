@@ -15,7 +15,7 @@ class CardRenderer extends AbstractCardRenderer
      */
     public function canRender(PaymentTokenInterface $token): bool
     {
-        return $token->getPaymentMethodCode() === Config::VAULT_CODE;
+        return $token->getPaymentMethodCode() === Config::CC_VAULT_CODE;
     }
 
     /**
