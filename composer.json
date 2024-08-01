@@ -23,7 +23,9 @@
         "nesbot/carbon": "^2.57.0"
     },
     "require-dev": {
-        "magento/magento-coding-standard": "*"
+        "magento/magento-coding-standard": "*",
+        "phpunit/phpunit": "^9.5",
+        "magento/product-enterprise-edition": "> 2.4.3"
     },
     "conflict": {
         "markup/module-paytrail": "*"
@@ -51,5 +53,13 @@
         "payment gateway",
         "paytrail",
         "Recurring Payment"
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "magento/composer-dependency-version-audit-plugin": false,
+            "magento/magento-composer-installer": false,
+            "magento/inventory-composer-installer": false,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
 }
