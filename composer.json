@@ -25,8 +25,7 @@
     "require-dev": {
         "magento/magento-coding-standard": "*",
         "phpunit/phpunit": "^9.5",
-        "magento/module-payment": "^100.4.0",
-        "magento/module-sales": "^103.0.0"
+        "magento/project-enterprise-edition": "^2.4.7"
     },
     "conflict": {
         "markup/module-paytrail": "*"
