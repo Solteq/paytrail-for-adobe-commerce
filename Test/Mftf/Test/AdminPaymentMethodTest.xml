@@ -4,16 +4,20 @@
         <annotations>
             <title value="Payment visible in admin panel"/>
             <description
-                value="User can see Paytrail config in admin panel"/>
+                    value="User can see Paytrail config in admin panel"/>
             <severity value="CRITICAL"/>
             <stories value="Payment Config"/>
             <group value="paytrail"/>
         </annotations>
         <before>
+            <magentoCLI stepKey="DisableAdminFormKey"
+                        command="config:set {{DisableAdminFormKey.path}} {{DisableAdminFormKey.value}}"/>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginGetFromGeneralFile"/>
         </before>
         <after>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <magentoCLI stepKey="EnableAdminFormKey"
+                        command="config:set {{EnableAdminFormKey.path}} {{EnableAdminFormKey.value}}"/>
         </after>
         <actionGroup ref="AdminOpenConfigurationSalesPaymentMethodActionGroup" stepKey="goToPaymentConfig"/>
     </test>
