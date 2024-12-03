@@ -24,7 +24,7 @@ class DiscountApplyTest extends TestCase
         $items = ['item1', 'item2'];
         $order = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getGiftCardsAmount', 'getCustomerBalanceAmount', 'getRewardCurrencyAmount'])
+            ->setMethods(['getGiftCardsAmount', 'getCustomerBalanceAmount', 'getRewardCurrencyAmount'])
             ->onlyMethods(['getShippingAmount', 'getGrandTotal', 'getShippingTaxAmount', 'getAllItems'])
             ->getMock();
 
@@ -42,7 +42,7 @@ class DiscountApplyTest extends TestCase
         $items = ['item1', 'item2'];
         $order = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getGiftCardsAmount', 'getCustomerBalanceAmount', 'getRewardCurrencyAmount'])
+            ->setMethods(['getGiftCardsAmount', 'getCustomerBalanceAmount', 'getRewardCurrencyAmount'])
             ->onlyMethods(['getShippingAmount', 'getGrandTotal', 'getShippingTaxAmount', 'getAllItems'])
             ->getMock();
 
