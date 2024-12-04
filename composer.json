@@ -24,7 +24,8 @@
     },
     "require-dev": {
         "magento/magento-coding-standard": "*",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.6",
+        "magento/product-enterprise-edition": ">2.4.7"
     },
     "conflict": {
         "markup/module-paytrail": "*"
