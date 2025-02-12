@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         fetch-depth:
-          - 2
+          - 0
         base-branch:
           - "master"
     outputs:
