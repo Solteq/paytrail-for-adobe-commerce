@@ -10,7 +10,7 @@ jobs:
         fetch-depth:
           - 0
         base-branch:
-          - "master"
+          - "staging"
     outputs:
       all: ${{ steps.changes.outputs.all }}
       php: ${{ steps.changes.outputs.php }}
