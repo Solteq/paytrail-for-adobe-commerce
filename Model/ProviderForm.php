@@ -34,7 +34,7 @@ class ProviderForm
      *
      * @param PaymentResponse $paytrailPayment
      * @param string $paymentMethodId
-     * @param ?string $cardType
+     * @param string|null $cardType
      *
      * @return string
      */
@@ -61,7 +61,7 @@ class ProviderForm
      *
      * @param PaymentResponse $paytrailPayment
      * @param string $paymentMethodId
-     * @param ?string $cardType
+     * @param string|null $cardType
      *
      * @return array
      */
