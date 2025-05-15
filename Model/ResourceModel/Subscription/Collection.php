@@ -25,7 +25,7 @@ class Collection extends AbstractCollection implements SubscriptionSearchResultI
      * @return $this
      * @throws \Exception
      */
-    public function setItems(array $items = null)
+    public function setItems(array $items = [])
     {
         if (!$items) {
             return $this;

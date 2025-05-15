@@ -10,12 +10,13 @@ class ProviderForm
     const FORM_SUBMIT_METHOD = 'POST';
 
     /**
-     * @param $paytrailPayment
+     * @param PaymentResponse $paytrailPayment
      * @param null $paymentMethodId
+     * @param null $cardType
      *
      * @return array
      */
-    public function getFormParams(PaymentResponse $paytrailPayment, string $paymentMethodId = null, $cardType = null)
+    public function getFormParams(PaymentResponse $paytrailPayment, $paymentMethodId = null, $cardType = null)
     {
         $formParams = [
             'action' => $this->getFormAction($paytrailPayment, $paymentMethodId, $cardType),

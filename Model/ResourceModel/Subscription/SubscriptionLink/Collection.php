@@ -30,7 +30,7 @@ class Collection extends AbstractCollection implements SubscriptionLinkSearchRes
      * @return \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection
      * @throws \Exception
      */
-    public function setItems(array $items = null)
+    public function setItems(array $items = [])
     {
         if (!$items) {
             return $this;
