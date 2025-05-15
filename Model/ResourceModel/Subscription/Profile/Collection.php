@@ -27,7 +27,7 @@ class Collection extends AbstractCollection implements RecurringProfileSearchRes
      * @return \Paytrail\PaymentService\Model\ResourceModel\Subscription\Profile\Collection
      * @throws \Exception
      */
-    public function setItems(array $items = null)
+    public function setItems(array $items = [])
     {
         if (!$items) {
             return $this;
