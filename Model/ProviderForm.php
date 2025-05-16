@@ -7,16 +7,18 @@ use Paytrail\SDK\Response\PaymentResponse;
 
 class ProviderForm
 {
-    const FORM_SUBMIT_METHOD = 'POST';
+    public const FORM_SUBMIT_METHOD = 'POST';
 
     /**
+     * Form Params getter
+     *
      * @param PaymentResponse $paytrailPayment
-     * @param null $paymentMethodId
-     * @param null $cardType
+     * @param string $paymentMethodId
+     * @param string $cardType
      *
      * @return array
      */
-    public function getFormParams(PaymentResponse $paytrailPayment, $paymentMethodId = null, $cardType = null)
+    public function getFormParams(PaymentResponse $paytrailPayment, string $paymentMethodId = '', string $cardType = '')
     {
         $formParams = [
             'action' => $this->getFormAction($paytrailPayment, $paymentMethodId, $cardType),
@@ -32,11 +34,11 @@ class ProviderForm
      *
      * @param PaymentResponse $paytrailPayment
      * @param string $paymentMethodId
-     * @param $cardType
+     * @param string $cardType
      *
      * @return string
      */
-    private function getFormAction(PaymentResponse $paytrailPayment, string $paymentMethodId, $cardType): string
+    private function getFormAction(PaymentResponse $paytrailPayment, string $paymentMethodId, string $cardType): string
     {
         $returnUrl = '';
 
@@ -59,11 +61,11 @@ class ProviderForm
      *
      * @param PaymentResponse $paytrailPayment
      * @param string $paymentMethodId
-     * @param $cardType
+     * @param string $cardType
      *
      * @return array
      */
-    private function getFormFields(PaymentResponse $paytrailPayment, string $paymentMethodId, $cardType): array
+    private function getFormFields(PaymentResponse $paytrailPayment, string $paymentMethodId, string $cardType): array
     {
         $formFields = [];
 
