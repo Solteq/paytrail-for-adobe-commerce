@@ -44,9 +44,9 @@ class PaymentInformationManagementPlugin
      */
     public function beforeSavePaymentInformation(
         PaymentInformationManagement $subject,
-                                     $cartId,
-        PaymentInterface             $paymentMethod,
-        AddressInterface             $billingAddress = null
+        $cartId,
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
     ): array {
         if ($this->preventAdminActions->isAdminAsCustomer()
             && str_contains(

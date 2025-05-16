@@ -10,6 +10,11 @@ class Collection extends AbstractCollection implements SubscriptionSearchResultI
     /** @var \Magento\Framework\Api\SearchCriteriaInterface */
     private $searchCriteria;
 
+    /**
+     * Initialize the collection.
+     *
+     * @return void
+     */
     protected function _construct()
     {
         $this->_init(
@@ -25,7 +30,7 @@ class Collection extends AbstractCollection implements SubscriptionSearchResultI
      * @return $this
      * @throws \Exception
      */
-    public function setItems(array $items = null)
+    public function setItems(array $items = [])
     {
         if (!$items) {
             return $this;
@@ -83,6 +88,13 @@ class Collection extends AbstractCollection implements SubscriptionSearchResultI
         return $this;
     }
 
+    /**
+     * Retrieve billing collection by order IDs.
+     *
+     * @param array $orderIds
+     *
+     * @return $this
+     */
     public function getBillingCollectionByOrderIds($orderIds)
     {
         $this->join(

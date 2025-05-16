@@ -17,5 +17,5 @@ interface SubscriptionLinkSearchResultInterface extends \Magento\Framework\Api\S
      * @param \Paytrail\PaymentService\Api\Data\SubscriptionLinkInterface[] $items
      * @return $this
      */
-    public function setItems(array $items = null);
+    public function setItems(array $items = []);
 }
