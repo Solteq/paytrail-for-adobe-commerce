@@ -91,7 +91,7 @@ class Collection extends AbstractCollection implements SubscriptionSearchResultI
     /**
      * Retrieve billing collection by order IDs.
      *
-     * @param $orderIds
+     * @param array $orderIds
      *
      * @return $this
      */
