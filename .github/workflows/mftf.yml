@@ -146,6 +146,7 @@ jobs:
             -   name: Install MFTF
                 run: |
                     cd magento
+                    chmod +x bin/magento
                     composer require --dev magento/magento2-functional-testing-framework
                     vendor/bin/mftf build:project
                     # configure MFTF env
@@ -195,6 +196,7 @@ jobs:
                 run: |
                     cd magento
                     nohup php -S 0.0.0.0:8080 -t pub/ pub/router.php > server.log 2>&1 &
+
             -   name: Wait for Magento to be ready
                 run: |
                     for i in {1..30}; do
