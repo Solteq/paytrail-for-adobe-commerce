@@ -134,6 +134,8 @@ jobs:
                     composer require paytrail/paytrail-php-sdk
                     mkdir -p app/code/Paytrail/PaymentService
                     rsync -av --exclude='.git' --exclude='vendor' --exclude='app/autoload.php' --exclude='magento' ../ ./app/code/Paytrail/PaymentService/
+                    
+                    bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
                     bin/magento module:enable Paytrail_PaymentService
                     bin/magento setup:upgrade
                     bin/magento setup:di:compile
