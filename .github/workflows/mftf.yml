@@ -101,7 +101,7 @@ jobs:
 
             - name: Upload MFTF Logs
               if: failure()
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: mftf-logs
                   path: magento/dev/tests/acceptance/tests/_output
