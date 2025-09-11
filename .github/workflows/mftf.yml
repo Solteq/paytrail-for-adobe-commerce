@@ -82,13 +82,6 @@ jobs:
             -   name: Install Composer
                 run: sudo apt-get update && sudo apt-get install -y composer
 
-            -   name: Install Chromium & ChromeDriver
-                run: |
-                    sudo apt-get update
-                    sudo apt-get install -y chromium-browser chromium-chromedriver
-                    chromium-browser --version
-                    chromedriver --version
-
             -   name: Install Magento 2.4.8
                 env:
                     COMPOSER_AUTH: |
@@ -182,28 +175,19 @@ jobs:
                 run: |
                     cat <<'EOF' > magento/pub/router.php
                     <?php
-                    $uri = urldecode(
+                        $uri = urldecode(
                         parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
-                    );
-                    
-                    // Serve the file if it exists in pub/
-                    $pubPath = __DIR__ . $uri;
-                    if (file_exists($pubPath)) {
-                        return false; // serve normally
-                    }
-                    
-                    // Serve dev/tests/acceptance files from Magento root
-                    if (strpos($uri, '/dev/tests/acceptance/') === 0) {
-                        $newPath = __DIR__ . '/../' . substr($uri, 1);
-                        if (file_exists($newPath)) {
-                            include $newPath;
-                            return;
+                        );
+                        
+                        // Serve dev/tests/acceptance files from Magento root
+                        if (strpos($uri, '/dev/tests/acceptance/') === 0) {
+                            $newPath = __DIR__ . '/../' . substr($uri, 1);
+                            if (file_exists($newPath)) {
+                                include $newPath;
+                                return;
+                            }
                         }
-                    }
-                    
-                    // Default 404
-                    header("HTTP/1.0 404 Not Found");
-                    echo "File not found: $uri";
+                    return false;
                     EOF
             
 
