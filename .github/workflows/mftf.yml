@@ -66,6 +66,9 @@ jobs:
         
 
         steps:
+            -   name: validate selenium
+                run: |
+                    curl -s http://localhost:4444/wd/hub/status | jq .
             -   name: Checkout repository
                 uses: actions/checkout@v4
 
