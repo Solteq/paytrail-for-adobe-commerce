@@ -210,7 +210,7 @@ jobs:
             -   name: Start PHP built-in webserver
                 run: |
                     cd magento
-                    nohup php -S 127.0.0.1:8080 -t pub/ pub/router.php > server.log 2>&1 &
+                    nohup php -S 0.0.0.0:8080 -t pub/ pub/router.php > server.log 2>&1 &
             -   name: Wait for Magento to be ready
                 run: |
                     for i in {1..30}; do
