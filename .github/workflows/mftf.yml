@@ -104,7 +104,7 @@ jobs:
                     composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition magento
                     cd magento
                     php -d memory_limit=1G bin/magento setup:install \
-                      --base-url=http://127.0.0.1:8000 \
+                      --base-url=http://127.0.0.1:8080 \
                       --db-host=127.0.0.1 \
                       --db-name=magento \
                       --db-user=magento \
@@ -160,7 +160,7 @@ jobs:
                     MAGENTO_BASE_URL=http://127.0.0.1:8080/
                     MAGENTO_BACKEND_NAME=admin
                     MAGENTO_ADMIN_USERNAME=admin
-                    MAGENTO_ADMIN_PASSWORD=Admin123
+                    MAGENTO_ADMIN_PASSWORD=admin123
                     SELENIUM_HOST=localhost
                     SELENIUM_PATH=/
                     SELENIUM_PORT=4444
@@ -186,10 +186,15 @@ jobs:
             -   name: Wait for Magento to be ready
                 run: |
                     for i in {1..30}; do
-                        if curl -s http://127.0.0.1:8080 > /dev/null; then
-                            echo "Magento is ready"
-                            break
-                        fi
+                      if curl -sSf http://127.0.0.1:8080 > /dev/null; then
+                        echo "Magento is ready"
+                        exit 0
+                      fi
+                      echo "Waiting for Magento..."
+                      sleep 5
+                    done
+                    echo "Magento did not start in time"
+                    exit 1
 
             -   name: Run MFTF Tests
                 run: |
