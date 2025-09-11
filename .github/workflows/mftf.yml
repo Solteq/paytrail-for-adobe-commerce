@@ -48,7 +48,7 @@ jobs:
 
             - name: Install Magento 2.4.8
               env:
-                  COMPOSER_AUTH_JSON: |
+                  COMPOSER_AUTH: |
                       {
                         "http-basic": {
                           "repo.magento.com": {
@@ -58,7 +58,7 @@ jobs:
                         }
                       }
               run: |
-                  composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 magento
+                  composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition magento
                   cd magento
                   bin/magento setup:install \
                     --base-url=http://127.0.0.1:8080/ \
