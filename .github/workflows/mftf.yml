@@ -1,0 +1,107 @@
+name: Run MFTF Tests
+
+on:
+    push:
+        branches: [ staging ]
+    pull_request:
+
+jobs:
+    mftf:
+        runs-on: ubuntu-latest
+
+        services:
+            mysql:
+                image: mysql:8.0
+                env:
+                    MYSQL_ROOT_PASSWORD: root
+                    MYSQL_DATABASE: magento
+                    MYSQL_USER: magento
+                    MYSQL_PASSWORD: magento
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h 127.0.0.1 -pmagento"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up PHP 8.2
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  extensions: mbstring, intl, soap, mysqli, dom, simplexml, xsl, zip, bcmath, gd
+                  ini-values: memory_limit=2G
+
+            - name: Install Composer
+              run: sudo apt-get update && sudo apt-get install -y composer
+
+            - name: Install Chromium & ChromeDriver
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y chromium-browser chromium-chromedriver
+                  chromium-browser --version
+                  chromedriver --version
+
+            - name: Install Magento 2.4.8
+              run: |
+                  composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 magento
+                  cd magento
+                  bin/magento setup:install \
+                    --base-url=http://127.0.0.1:8080/ \
+                    --db-host=127.0.0.1 --db-name=magento --db-user=magento --db-password=magento \
+                    --admin-firstname=Admin --admin-lastname=User --admin-email=admin@example.com \
+                    --admin-user=admin --admin-password=Admin123! \
+                    --language=en_US --currency=USD --timezone=UTC --use-rewrites=1
+
+            - name: Install Paytrail module
+              run: |
+                  cd magento
+                  mkdir -p app/code/Paytrail/PaymentService
+                  rsync -av --exclude='.git' ../ ./app/code/Paytrail/PaymentService/
+                  bin/magento module:enable Paytrail_PaymentService
+                  bin/magento setup:upgrade
+                  bin/magento setup:di:compile
+                  bin/magento setup:static-content:deploy -f
+
+            - name: Install MFTF
+              run: |
+                  cd magento
+                  composer require --dev magento/magento-functional-testing-framework:^3.10
+                  vendor/bin/mftf build:project
+                  # configure MFTF env
+                  cat <<EOF > dev/tests/acceptance/.env
+                  MAGENTO_BASE_URL=http://127.0.0.1:8080/
+                  MAGENTO_BACKEND_NAME=admin
+                  MAGENTO_ADMIN_USERNAME=admin
+                  MAGENTO_ADMIN_PASSWORD=Admin123!
+                  SELENIUM_HOST=127.0.0.1
+                  SELENIUM_PORT=4444
+                  BROWSER=chrome
+                  ENABLE_SELENIUM=1
+                  EOF
+
+            - name: Start PHP built-in webserver
+              run: |
+                  cd magento
+                  nohup php -S 127.0.0.1:8080 -t pub/ > server.log 2>&1 &
+
+            - name: Start Selenium with Chrome
+              run: |
+                  wget https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar
+                  nohup java -jar selenium-server-standalone-3.141.59.jar -port 4444 > selenium.log 2>&1 &
+
+            - name: Run MFTF Tests
+              run: |
+                  cd magento
+                  vendor/bin/mftf run:group Paytrail --remove --debug
+
+            - name: Upload MFTF Logs
+              if: failure()
+              uses: actions/upload-artifact@v3
+              with:
+                  name: mftf-logs
+                  path: magento/dev/tests/acceptance/tests/_output
