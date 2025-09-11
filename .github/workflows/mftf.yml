@@ -142,7 +142,7 @@ jobs:
             -   name: Install MFTF
                 run: |
                     cd magento
-                    composer require --dev magento/magento-functional-testing-framework:^3.10
+                    composer require --dev magento/magento2-functional-testing-framework
                     vendor/bin/mftf build:project
                     # configure MFTF env
                     cat <<EOF > dev/tests/acceptance/.env
@@ -151,9 +151,20 @@ jobs:
                     MAGENTO_ADMIN_USERNAME=admin
                     MAGENTO_ADMIN_PASSWORD=Admin123
                     SELENIUM_HOST=127.0.0.1
+                    SELENIUM_PATH=/
                     SELENIUM_PORT=4444
                     BROWSER=chrome
                     ENABLE_SELENIUM=1
+                    EOF
+                    # add .credential file
+                    cat <<EOF > dev/tests/acceptance/.credentials
+                    # Admin password
+                    magento/MAGENTO_ADMIN_PASSWORD=admin123
+                    magento/tfa/OTP_SHARED_SECRET=MFRGGZDF
+                  
+                    # Paytrail test credentials:
+                    paytrail/payment_paytrail_merchant_id=375917
+                    paytrail/payment_paytrail_merchant_secret=SAIPPUAKAUPPIAS
                     EOF
 
             -   name: Start PHP built-in webserver
@@ -169,7 +180,12 @@ jobs:
             -   name: Run MFTF Tests
                 run: |
                     cd magento
-                    vendor/bin/mftf run:group Paytrail --remove --debug
+                    php vendor/bin/codecept bootstrap
+                    composer update
+                    vendor/bin/mftf build:project
+                    vendor/bin/mftf generate:suite PaytrailSuite
+                    
+                     vendor/bin/mftf run:group PaytrailSuite
 
             -   name: Upload MFTF Logs
                 if: failure()
