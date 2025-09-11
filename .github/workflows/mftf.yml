@@ -161,7 +161,7 @@ jobs:
                     MAGENTO_BACKEND_NAME=admin
                     MAGENTO_ADMIN_USERNAME=admin
                     MAGENTO_ADMIN_PASSWORD=Admin123
-                    SELENIUM_HOST=127.0.0.1
+                    SELENIUM_HOST=localhost
                     SELENIUM_PATH=/
                     SELENIUM_PORT=4444
                     BROWSER=chrome
@@ -181,7 +181,15 @@ jobs:
             -   name: Start PHP built-in webserver
                 run: |
                     cd magento
-                    nohup php -S 127.0.0.1:8080 -t pub/ > server.log 2>&1 &
+                    php -S 0.0.0.0:8080 -t pub/ > server.log 2>&1 &
+
+            -   name: Wait for Magento to be ready
+                run: |
+                    for i in {1..30}; do
+                        if curl -s http://127.0.0.1:8080 > /dev/null; then
+                            echo "Magento is ready"
+                            break
+                        fi
 
             -   name: Run MFTF Tests
                 run: |
