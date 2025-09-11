@@ -178,11 +178,39 @@ jobs:
                     paytrail/payment_paytrail_merchant_secret=SAIPPUAKAUPPIAS
                     EOF
 
+            -   name: Create PHP built-in server router for MFTF
+                run: |
+                    cat <<'EOF' > magento/pub/router.php
+                    <?php
+                    $uri = urldecode(
+                        parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+                    );
+                    
+                    // Serve the file if it exists in pub/
+                    $pubPath = __DIR__ . $uri;
+                    if (file_exists($pubPath)) {
+                        return false; // serve normally
+                    }
+                    
+                    // Serve dev/tests/acceptance files from Magento root
+                    if (strpos($uri, '/dev/tests/acceptance/') === 0) {
+                        $newPath = __DIR__ . '/../' . substr($uri, 1);
+                        if (file_exists($newPath)) {
+                            include $newPath;
+                            return;
+                        }
+                    }
+                    
+                    // Default 404
+                    header("HTTP/1.0 404 Not Found");
+                    echo "File not found: $uri";
+                    EOF
+            
+
             -   name: Start PHP built-in webserver
                 run: |
                     cd magento
-                    php -S 0.0.0.0:8080 -t pub/ > server.log 2>&1 &
-
+                    nohup php -S 127.0.0.1:8080 -t pub/ pub/router.php > server.log 2>&1 &
             -   name: Wait for Magento to be ready
                 run: |
                     for i in {1..30}; do
