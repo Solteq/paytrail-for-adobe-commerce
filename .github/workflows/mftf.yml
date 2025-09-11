@@ -10,6 +10,11 @@ jobs:
         runs-on: ubuntu-latest
 
         services:
+            selenium:
+                image: selenium/standalone-chromium:latest # For AMD64
+                options: --shm-size=2gb
+                ports:
+                    - "4444:4444"
             redis:
                 image: redis:7.2-alpine
                 ports:
@@ -58,6 +63,7 @@ jobs:
                     --health-interval 10s
                     --health-timeout 5s
                     --health-retries 3
+        
 
         steps:
             -   name: Checkout repository
@@ -163,7 +169,7 @@ jobs:
                     # Admin password
                     magento/MAGENTO_ADMIN_PASSWORD=admin123
                     magento/tfa/OTP_SHARED_SECRET=MFRGGZDF
-                  
+                    
                     # Paytrail test credentials:
                     paytrail/payment_paytrail_merchant_id=375917
                     paytrail/payment_paytrail_merchant_secret=SAIPPUAKAUPPIAS
@@ -173,11 +179,6 @@ jobs:
                 run: |
                     cd magento
                     nohup php -S 127.0.0.1:8080 -t pub/ > server.log 2>&1 &
-
-            -   name: Start Selenium with Chrome
-                run: |
-                    wget https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar
-                    nohup java -jar selenium-server-standalone-3.141.59.jar -port 4444 > selenium.log 2>&1 &
 
             -   name: Run MFTF Tests
                 run: |
