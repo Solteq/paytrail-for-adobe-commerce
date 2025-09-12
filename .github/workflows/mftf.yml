@@ -63,7 +63,7 @@ jobs:
           vendor/bin/mftf build:project
           # configure MFTF env
           cat <<EOF > dev/tests/acceptance/.env
-          MAGENTO_BASE_URL=${{ vars.B }}
+          MAGENTO_BASE_URL=${{ vars.BASE_URL }}
           MAGENTO_BACKEND_NAME=admin
           MAGENTO_ADMIN_USERNAME=${{ vars.ADMIN_USER }}
           MAGENTO_ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
