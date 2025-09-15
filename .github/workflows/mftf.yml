@@ -17,6 +17,12 @@ jobs:
           - "4444:4444"
 
     steps:
+      - name: echo current ip
+        run: |
+          ip addr show
+          echo "Current IPs:" $(ip addr show | grep 'inet ' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
+          echo "Current IPv6s:" $(ip addr show | grep 'inet6 ' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
+
       - name: validate selenium
         run: |
           curl -s http://localhost:4444/wd/hub/status | jq .
