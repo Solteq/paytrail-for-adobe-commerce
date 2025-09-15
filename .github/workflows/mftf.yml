@@ -85,9 +85,9 @@ jobs:
           EOF
 
           echo '--- .env file ---'
-          cat magento/dev/tests/acceptance/.env || echo '.env not found'
+          cat dev/tests/acceptance/.env || echo '.env not found'
           echo '--- .credentials file ---'
-          cat magento/dev/tests/acceptance/.credentials || echo '.credentials not found'
+          cat dev/tests/acceptance/.credentials || echo '.credentials not found'
 
       - name: Run MFTF Tests
         run: |
