@@ -76,7 +76,7 @@ jobs:
           # add .credential file
           cat <<EOF > dev/tests/acceptance/.credentials
           # Admin password
-          magento/MAGENTO_ADMIN_PASSWORD=admin123
+          magento/MAGENTO_ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
           magento/tfa/OTP_SHARED_SECRET=MFRGGZDF
 
           # Paytrail test credentials:
