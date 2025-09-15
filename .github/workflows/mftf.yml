@@ -19,9 +19,12 @@ jobs:
     steps:
       - name: echo current ip
         run: |
-          ip addr show
-          echo "Current IPs:" $(ip addr show | grep 'inet ' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
-          echo "Current IPv6s:" $(ip addr show | grep 'inet6 ' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
+          # get current ip addresses from output outside and print them
+
+          curl api.ipify.org || echo "No external IP"
+
+          # curl magento base url to see if it's reachable and print verbose output
+          curl -v ${{ vars.BASE_URL }} || echo "Base URL not reachable"
 
       - name: validate selenium
         run: |
