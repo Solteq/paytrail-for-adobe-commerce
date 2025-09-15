@@ -17,6 +17,8 @@
                         command="config:set payment/paytrail/merchant_id {{_CREDS.paytrail/payment_paytrail_merchant_id}}"/>
             <magentoCLI stepKey="SetTestSecret"
                         command="config:set payment/paytrail/merchant_secret {{_CREDS.paytrail/payment_paytrail_merchant_secret}}"/>
+            <magentoCLI command="config:set {{DisableCheckoutAgreementsConfigData.path}} {{DisableCheckoutAgreementsConfigData.value}}"
+                        stepKey="DisableCheckoutAgreements"/>
 
             <!-- Set Currency options for Default Config -->
             <magentoCLI command="config:set {{SetCurrencyEURBaseConfig.path}} {{SetCurrencyEURBaseConfig.value}}"

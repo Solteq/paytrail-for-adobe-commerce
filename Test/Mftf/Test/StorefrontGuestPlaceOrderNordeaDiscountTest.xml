@@ -26,6 +26,8 @@
                 stepKey="setAllowedCurrencyEURandUSD"/>
             <magentoCLI command="config:set {{SetDefaultCurrencyEURConfig.path}} {{SetDefaultCurrencyEURConfig.value}}"
                         stepKey="setCurrencyDefaultEUR"/>
+            <magentoCLI command="config:set {{DisableCheckoutAgreementsConfigData.path}} {{DisableCheckoutAgreementsConfigData.value}}"
+                        stepKey="DisableCheckoutAgreements"/>
 
             <!-- Create 10€ discount sales rule -->
             <createData entity="ApiSalesRule" stepKey="createCoupon10">

@@ -26,7 +26,8 @@
                 stepKey="setAllowedCurrencyEURandUSD"/>
             <magentoCLI command="config:set {{SetDefaultCurrencyEURConfig.path}} {{SetDefaultCurrencyEURConfig.value}}"
                         stepKey="setCurrencyDefaultEUR"/>
-
+            <magentoCLI command="config:set {{DisableCheckoutAgreementsConfigData.path}} {{DisableCheckoutAgreementsConfigData.value}}"
+                        stepKey="DisableCheckoutAgreements"/>
             <createData entity="SimpleProduct2" stepKey="createSimpleProduct">
                 <field key="price">20</field>
             </createData>
