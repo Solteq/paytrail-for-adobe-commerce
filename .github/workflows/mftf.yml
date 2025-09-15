@@ -17,15 +17,6 @@ jobs:
           - "4444:4444"
 
     steps:
-      - name: echo current ip
-        run: |
-          # get current ip addresses from output outside and print them
-
-          curl api.ipify.org || echo "No external IP"
-
-          # curl magento base url to see if it's reachable and print verbose output
-          curl -v ${{ vars.BASE_URL }} || echo "Base URL not reachable"
-
       - name: validate selenium
         run: |
           curl -s http://localhost:4444/wd/hub/status | jq .
@@ -84,7 +75,7 @@ jobs:
           # add .credential file
           cat <<EOF > dev/tests/acceptance/.credentials
           # Admin password
-          magento/MAGENTO_ADMIN_PASSWORD=${{ vars.ADMIN_PASSWORD }}
+          magento/MAGENTO_ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
           magento/tfa/OTP_SHARED_SECRET=MFRGGZDF
 
           # Paytrail test credentials:
