@@ -84,6 +84,11 @@ jobs:
           paytrail/payment_paytrail_merchant_secret=SAIPPUAKAUPPIAS
           EOF
 
+          echo '--- .env file ---'
+          cat magento/dev/tests/acceptance/.env || echo '.env not found'
+          echo '--- .credentials file ---'
+          cat magento/dev/tests/acceptance/.credentials || echo '.credentials not found'
+
       - name: Run MFTF Tests
         run: |
           cd magento
