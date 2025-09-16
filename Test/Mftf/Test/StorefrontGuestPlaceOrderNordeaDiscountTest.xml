@@ -52,18 +52,6 @@
         </before>
 
         <after>
-            <magentoCLI stepKey="DisablePaytrailPayment"
-                        command="config:set {{DisablePaytrailConfigData.path}} {{DisablePaytrailConfigData.value}}"/>
-
-            <!-- Reset currency configurations -->
-            <magentoCLI command="config:set {{SetCurrencyUSDBaseConfig.path}} {{SetCurrencyUSDBaseConfig.value}}"
-                        stepKey="setCurrencyBaseUSD"/>
-            <magentoCLI command="config:set {{SetDefaultCurrencyUSDConfig.path}} {{SetDefaultCurrencyUSDConfig.value}}"
-                        stepKey="setCurrencyDefaultUSD"/>
-            <magentoCLI
-                command="config:set {{SetAllowedCurrenciesConfigForUSD.path}} {{SetAllowedCurrenciesConfigForUSD.value}}"
-                stepKey="setAllowedCurrencyUSD"/>
-
             <deleteData createDataKey="createCoupon10" stepKey="deleteCoupon10"/>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
         </after>
