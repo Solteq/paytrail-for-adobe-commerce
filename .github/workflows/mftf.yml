@@ -1,9 +1,7 @@
 name: Run MFTF Tests
 
 on:
-  push:
-    branches: [staging]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   mftf:
