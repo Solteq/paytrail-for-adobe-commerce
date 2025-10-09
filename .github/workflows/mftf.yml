@@ -2,7 +2,7 @@ name: Run MFTF Tests
 
 on:
   schedule:
-    - cron: "20 * * * *"
+    - cron: "00 6 * * 1"
 
 jobs:
   mftf:
