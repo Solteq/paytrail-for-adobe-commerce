@@ -2,6 +2,8 @@
 
 namespace Paytrail\PaymentService\Model\Payment;
 
+use Magento\Sales\Model\Order\Item;
+
 class RoundingFixer
 {
     /**
@@ -9,7 +11,7 @@ class RoundingFixer
      *
      * Adds a new item to the items array to correct rounding errors
      *
-     * @param array $items
+     * @param Item[] $items
      * @param float $discountedTotal
      * @param float $itemDiscountedTotal
      */
@@ -26,6 +28,7 @@ class RoundingFixer
             'price'  => $delta,
             'amount' => 1,
             'vat'    => 0,
+            'stamp'  => 'rounding-correction_' . $items[0]->getOrderId(),
         ];
     }
 }

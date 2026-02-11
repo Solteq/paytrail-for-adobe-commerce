@@ -9,6 +9,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Paytrail\PaymentService\Exceptions\CheckoutException;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
 use Paytrail\PaymentService\Model\RefundCallback;
+use Paytrail\SDK\Model\RefundItem;
 use Paytrail\SDK\Request\RefundRequest;
 use Psr\Log\LoggerInterface;
 
@@ -72,7 +73,7 @@ class RefundDataBuilder implements BuilderInterface
 
         // Handle request
         $paytrailRefund = $this->refundRequest;
-        $this->setRefundRequestData($paytrailRefund, $amount, $order->getId());
+        $this->setRefundRequestData($paytrailRefund, $amount, $order->getId(), $buildSubject);
 
         return [
             'payment'               => $payment,
@@ -89,10 +90,12 @@ class RefundDataBuilder implements BuilderInterface
      * @param RefundRequest $paytrailRefund
      * @param float $amount
      * @param string|int $orderId
+     * @param $buildSubject
+     *
      * @return void
      * @throws CheckoutException
      */
-    private function setRefundRequestData(RefundRequest $paytrailRefund, float $amount, string|int $orderId): void
+    private function setRefundRequestData(RefundRequest $paytrailRefund, float $amount, string|int $orderId, array $buildSubject): void
     {
         if ($amount <= 0) {
             $message = 'Refund amount must be above 0';
@@ -107,6 +110,16 @@ class RefundDataBuilder implements BuilderInterface
 
         $callback = $this->refundCallback->createRefundCallback();
         $paytrailRefund->setCallbackUrls($callback);
+
+        /** @var RefundItem[] $sdkItems */
+        $sdkItems = [];
+
+        $paytrailRefund->setItems(
+            [
+                (new RefundItem())->setAmount((int)round($amount * 100))->setStamp(1106)
+            ]
+
+        );
     }
 
     /**

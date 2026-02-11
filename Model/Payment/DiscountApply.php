@@ -39,6 +39,7 @@ class DiscountApply
             'price' => -$discountTotal,
             'amount' => 1,
             'vat' => 0,
+            'stamp' => 'discount_' . $order->getIncrementId(),
         ];
 
         return $items;

@@ -26,9 +26,9 @@ class OrderItem
      */
     public function __construct(
         private DiscountApply $discountApply,
-        private TaxItem       $taxItem,
+        private TaxItem $taxItem,
         private RoundingFixer $roundingFixer,
-        private Data          $taxHelper,
+        private Data $taxHelper,
         private readonly Config $gatewayConfig,
         private readonly OrderDataAnonymization $orderDataAnonymization
     ) {
@@ -73,7 +73,8 @@ class OrderItem
             ->setVatPercentage($item['vat'])
             ->setProductCode($anonymizeData ? '*****' : $item['code'])
             ->setDeliveryDate(date('Y-m-d'))
-            ->setDescription($anonymizeData ? '*****' : $item['title']);
+            ->setDescription($anonymizeData ? '*****' : $item['title'])
+            ->setStamp($item['stamp'] ?? '');
 
         return $paytrailItem;
     }
@@ -101,7 +102,8 @@ class OrderItem
                     'code'   => $item->getSku(),
                     'amount' => $qtyOrdered,
                     'price'  => 0,
-                    'vat'    => 0
+                    'vat'    => 0,
+                    'stamp'  => $item->getItemId()
                 ];
 
                 continue;
@@ -115,7 +117,7 @@ class OrderItem
                 $discountInclTax = $item->getDiscountAmount();
             }
 
-            $rowTotalInclDiscount  = $item->getRowTotalInclTax() - $discountInclTax;
+            $rowTotalInclDiscount = $item->getRowTotalInclTax() - $discountInclTax;
             $itemPriceInclDiscount = $this->formatPrice($rowTotalInclDiscount / $qtyOrdered);
 
             $items [] = [
@@ -123,7 +125,8 @@ class OrderItem
                 'code'   => $item->getSku(),
                 'amount' => $qtyOrdered,
                 'price'  => $itemPriceInclDiscount,
-                'vat'    => $item->getTaxPercent() ?: 0
+                'vat'    => $item->getTaxPercent() ?: 0,
+                'stamp'  => $item->getItemId()
             ];
         }
 
@@ -148,7 +151,7 @@ class OrderItem
     private function getShippingItem(Order $order): array
     {
         $taxDetails = [];
-        $price      = 0;
+        $price = 0;
 
         if ($order->getShippingAmount()) {
             foreach ($this->taxItem->getTaxItemsByOrderId($order->getId()) as $detail) {
@@ -170,6 +173,7 @@ class OrderItem
             'amount' => 1,
             'price'  => floatval($price),
             'vat'    => $taxDetails['tax_percent'] ?? 0,
+            'stamp'  => 'shipping-row_' . $order->getId()
         ];
     }
 
