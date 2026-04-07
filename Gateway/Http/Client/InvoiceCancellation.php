@@ -69,7 +69,7 @@ class InvoiceCancellation implements ClientInterface
                 )
             );
 
-            // handle token_request request
+            // handle invoice_cancellation request
             $response["data"] = $paytrailClient->cancelInvoice($transactionId);
             $this->log->debugLog(
                 'response',
