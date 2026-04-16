@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.17] - 2026-04-14
+
+- Change require version for paytrail-php-sdk.
+
 ## [2.2.16] - 2026-03-24
 
-- change 'No recurring payment' in admin to empty value.
+- Change 'No recurring payment' in admin to empty value.
 - Add support for Klarna invoice cancellation.
 - Refactor DI
 
