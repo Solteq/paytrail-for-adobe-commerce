@@ -27,7 +27,7 @@ class SelectData extends AbstractSource
     /**
      * Retrieves all available options in a predefined format.
      *
-     * @return array|null
+     * @return array
      */
     public function getAllOptions()
     {
