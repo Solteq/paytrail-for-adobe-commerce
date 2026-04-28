@@ -120,7 +120,7 @@ class StopSchedule implements HttpGetActionInterface
      * @param SubscriptionInterface $subscription
      * @return void
      */
-    private function updateRecurringStatus(SubscriptionInterface $subscription)
+    private function updateRecurringStatus(SubscriptionInterface $subscription): void
     {
         try {
             $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
