@@ -54,7 +54,6 @@ class SubscriptionManagement implements SubscriptionManagementInterface
         private CustomerData                        $customerData,
         private ShowSubscriptionsDataProvider       $showSubscriptionsDataProvider
     ) {
-
     }
 
     /**
@@ -101,6 +100,8 @@ class SubscriptionManagement implements SubscriptionManagementInterface
     }
 
     /**
+     * Show subscriptions.
+     *
      * @param SearchCriteriaInterface $searchCriteria
      *
      * @return array
@@ -145,6 +146,8 @@ class SubscriptionManagement implements SubscriptionManagementInterface
     }
 
     /**
+     * Filter subscriptions by customer.
+     *
      * @param SearchCriteriaInterface $searchCriteria
      *
      * @return void
@@ -188,6 +191,8 @@ class SubscriptionManagement implements SubscriptionManagementInterface
     }
 
     /**
+     * Save subscription.
+     *
      * @param SubscriptionInterface $subscription
      *
      * @return bool

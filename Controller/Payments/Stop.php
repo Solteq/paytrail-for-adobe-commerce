@@ -6,6 +6,8 @@ namespace Paytrail\PaymentService\Controller\Payments;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -49,7 +51,9 @@ class Stop implements Action\HttpGetActionInterface
     }
 
     /**
-     * @return ResultInterface
+     * Execute the stop action for a recurring payment subscription.
+     *
+     * @return ResponseInterface|Redirect|(Redirect&ResultInterface)|ResultInterface
      */
     public function execute()
     {
