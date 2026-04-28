@@ -4,18 +4,20 @@ namespace Paytrail\PaymentService\Controller\Adminhtml\Recurring;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderManagementInterface;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
+use Paytrail\PaymentService\Model\SubscriptionManagement;
 
 class StopSchedule implements HttpGetActionInterface
 {
-    const ORDER_PENDING_STATUS = 'pending';
-
     /**
      * StopSchedule constructor.
      *
@@ -32,6 +34,11 @@ class StopSchedule implements HttpGetActionInterface
     ) {
     }
 
+    /**
+     * Execute the stop schedule action for a recurring payment subscription.
+     *
+     * @return ResponseInterface|Redirect|(Redirect&ResultInterface)|ResultInterface
+     */
     public function execute()
     {
         $resultRedirect = $this->context->getResultFactory()->create(ResultFactory::TYPE_REDIRECT);
@@ -51,7 +58,7 @@ class StopSchedule implements HttpGetActionInterface
     /**
      * Get recurring payment.
      *
-     * @param $subscriptionId
+     * @param int $subscriptionId
      *
      * @return false|SubscriptionInterface
      */
@@ -88,10 +95,11 @@ class StopSchedule implements HttpGetActionInterface
             } else {
                 $this->context->getMessageManager()->addWarningMessage(
                     \__(
-                        'Order ID %id has a status other than %status, automatic order cancel disabled. If the order is unpaid please cancel it manually',
+                        'Order ID %id has a status other than %status, automatic order cancel disabled.
+                            If the order is unpaid please cancel it manually',
                         [
-                            'id'     => array_shift($ordersId),
-                            'status' => self::ORDER_PENDING_STATUS
+                            'id' => array_shift($ordersId),
+                            'status' => SubscriptionManagement::ORDER_PENDING_STATUS
                         ]
                     )
                 );

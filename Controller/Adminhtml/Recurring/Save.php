@@ -4,7 +4,10 @@ namespace Paytrail\PaymentService\Controller\Adminhtml\Recurring;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Paytrail\PaymentService\Api\Data\SubscriptionLinkInterfaceFactory;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
@@ -25,6 +28,12 @@ class Save implements HttpPostActionInterface
     ) {
     }
 
+    /**
+     * Execute the save action for a recurring payment subscription.
+     *
+     * @return ResponseInterface|Redirect|(Redirect&ResultInterface)|ResultInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function execute()
     {
         try {
