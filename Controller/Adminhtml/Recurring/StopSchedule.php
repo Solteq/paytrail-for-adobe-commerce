@@ -16,6 +16,14 @@ class StopSchedule implements HttpGetActionInterface
 {
     const ORDER_PENDING_STATUS = 'pending';
 
+    /**
+     * StopSchedule constructor.
+     *
+     * @param Context $context
+     * @param SubscriptionRepositoryInterface $subscriptionRepository
+     * @param OrderManagementInterface $orderManagement
+     * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepoInterface
+     */
     public function __construct(
         private Context                             $context,
         private SubscriptionRepositoryInterface     $subscriptionRepository,
@@ -27,7 +35,7 @@ class StopSchedule implements HttpGetActionInterface
     public function execute()
     {
         $resultRedirect = $this->context->getResultFactory()->create(ResultFactory::TYPE_REDIRECT);
-        $resultRedirect->setPath($this->_redirect->getRefererUrl());
+        $resultRedirect->setPath($this->context->getRedirect()->getRefererUrl());
         $id = $this->context->getRequest()->getParam('id');
 
         $subscription = $this->getRecurringPayment($id);
@@ -41,7 +49,9 @@ class StopSchedule implements HttpGetActionInterface
     }
 
     /**
-     * @param $id
+     * Get recurring payment.
+     *
+     * @param $subscriptionId
      *
      * @return false|SubscriptionInterface
      */
@@ -62,6 +72,8 @@ class StopSchedule implements HttpGetActionInterface
     }
 
     /**
+     * Cancel order.
+     *
      * @param SubscriptionInterface $subscription
      */
     private function cancelOrder(SubscriptionInterface $subscription): void
@@ -94,11 +106,16 @@ class StopSchedule implements HttpGetActionInterface
         }
     }
 
+    /**
+     * Update recurring status.
+     *
+     * @param SubscriptionInterface $subscription
+     * @return void
+     */
     private function updateRecurringStatus(SubscriptionInterface $subscription)
     {
-        $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
-
         try {
+            $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
             $this->subscriptionRepository->save($subscription);
             $this->context->getMessageManager()->addSuccessMessage(
                 \__(
