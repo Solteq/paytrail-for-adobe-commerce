@@ -9,6 +9,13 @@ use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
 
 class StopButton extends AbstractButton
 {
+    /**
+     * StopButton constructor.
+     *
+     * @param Context $context
+     * @param RequestInterface $request
+     * @param SubscriptionRepositoryInterface $subscriptionRepository
+     */
     public function __construct(
         Context $context,
         RequestInterface $request,
@@ -17,6 +24,12 @@ class StopButton extends AbstractButton
         parent::__construct($context, $request);
     }
 
+    /**
+     * Get button data.
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function getButtonData()
     {
         $data = [];
@@ -35,6 +48,11 @@ class StopButton extends AbstractButton
         return $data;
     }
 
+    /**
+     * Get stop schedule url.
+     *
+     * @return string
+     */
     private function getStopScheduleUrl()
     {
         return $this->getUrl(
