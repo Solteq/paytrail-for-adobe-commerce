@@ -3,6 +3,13 @@ name: Run MFTF Tests
 on:
   schedule:
     - cron: "00 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to test"
+        required: false
+        default: "staging"
+        type: string
 
 jobs:
   mftf:
@@ -21,6 +28,8 @@ jobs:
           curl -s http://localhost:4444/wd/hub/status | jq .
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Set up PHP 8.3
         uses: shivammathur/setup-php@v2
