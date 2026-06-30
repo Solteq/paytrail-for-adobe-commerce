@@ -6,7 +6,10 @@ use Paytrail\PaymentService\Block\Adminhtml\Subscription\Edit\AbstractButton;
 
 class NewButton extends AbstractButton
 {
-    public function getButtonData()
+    /**
+     * @return array
+     */
+    public function getButtonData(): array
     {
         return [
             'label' => __('Back'),
