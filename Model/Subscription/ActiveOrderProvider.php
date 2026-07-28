@@ -2,7 +2,11 @@
 
 namespace Paytrail\PaymentService\Model\Subscription;
 
+use DateTime;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Config;
+use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory;
 
@@ -34,7 +38,7 @@ class ActiveOrderProvider
     {
         $subscriptionLinks = $this->linkCollectionFactory->create();
         $subscriptionLinks->join(
-            ['sub' => \Paytrail\PaymentService\Model\ResourceModel\Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
+            ['sub' => Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
             'main_table.subscription_id = sub.entity_id',
         );
         $subscriptionLinks->join(
@@ -44,16 +48,16 @@ class ActiveOrderProvider
         $select = $subscriptionLinks->getSelect();
         $select->where(
             'sub.status IN (?)',
-            \Paytrail\PaymentService\Api\Data\SubscriptionInterface::CLONEABLE_STATUSES
+            SubscriptionInterface::CLONEABLE_STATUSES
         );
         $select->where(
             'sales_order.status IN (?)',
             $this->orderConfig->getStateDefaultStatus(
-                \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT
+                Order::STATE_PENDING_PAYMENT
             )
         );
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
         $select->where(
             'sub.next_order_date <= ?',
             $currentDate->format('Y-m-d H:i:s')
