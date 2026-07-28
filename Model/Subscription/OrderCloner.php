@@ -6,7 +6,10 @@ use Exception;
 use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Reorder\UnavailableProductsProvider;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Psr\Log\LoggerInterface;
@@ -14,35 +17,6 @@ use Magento\Quote\Api\CartRepositoryInterface;
 
 class OrderCloner
 {
-    /**
-     * @var CollectionFactory
-     */
-    private $orderCollection;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var UnavailableProductsProvider
-     */
-    private $unavailableProducts;
-    /**
-     * @var Quote
-     */
-    private $quoteSession;
-    /**
-     * @var QuoteManagement
-     */
-    private $quoteManagement;
-    /**
-     * @var JoinProcessorInterface
-     */
-    private $joinProcessor;
-    /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
-     */
-    private $cartRepositoryInterface;
-
     /**
      * @param CollectionFactory $orderCollection
      * @param UnavailableProductsProvider $unavailableProducts
@@ -53,31 +27,26 @@ class OrderCloner
      * @param CartRepositoryInterface $cartRepositoryInterface
      */
     public function __construct(
-        CollectionFactory           $orderCollection,
-        UnavailableProductsProvider $unavailableProducts,
-        Quote                       $quoteSession,
-        JoinProcessorInterface      $joinProcessor,
-        QuoteManagement             $quoteManagement,
-        LoggerInterface             $logger,
-        CartRepositoryInterface     $cartRepositoryInterface
+        private readonly CollectionFactory $orderCollection,
+        private readonly UnavailableProductsProvider $unavailableProducts,
+        private readonly Quote $quoteSession,
+        private readonly JoinProcessorInterface $joinProcessor,
+        private readonly QuoteManagement $quoteManagement,
+        private readonly LoggerInterface $logger,
+        private readonly CartRepositoryInterface $cartRepositoryInterface
     ) {
-        $this->orderCollection = $orderCollection;
-        $this->unavailableProducts = $unavailableProducts;
-        $this->quoteSession = $quoteSession;
-        $this->joinProcessor = $joinProcessor;
-        $this->quoteManagement = $quoteManagement;
-        $this->logger = $logger;
-        $this->cartRepositoryInterface = $cartRepositoryInterface;
     }
 
     /**
-     * Clones orders by existing order ids, if performance becomes an issue. Consider limiting results from
+     * Clones orders by existing order ids if performance becomes an issue. Consider limiting results from
+     *
      * @param int[] $orderIds
-     * @return \Magento\Sales\Model\Order[]
+     *
+     * @return Order[]
      * @see \Paytrail\PaymentService\Model\ResourceModel\Subscription::getClonableOrderIds
      *
      */
-    public function cloneOrders($orderIds): array
+    public function cloneOrders(array $orderIds): array
     {
         if (empty($orderIds)) {
             return [];
@@ -88,11 +57,11 @@ class OrderCloner
         $this->joinProcessor->process($orderCollection);
         $newOrders = [];
 
-        /** @var \Magento\Sales\Model\Order $order */
+        /** @var Order $order */
         foreach ($orderCollection as $order) {
             try {
                 $clonedOrder = $this->clone($order);
-                $newOrders[$clonedOrder->getId()] = $clonedOrder;
+                $newOrders[$order->getEntityId()] = $clonedOrder;
             } catch (Exception $exception) {
                 $this->logger->error(__(
                     'Recurring payment order cloning error: %error',
@@ -106,12 +75,13 @@ class OrderCloner
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $oldOrder
+     * @param OrderInterface $oldOrder
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
      */
-    private function clone(
-        \Magento\Sales\Api\Data\OrderInterface $oldOrder
-    ) {
+    private function clone(OrderInterface $oldOrder)
+    {
         $this->validateOrder($oldOrder);
 
         $this->quoteSession->clearStorage();
@@ -127,6 +97,7 @@ class OrderCloner
 
     /**
      * @param $quote
+     *
      * @return void
      */
     private function removeNonScheduledProducts($quote): void
@@ -143,8 +114,10 @@ class OrderCloner
     }
 
     /**
-     * @param \Magento\Sales\Model\Order $order
-     */
+     * @param Order $order
+     *
+     *@throws LocalizedException
+*/
     private function validateOrder($order)
     {
         if ($order->canReorder()
@@ -160,11 +133,12 @@ class OrderCloner
     }
 
     /**
-     * @param \Magento\Sales\Model\Order $oldOrder
+     * @param Order $oldOrder
+     *
      * @return \Magento\Quote\Model\Quote
      * @throws LocalizedException
      */
-    private function getQuote(\Magento\Sales\Api\Data\OrderInterface $oldOrder): \Magento\Quote\Model\Quote
+    private function getQuote(OrderInterface $oldOrder): \Magento\Quote\Model\Quote
     {
         $quote = $this->cartRepositoryInterface->get($oldOrder->getQuoteId());
         $quote->setData('recurring_payment_flag', true);

@@ -11,48 +11,20 @@ use Psr\Log\LoggerInterface;
 
 class RecurringOrderCloner
 {
-    private const ARRAY_INDEX_ZERO = 0;
-
-    /**
-     * @var OrderCloner
-     */
-    private $orderCloner;
-
-    /**
-     * @var Subscription
-     */
-    private $subscriptionResource;
-
-    /**
-     * @var Email
-     */
-    private $email;
-
-    /**
-     * @var SubscriptionLinkRepository
-     */
-    private                 $subscriptionLinkRepository;
-
-    private LoggerInterface $logger;
-
     /**
      * @param OrderCloner $orderCloner
      * @param Subscription $subscriptionResource
      * @param Email $email
      * @param SubscriptionLinkRepository $subscriptionLinkRepository
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        OrderCloner                $orderCloner,
-        Subscription               $subscriptionResource,
-        Email                      $email,
-        SubscriptionLinkRepository $subscriptionLinkRepository,
-        LoggerInterface            $logger
+        private readonly OrderCloner $orderCloner,
+        private readonly Subscription $subscriptionResource,
+        private readonly Email $email,
+        private readonly SubscriptionLinkRepository $subscriptionLinkRepository,
+        private readonly LoggerInterface $logger
     ) {
-        $this->orderCloner = $orderCloner;
-        $this->subscriptionResource = $subscriptionResource;
-        $this->email = $email;
-        $this->subscriptionLinkRepository = $subscriptionLinkRepository;
-        $this->logger = $logger;
     }
 
     /**
@@ -69,17 +41,12 @@ class RecurringOrderCloner
         }
 
         $clonedOrders = $this->orderCloner->cloneOrders($validIds);
-        $i = self::ARRAY_INDEX_ZERO;
-        $validIds = array_values($validIds);
 
-        if (count($validIds) === count($clonedOrders)) {
-            foreach ($clonedOrders as $clonedOrder) {
-                $this->subscriptionLinkRepository->linkOrderToSubscription(
-                    $clonedOrder->getId(),
-                    $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($validIds[$i])
-                );
-                $i++;
-            }
+        foreach ($clonedOrders as $parentId => $clonedOrder) {
+            $this->subscriptionLinkRepository->linkOrderToSubscription(
+                $clonedOrder->getId(),
+                $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($parentId)
+            );
         }
 
         $this->email->sendNotifications($clonedOrders);

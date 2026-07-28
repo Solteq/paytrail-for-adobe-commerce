@@ -12,7 +12,7 @@ use Magento\Sales\Model\Order\Email\Container\OrderIdentity;
 class Email
 {
     const XML_PATH_EMAIL_TEMPLATE = 'sales/recurring_payment/email_template';
-    const XML_PATH_EMAIL_WARNING_PERIOD = 'sales/recurring_payment/warning_period';
+    const XML_PATH_EMAIL_ORDER_CREATION_LEAD_DAYS = 'sales/recurring_payment/warning_period';
     /**
      * @var TransportBuilder
      */
@@ -121,7 +121,7 @@ class Email
             'formattedShippingAddress' => $this->getFormattedShippingAddress($order),
             'formattedBillingAddress' => $this->getFormattedBillingAddress($order),
             'created_at_formatted' => $order->getCreatedAtFormatted(2),
-            'warning_period' => $this->getWarningPeriod($order),
+            'warning_period' => $this->getOrderCreationLeadDays($order),
             'order_data' => [
                 'customer_name' => $order->getCustomerName(),
                 'is_not_virtual' => $order->getIsNotVirtual(),
@@ -178,10 +178,16 @@ class Email
         ];
     }
 
-    private function getWarningPeriod($order)
+    /**
+     * Number of days before the next order date that the recurring order is created and billed.
+     *
+     * @param Order $order
+     * @return string|null
+     */
+    private function getOrderCreationLeadDays($order)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_EMAIL_WARNING_PERIOD,
+            self::XML_PATH_EMAIL_ORDER_CREATION_LEAD_DAYS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );

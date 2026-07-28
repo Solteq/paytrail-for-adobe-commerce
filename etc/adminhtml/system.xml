@@ -259,8 +259,8 @@
                 </field>
                 <field id="warning_period" translate="label comment" sortOrder="30" type="text"
                        showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
-                    <label>Alert email advance period</label>
-                    <comment>Controls the amount of days between notifying customer about upcoming payment and billing the payment</comment>
+                    <label>Recurring order lead time (days)</label>
+                    <comment>Number of days before a subscription's next order date that the recurring order is created, the customer is notified by email.</comment>
                     <validate>validate-digit validate-range range-0-30</validate>
                     <depends>
                         <field id="sales/recurring_payment/active_recurring_payment">1</field>

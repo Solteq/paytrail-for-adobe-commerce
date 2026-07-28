@@ -17,9 +17,9 @@ class Subscription extends AbstractDb
 {
     public const PAYTRAIL_SUBSCRIPTIONS_TABLENAME = 'paytrail_subscriptions';
 
-    public const CONFIG_WARNING_PERIOD = 'sales/recurring_payment/warning_period';
+    public const CONFIG_ORDER_CREATION_LEAD_DAYS = 'sales/recurring_payment/warning_period';
 
-    private const DEFAULT_WARNING_PERIOD_DAYS = 7;
+    private const DEFAULT_ORDER_CREATION_LEAD_DAYS = 7;
 
     /**
      * Subscription constructor.
@@ -151,7 +151,7 @@ class Subscription extends AbstractDb
 
         if ($addDateFilter) {
             $date = new \DateTime();
-            $date->modify(sprintf('+%d day', $this->getWarningPeriodDays()));
+            $date->modify(sprintf('+%d day', $this->getOrderCreationLeadDays()));
             $select->where(
                 'sub.next_order_date < ?',
                 $date->format('Y-m-d H:i:s')
@@ -166,19 +166,19 @@ class Subscription extends AbstractDb
     /**
      * Number of days ahead of the next order date that recurring orders are cloned for upcoming billing.
      *
-     * Shares the "Alert email advance period" (warning_period) setting so the customer notification and the
-     * actual clone-to-billing gap always stay in sync.
+     * Shares the "Recurring order lead time" (warning_period) setting so the customer notification
+     * and the actual clone-to-billing gap always stay in sync.
      *
      * @return int
      */
-    private function getWarningPeriodDays(): int
+    private function getOrderCreationLeadDays(): int
     {
         $value = $this->scopeConfig->getValue(
-            self::CONFIG_WARNING_PERIOD,
+            self::CONFIG_ORDER_CREATION_LEAD_DAYS,
             ScopeInterface::SCOPE_STORE
         );
 
-        return $value === null ? self::DEFAULT_WARNING_PERIOD_DAYS : (int)$value;
+        return $value === null ? self::DEFAULT_ORDER_CREATION_LEAD_DAYS : (int)$value;
     }
 
     /**
