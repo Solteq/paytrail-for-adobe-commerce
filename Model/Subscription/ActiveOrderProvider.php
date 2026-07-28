@@ -2,20 +2,17 @@
 
 namespace Paytrail\PaymentService\Model\Subscription;
 
+use Magento\Sales\Model\Order\Config;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory;
+
 class ActiveOrderProvider
 {
-    /**
-     * @var \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory
-     */
-    private $linkFactory;
-    private \Magento\Sales\Model\Order\Config $orderConfig;
 
     public function __construct(
-        \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory $collectionFactory,
-        \Magento\Sales\Model\Order\Config $orderConfig
+        private readonly CollectionFactory $linkFactory,
+        private readonly Config $orderConfig
     ) {
-        $this->linkFactory = $collectionFactory;
-        $this->orderConfig = $orderConfig;
     }
 
     /**
@@ -23,18 +20,17 @@ class ActiveOrderProvider
      */
     public function getPayableOrderIds()
     {
-        return $this->getCollection()->getColumnValues('order_id');
+        return $this->getSubscriptionLinkCollection()->getColumnValues('order_id');
     }
 
     /**
-     * @return \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection
+     * @return Collection
      */
-    private function getCollection(): \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection
+    private function getSubscriptionLinkCollection(): Collection
     {
-        /** @var \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection $subscriptionLinks */
         $subscriptionLinks = $this->linkFactory->create();
         $subscriptionLinks->join(
-            ['sub' =>\Paytrail\PaymentService\Model\ResourceModel\Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
+            ['sub' => \Paytrail\PaymentService\Model\ResourceModel\Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
             'main_table.subscription_id = sub.entity_id',
         );
         $subscriptionLinks->join(
