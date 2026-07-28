@@ -21,7 +21,7 @@ class Bill
     /**
      * @throws LocalizedException
      */
-    public function process()
+    public function process(): void
     {
         $this->orderBiller->billOrdersById($this->activeOrders->getPayableOrderIds());
     }

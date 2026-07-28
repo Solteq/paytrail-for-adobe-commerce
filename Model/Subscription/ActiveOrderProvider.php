@@ -10,11 +10,11 @@ class ActiveOrderProvider
 {
 
     /**
-     * @param CollectionFactory $linkFactory
+     * @param CollectionFactory $linkCollectionFactory
      * @param Config $orderConfig
      */
     public function __construct(
-        private readonly CollectionFactory $linkFactory,
+        private readonly CollectionFactory $linkCollectionFactory,
         private readonly Config $orderConfig
     ) {
     }
@@ -32,7 +32,7 @@ class ActiveOrderProvider
      */
     private function getSubscriptionLinkCollection(): Collection
     {
-        $subscriptionLinks = $this->linkFactory->create();
+        $subscriptionLinks = $this->linkCollectionFactory->create();
         $subscriptionLinks->join(
             ['sub' => \Paytrail\PaymentService\Model\ResourceModel\Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
             'main_table.subscription_id = sub.entity_id',
