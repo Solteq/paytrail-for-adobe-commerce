@@ -9,6 +9,10 @@ use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Co
 class ActiveOrderProvider
 {
 
+    /**
+     * @param CollectionFactory $linkFactory
+     * @param Config $orderConfig
+     */
     public function __construct(
         private readonly CollectionFactory $linkFactory,
         private readonly Config $orderConfig
