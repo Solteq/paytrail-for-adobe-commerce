@@ -22,7 +22,7 @@ class ActiveOrderProvider
     /**
      * @return int[]
      */
-    public function getPayableOrderIds()
+    public function getPayableOrderIds(): array
     {
         return $this->getSubscriptionLinkCollection()->getColumnValues('order_id');
     }

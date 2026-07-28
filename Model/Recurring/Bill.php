@@ -2,36 +2,24 @@
 
 namespace Paytrail\PaymentService\Model\Recurring;
 
+use Magento\Framework\Exception\LocalizedException;
 use Paytrail\PaymentService\Model\Subscription\ActiveOrderProvider;
 use Paytrail\PaymentService\Model\Subscription\OrderBiller;
-use Paytrail\PaymentService\Model\ResourceModel\Subscription;
 
 class Bill
 {
     /**
-     * @var OrderBiller
-     */
-    private $orderBiller;
-
-    /**
-     * @var ActiveOrderProvider
-     */
-    private $activeOrders;
-
-    /**
      * @param OrderBiller $orderBiller
-     * @param ActiveOrderProvider $activeOrderProvider
+     * @param ActiveOrderProvider $activeOrders
      */
     public function __construct(
-        OrderBiller $orderBiller,
-        ActiveOrderProvider $activeOrderProvider
+        private readonly OrderBiller $orderBiller,
+        private readonly ActiveOrderProvider $activeOrders
     ) {
-        $this->orderBiller = $orderBiller;
-        $this->activeOrders = $activeOrderProvider;
     }
 
     /**
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function process()
     {
@@ -44,10 +32,10 @@ class Bill
     }
 
     /**
-     * @return array
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return int[]
+     * @throws LocalizedException
      */
-    private function getValidOrderIds()
+    private function getValidOrderIds(): array
     {
         return $this->activeOrders->getPayableOrderIds();
     }
