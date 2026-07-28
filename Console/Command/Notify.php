@@ -4,7 +4,8 @@ namespace Paytrail\PaymentService\Console\Command;
 
 use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
-use Paytrail\PaymentService\Model\Recurring\Notify as RecurringNotify;
+use Magento\Framework\Exception\LocalizedException;
+use Paytrail\PaymentService\Model\Recurring\RecurringOrderCloner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,12 +15,12 @@ class Notify extends Command
     /**
      * Constructor
      *
-     * @param RecurringNotify $notify
+     * @param RecurringOrderCloner $recurringOrderCloner
      * @param State $state
      */
     public function __construct(
-        private RecurringNotify $notify,
-        private State           $state
+        private readonly RecurringOrderCloner $recurringOrderCloner,
+        private readonly State $state
     ) {
         parent::__construct();
     }
@@ -41,12 +42,12 @@ class Notify extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_CRONTAB);
-        $this->notify->process();
+        $this->recurringOrderCloner->process();
 
         return Cli::RETURN_SUCCESS;
     }

@@ -2,16 +2,14 @@
 
 namespace Paytrail\PaymentService\Model\Recurring;
 
-use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Model\Subscription\Email;
 use Paytrail\PaymentService\Model\Subscription\OrderCloner;
 use Paytrail\PaymentService\Model\Subscription\SubscriptionLinkRepository;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription;
 use Psr\Log\LoggerInterface;
 
-class Notify
+class RecurringOrderCloner
 {
     private const ARRAY_INDEX_ZERO = 0;
 

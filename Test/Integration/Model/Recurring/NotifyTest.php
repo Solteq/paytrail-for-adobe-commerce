@@ -15,9 +15,9 @@ class NotifyTest extends TestCase
     ];
 
     /**
-     * @var mixed|Notify
+     * @var mixed|RecurringOrderCloner
      */
-    private $notify;
+    private $recurringOrderCloner;
 
     /**
      * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory
@@ -34,7 +34,7 @@ class NotifyTest extends TestCase
     protected function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $this->notify = $objectManager->create(\Paytrail\PaymentService\Model\Recurring\Notify::class);
+        $this->recurringOrderCloner = $objectManager->create(\Paytrail\PaymentService\Model\Recurring\RecurringOrderCloner::class);
         $this->orderCollection = $objectManager->create(
             \Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class
         );
@@ -49,7 +49,7 @@ class NotifyTest extends TestCase
      */
     public function testProcess($params, $expected)
     {
-        $this->notify->process();
+        $this->recurringOrderCloner->process();
         $subscriptions = $this->subscriptionCollection->create();
         $orders = $this->validateOrders();
         $this->assertEquals(

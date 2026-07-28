@@ -559,7 +559,7 @@
 
     <type name="\Paytrail\PaymentService\Console\Command\Notify">
         <arguments>
-            <argument name="notify" xsi:type="object">\Paytrail\PaymentService\Model\Recurring\Notify\Proxy</argument>
+            <argument name="notify" xsi:type="object">\Paytrail\PaymentService\Model\Recurring\RecurringOrderCloner\Proxy</argument>
             <argument name="state" xsi:type="object">\Magento\Framework\App\State\Proxy</argument>
         </arguments>
     </type>
