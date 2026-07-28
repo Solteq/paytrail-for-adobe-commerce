@@ -266,6 +266,15 @@
                         <field id="sales/recurring_payment/active_recurring_payment">1</field>
                     </depends>
                 </field>
+                <field id="clone_lookahead_days" translate="label comment" sortOrder="35" type="text"
+                       showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Recurring order creation advance period</label>
+                    <comment>Number of days before the next order date that recurring orders are created for further billing</comment>
+                    <validate>validate-digit validate-range range-0-30</validate>
+                    <depends>
+                        <field id="sales/recurring_payment/active_recurring_payment">1</field>
+                    </depends>
+                </field>
                 <field id="force_weekdays" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="0"
                        showInStore="0" canRestore="1">
                     <label>Force billing date to be on weekday (monday-friday)</label>

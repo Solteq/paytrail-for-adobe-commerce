@@ -83,6 +83,7 @@
         <bill_cron_schedule>15 3 * * *</bill_cron_schedule>
         <email_template>recurring_email_template</email_template>
         <warning_period>7</warning_period>
+        <clone_lookahead_days>7</clone_lookahead_days>
         <force_weekdays>0</force_weekdays>
       </recurring_payment>
     </sales>

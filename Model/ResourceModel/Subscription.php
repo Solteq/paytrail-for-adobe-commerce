@@ -2,15 +2,43 @@
 
 namespace Paytrail\PaymentService\Model\ResourceModel;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
+use Magento\Store\Model\ScopeInterface;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 
 class Subscription extends AbstractDb
 {
     public const PAYTRAIL_SUBSCRIPTIONS_TABLENAME = 'paytrail_subscriptions';
+
+    public const CONFIG_CLONE_LOOKAHEAD_DAYS = 'sales/recurring_payment/clone_lookahead_days';
+
+    private const DEFAULT_CLONE_LOOKAHEAD_DAYS = 7;
+
+    /**
+     * Subscription constructor.
+     *
+     * @param Context $context
+     * @param Snapshot $entitySnapshot
+     * @param RelationComposite $entityRelationComposite
+     * @param ScopeConfigInterface $scopeConfig
+     * @param string|null $connectionName
+     */
+    public function __construct(
+        Context $context,
+        Snapshot $entitySnapshot,
+        RelationComposite $entityRelationComposite,
+        private ScopeConfigInterface $scopeConfig,
+        $connectionName = null
+    ) {
+        parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
+    }
 
     /**
      * Subscription constructor.
@@ -97,9 +125,11 @@ class Subscription extends AbstractDb
      * GetNewestOrderIds function
      *
      * @param bool $addDateFilter
+     *
      * @return array
+     * @throws \DateMalformedStringException
      */
-    public function getNewestOrderIds($addDateFilter = false)
+    public function getNewestOrderIds(bool $addDateFilter = false): array
     {
         $select = $this->getConnection()->select();
         $select->from(
@@ -121,7 +151,7 @@ class Subscription extends AbstractDb
 
         if ($addDateFilter) {
             $date = new \DateTime();
-            $date->modify('+7 day'); // consider making this configurable.
+            $date->modify(sprintf('+%d day', $this->getCloneLookaheadDays()));
             $select->where(
                 'sub.next_order_date < ?',
                 $date->format('Y-m-d H:i:s')
@@ -134,13 +164,29 @@ class Subscription extends AbstractDb
     }
 
     /**
+     * Number of days ahead of the next order date to include subscriptions for order creation.
+     *
+     * @return int
+     */
+    private function getCloneLookaheadDays(): int
+    {
+        $value = $this->scopeConfig->getValue(
+            self::CONFIG_CLONE_LOOKAHEAD_DAYS,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        return $value === null ? self::DEFAULT_CLONE_LOOKAHEAD_DAYS : (int)$value;
+    }
+
+    /**
      * FilterUnPaidIds function
      *
-     * @param AdapterInterface|false $connection
+     * @param AdapterInterface $connection
      * @param array $newestOrderIds
-     * @return mixed
+     *
+     * @return array
      */
-    private function filterUnPaidIds($connection, array $newestOrderIds)
+    private function filterUnPaidIds(AdapterInterface $connection, array $newestOrderIds): array
     {
         $select = $connection->select();
         $select->from(
