@@ -23,20 +23,6 @@ class Bill
      */
     public function process()
     {
-        $validOrders = $this->getValidOrderIds();
-
-        if (empty($validOrders)) {
-            return;
-        }
-        $this->orderBiller->billOrdersById($validOrders);
-    }
-
-    /**
-     * @return int[]
-     * @throws LocalizedException
-     */
-    private function getValidOrderIds(): array
-    {
-        return $this->activeOrders->getPayableOrderIds();
+        $this->orderBiller->billOrdersById($this->activeOrders->getPayableOrderIds());
     }
 }
