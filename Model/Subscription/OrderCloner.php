@@ -6,7 +6,6 @@ use Exception;
 use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -27,6 +26,7 @@ class OrderCloner
      * @param QuoteManagement $quoteManagement
      * @param LoggerInterface $logger
      * @param CartRepositoryInterface $cartRepositoryInterface
+     * @param OrderRepositoryInterface $orderRepositoryInterface
      */
     public function __construct(
         private readonly CollectionFactory $orderCollection,
@@ -45,7 +45,7 @@ class OrderCloner
      *
      * @param int[] $orderIds
      *
-     * @return Order[]
+     * @return OrderInterface[]
      * @see \Paytrail\PaymentService\Model\ResourceModel\Subscription::getClonableOrderIds
      *
      */
@@ -60,7 +60,7 @@ class OrderCloner
         $this->joinProcessor->process($orderCollection);
         $newOrders = [];
 
-        /** @var Order $order */
+        /** @var OrderInterface $order */
         foreach ($orderCollection as $order) {
             try {
                 $clonedOrder = $this->clone($order);
@@ -80,10 +80,10 @@ class OrderCloner
     /**
      * @param OrderInterface $oldOrder
      *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @return OrderInterface
      * @throws LocalizedException
      */
-    private function clone(OrderInterface $oldOrder)
+    private function clone(OrderInterface $oldOrder): OrderInterface
     {
         $this->validateOrder($oldOrder);
 
@@ -98,7 +98,7 @@ class OrderCloner
         $newOrder = $this->quoteManagement->submit($quote);
         $newOrder->setStatus(PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION);
 
-        $this->orderRepositoryInterface->save($newOrder);
+        return $this->orderRepositoryInterface->save($newOrder);
     }
 
     /**
@@ -120,16 +120,17 @@ class OrderCloner
     }
 
     /**
-     * @param Order $order
+     * @param OrderInterface $order
      *
+     * @return void
      * @throws LocalizedException
      */
-    private function validateOrder($order)
+    private function validateOrder(OrderInterface $order): void
     {
         if ($order->canReorder()
             && count($this->unavailableProducts->getForOrder($order)) == 0
         ) {
-            return true;
+            return;
         }
 
         throw new LocalizedException(__(

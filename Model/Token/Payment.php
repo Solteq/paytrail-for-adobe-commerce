@@ -219,7 +219,6 @@ class Payment
         foreach ($commentsArray as $status => $comment) {
             $historyComment = $this->orderStatusHistoryFactory->create();
             $historyComment
-                ->setStatus($status)
                 ->setComment($comment);
             $this->orderManagement->addComment($order->getEntityId(), $historyComment);
             $this->orderStatusHistoryRepository->save($historyComment);
