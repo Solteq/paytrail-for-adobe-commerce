@@ -242,6 +242,7 @@
                     <label>Enabled Recurring payment</label>
                     <comment>Activating Recurring Payment feature</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <backend_model>Paytrail\PaymentService\Model\Config\Backend\RecurringPayment</backend_model>
                 </field>
                 <field id="notify_cron_schedule" translate="label comment" sortOrder="10" type="text"
                        showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
