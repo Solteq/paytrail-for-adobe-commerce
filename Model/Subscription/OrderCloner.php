@@ -9,9 +9,11 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Reorder\UnavailableProductsProvider;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 use Psr\Log\LoggerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 
@@ -33,7 +35,8 @@ class OrderCloner
         private readonly JoinProcessorInterface $joinProcessor,
         private readonly QuoteManagement $quoteManagement,
         private readonly LoggerInterface $logger,
-        private readonly CartRepositoryInterface $cartRepositoryInterface
+        private readonly CartRepositoryInterface $cartRepositoryInterface,
+        private readonly OrderRepositoryInterface $orderRepositoryInterface
     ) {
     }
 
@@ -92,7 +95,10 @@ class OrderCloner
 
         $this->removeNonScheduledProducts($quote);
 
-        return $this->quoteManagement->submit($quote);
+        $newOrder = $this->quoteManagement->submit($quote);
+        $newOrder->setStatus(PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION);
+
+        $this->orderRepositoryInterface->save($newOrder);
     }
 
     /**
@@ -116,8 +122,8 @@ class OrderCloner
     /**
      * @param Order $order
      *
-     *@throws LocalizedException
-*/
+     * @throws LocalizedException
+     */
     private function validateOrder($order)
     {
         if ($order->canReorder()

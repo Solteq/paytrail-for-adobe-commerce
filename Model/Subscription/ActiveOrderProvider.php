@@ -9,6 +9,7 @@ use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 
 class ActiveOrderProvider
 {
@@ -52,9 +53,10 @@ class ActiveOrderProvider
         );
         $select->where(
             'sales_order.status IN (?)',
-            $this->orderConfig->getStateDefaultStatus(
-                Order::STATE_PENDING_PAYMENT
-            )
+            [
+                $this->orderConfig->getStateDefaultStatus(Order::STATE_PENDING_PAYMENT),
+                PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
+            ]
         );
 
         $currentDate = new DateTime();
