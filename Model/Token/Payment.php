@@ -43,19 +43,19 @@ class Payment
      * @param CommandManagerPool $commandManagerPool
      */
     public function __construct(
-        private OrderRepositoryInterface              $orderRepository,
-        private Adapter                               $adapter,
-        private RequestData                           $requestData,
-        private CustomerRepositoryInterface           $customerRepository,
-        private InvoiceService                        $invoiceService,
-        private Transaction                           $transaction,
-        private BuilderInterface                      $transactionBuilder,
-        private OrderManagementInterface              $orderManagement,
-        private OrderStatusHistoryInterfaceFactory    $orderStatusHistoryFactory,
+        private OrderRepositoryInterface $orderRepository,
+        private Adapter $adapter,
+        private RequestData $requestData,
+        private CustomerRepositoryInterface $customerRepository,
+        private InvoiceService $invoiceService,
+        private Transaction $transaction,
+        private BuilderInterface $transactionBuilder,
+        private OrderManagementInterface $orderManagement,
+        private OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
         private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
-        private PaytrailLogger                        $paytrailLogger,
-        private TokenRequestDataBuilder               $tokenRequestDataBuilder,
-        private CommandManagerPool                    $commandManagerPool
+        private PaytrailLogger $paytrailLogger,
+        private TokenRequestDataBuilder $tokenRequestDataBuilder,
+        private CommandManagerPool $commandManagerPool
     ) {
     }
 
@@ -74,8 +74,8 @@ class Payment
     public function makeMitPayment($orderId, $cardToken)
     {
         try {
-            $order           = $this->orderRepository->get($orderId);
-            $customer        = $this->customerRepository->getById((int)$order->getCustomerId());
+            $order = $this->orderRepository->get($orderId);
+            $customer = $this->customerRepository->getById((int)$order->getCustomerId());
             $commandExecutor = $this->commandManagerPool->get('paytrail');
 
             $mitResponse = $commandExecutor->executeByCode(
@@ -162,7 +162,7 @@ class Payment
                 [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array)$mitResponse]
             );
 
-            $trans       = $this->transactionBuilder;
+            $trans = $this->transactionBuilder;
             $transaction = $trans->setPayment($payment)
                 ->setOrder($order)
                 ->setTransactionId($mitResponse->getTransactionId())
@@ -189,6 +189,21 @@ class Payment
     }
 
     /**
+     * @param string $transactionComment
+     * @param OrderInterface $order
+     *
+     * @return void
+     * @throws CouldNotSaveException
+     */
+    public function saveComment(string $transactionComment, OrderInterface $order): void
+    {
+        $historyComment = $this->orderStatusHistoryFactory->create();
+        $historyComment->setComment($transactionComment);
+        $this->orderManagement->addComment($order->getEntityId(), $historyComment);
+        $this->orderStatusHistoryRepository->save($historyComment);
+    }
+
+    /**
      * Get MIT payment request.
      *
      * @return MitPaymentRequest
@@ -208,25 +223,13 @@ class Payment
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     private function updateOrder(
-        OrderInterface     $order,
+        OrderInterface $order,
         MitPaymentResponse $mitResponse
     ): void {
-
-        $commentsArray = [
-            __('Transaction ID: ') . $mitResponse->getTransactionId(),
-            __('Payment has been completed')
-        ];
-
-        foreach ($commentsArray as $comment) {
-            $historyComment = $this->orderStatusHistoryFactory->create();
-            $historyComment
-                ->setComment($comment);
-            $this->orderManagement->addComment($order->getEntityId(), $historyComment);
-            $this->orderStatusHistoryRepository->save($historyComment);
-        }
-
+        $this->saveComment(__('Transaction ID: ') . $mitResponse->getTransactionId(), $order);
         $order->setState(Order::STATE_PROCESSING);
         $order->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING));
         $this->orderRepository->save($order);
+        $this->saveComment(__('Payment has been completed')->render(), $order);
     }
 }

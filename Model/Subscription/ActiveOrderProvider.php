@@ -56,7 +56,12 @@ class ActiveOrderProvider
             [
                 $this->orderConfig->getStateDefaultStatus(Order::STATE_PENDING_PAYMENT),
                 PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
-            ]
+                ]
+        );
+
+        //add filter to fetch only not paid orders
+        $select->where(
+            'sales_order.total_paid = 0 OR sales_order.total_paid IS NULL'
         );
 
         $currentDate = new DateTime();
