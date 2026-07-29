@@ -213,11 +213,11 @@ class Payment
     ): void {
 
         $commentsArray = [
-            'pending_payment' => __('Transaction ID: ') . $mitResponse->getTransactionId(),
-            'processing'      => __('Payment has been completed')
+            __('Transaction ID: ') . $mitResponse->getTransactionId(),
+            __('Payment has been completed')
         ];
 
-        foreach ($commentsArray as $status => $comment) {
+        foreach ($commentsArray as $comment) {
             $historyComment = $this->orderStatusHistoryFactory->create();
             $historyComment
                 ->setComment($comment);
