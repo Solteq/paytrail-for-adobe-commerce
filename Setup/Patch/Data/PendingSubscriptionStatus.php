@@ -8,7 +8,7 @@ use Magento\Sales\Model\Order;
 
 class PendingSubscriptionStatus implements DataPatchInterface
 {
-    public const string ORDER_STATUS_PENDING_SUBSCRIPTION = 'pending_subscription';
+    public const ORDER_STATUS_PENDING_SUBSCRIPTION = 'pending_subscription';
 
 
     public function __construct(
