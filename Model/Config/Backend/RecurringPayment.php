@@ -3,9 +3,13 @@
 namespace Paytrail\PaymentService\Model\Config\Backend;
 
 use Magento\Framework\App\Config\Value;
+use Magento\Framework\Exception\LocalizedException;
 
 class RecurringPayment extends Value
 {
+    /**
+     * @throws LocalizedException
+     */
     public function beforeSave()
     {
         $skipBankSelection = $this->_config->getValue(
@@ -14,10 +18,12 @@ class RecurringPayment extends Value
             $this->getScopeCode()
         );
 
-        if ($skipBankSelection) {
+        if ($skipBankSelection && $this->getValue()) {
             throw new LocalizedException(
-                __('Recurring payments cannot be enabled when "Payment method selection on a separate page" is enabled in Paytrail payment method settings. 
-                Please disable "Payment method selection on a separate page" first.')
+                __('Recurring payments cannot be enabled when "Payment method selection on a separate page" is enabled in Paytrail payment method settings.'
+                    . PHP_EOL
+                    . 'Please disable "Payment method selection on a separate page" first.'
+                )
             );
         }
 
