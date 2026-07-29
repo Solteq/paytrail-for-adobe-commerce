@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Service\InvoiceService;
 use Paytrail\PaymentService\Gateway\Request\TokenRequestDataBuilder;
@@ -224,7 +225,8 @@ class Payment
             $this->orderStatusHistoryRepository->save($historyComment);
         }
 
-        $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+        $order->setState(Order::STATE_PROCESSING);
+        $order->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING));
         $this->orderRepository->save($order);
     }
 }
