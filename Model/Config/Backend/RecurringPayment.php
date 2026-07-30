@@ -22,7 +22,8 @@ class RecurringPayment extends Value
 
         if ($skipBankSelection && $this->getValue()) {
             throw new LocalizedException(
-                __('Recurring payments cannot be enabled when "Payment method selection on a separate page" is enabled in Paytrail payment method settings.'
+                __('Recurring payments cannot be enabled when "Payment method selection on a separate page"'
+                    .' is enabled in Paytrail payment method settings.'
                     . PHP_EOL
                     . 'Please disable "Payment method selection on a separate page" first.'
                 )
