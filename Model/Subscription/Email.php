@@ -26,7 +26,7 @@ class Email
      * @param LoggerInterface $logger
      * @param SubscriptionRepositoryInterface $subscriptionRepository
      * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepository
-     *
+     * @param Config $recurringConfig
      */
     public function __construct(
         private readonly TransportBuilder $transportBuilder,
@@ -38,10 +38,11 @@ class Email
         private readonly SubscriptionLinkRepositoryInterface $subscriptionLinkRepository,
         private readonly Config $recurringConfig
     ) {
-
     }
 
     /**
+     * Send email notifications for the given orders.
+     *
      * @param Order[] $clonedOrders
      */
     public function sendNotifications(array $clonedOrders)
@@ -52,6 +53,8 @@ class Email
     }
 
     /**
+     * Notify the customer about the order.
+     *
      * @param Order $order
      */
     private function notify($order)
@@ -75,6 +78,7 @@ class Email
     }
 
     /**
+     * Get email template id.
      *
      * @param Order $order
      *
@@ -90,9 +94,12 @@ class Email
     }
 
     /**
+     * Prepare template variables.
+     *
      * @param Order $order
      *
      * @return string[]
+     * @throws NoSuchEntityException
      */
     private function prepareTemplateVars($order): array
     {
@@ -116,7 +123,7 @@ class Email
     }
 
     /**
-     * Get payment info block as html
+     * Get the payment info block as HTML.
      *
      * @param Order $order
      *
@@ -128,7 +135,7 @@ class Email
     }
 
     /**
-     * Render shipping address into html.
+     * Render a shipping address into HTML.
      *
      * @param Order $order
      *
@@ -142,7 +149,7 @@ class Email
     }
 
     /**
-     * Render billing address into html.
+     * Render a billing address into HTML.
      *
      * @param Order $order
      *
@@ -154,6 +161,8 @@ class Email
     }
 
     /**
+     * Get template options for the given order.
+     *
      * @param Order $order
      *
      * @return array
