@@ -41,7 +41,7 @@ class OrderCloner
     }
 
     /**
-     * Clones orders by existing order ids if performance becomes an issue. Consider limiting results from
+     * Clones orders by existing order ids.
      *
      * @param int[] $orderIds
      *

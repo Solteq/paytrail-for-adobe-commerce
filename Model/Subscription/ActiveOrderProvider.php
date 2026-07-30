@@ -25,6 +25,8 @@ class ActiveOrderProvider
     }
 
     /**
+     * Get order ids of orders that are payable.
+     *
      * @return int[]
      */
     public function getPayableOrderIds(): array
@@ -33,6 +35,8 @@ class ActiveOrderProvider
     }
 
     /**
+     * Get a subscription link collection for orders that are payable.
+     *
      * @return Collection
      */
     private function getSubscriptionLinkCollection(): Collection

@@ -28,8 +28,7 @@ class RecurringOrderCloner
     }
 
     /**
-     * Clones recurring payments that are due in the next payment period and notifies customer's whos orders were
-     * cloned.
+     * Clones recurring payments that are due in the next payment period and notifies customer's.
      *
      * @return void
      */
@@ -52,7 +51,12 @@ class RecurringOrderCloner
         $this->email->sendNotifications($clonedOrders);
     }
 
-    private function getValidOrderIds()
+    /**
+     * Get valid order ids for cloning from the subscription resource.
+     *
+     * @return array
+     */
+    private function getValidOrderIds(): array
     {
         try {
             return $this->subscriptionResource->getClonableOrderIds();

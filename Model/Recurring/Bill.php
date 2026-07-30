@@ -19,6 +19,8 @@ class Bill
     }
 
     /**
+     * Billing of active orders.
+     *
      * @throws LocalizedException
      */
     public function process(): void
