@@ -10,6 +10,7 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
+use Magento\Tests\NamingConvention\true\string;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Model\Recurring\Config;
 
@@ -24,14 +25,14 @@ class Subscription extends AbstractDb
      * @param Snapshot $entitySnapshot
      * @param RelationComposite $entityRelationComposite
      * @param Config $config
-     * @param null $connectionName
+     * @param string|null $connectionName
      */
     public function __construct(
         Context $context,
         Snapshot $entitySnapshot,
         RelationComposite $entityRelationComposite,
         private readonly Config $config,
-        $connectionName = null
+        ?string $connectionName = null
     ) {
         parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
     }
