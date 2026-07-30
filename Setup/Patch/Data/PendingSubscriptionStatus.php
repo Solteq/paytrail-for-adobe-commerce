@@ -10,14 +10,16 @@ class PendingSubscriptionStatus implements DataPatchInterface
 {
     public const ORDER_STATUS_PENDING_SUBSCRIPTION = 'pending_subscription';
 
-
+    /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     */
     public function __construct(
         private readonly ModuleDataSetupInterface $moduleDataSetup,
     ) {
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -26,7 +28,7 @@ class PendingSubscriptionStatus implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -34,7 +36,7 @@ class PendingSubscriptionStatus implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {
@@ -42,6 +44,8 @@ class PendingSubscriptionStatus implements DataPatchInterface
     }
 
     /**
+     * Create new status for pending subscription.
+     *
      * @return void
      */
     private function installPaytrailStatus(): void
@@ -60,6 +64,8 @@ class PendingSubscriptionStatus implements DataPatchInterface
     }
 
     /**
+     * Add pending subscription status to pending payment state.
+     *
      * @return void
      */
     private function addToPendingPaymentState(): void

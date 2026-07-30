@@ -6,6 +6,7 @@ use Exception;
 use Magento\Backend\Model\Session\Quote;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote as MagentoQuote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -105,11 +106,12 @@ class OrderCloner
     /**
      * Remove non-scheduled products from quote.
      *
-     * @param $quote
+     * @param Magento`Quote $quote
      *
      * @return void
+     * @throws Exception
      */
-    private function removeNonScheduledProducts($quote): void
+    private function removeNonScheduledProducts(MagentoQuote $quote): void
     {
         foreach ($quote->getAllVisibleItems() as $quoteItem) {
             if (!$quoteItem->getProduct()->getRecurringPaymentSchedule()) {
@@ -149,10 +151,10 @@ class OrderCloner
      *
      * @param Order $oldOrder
      *
-     * @return \Magento\Quote\Model\Quote
+     * @return MagentoQuote
      * @throws LocalizedException
      */
-    private function getQuote(OrderInterface $oldOrder): \Magento\Quote\Model\Quote
+    private function getQuote(OrderInterface $oldOrder): MagentoQuote
     {
         $quote = $this->cartRepositoryInterface->get($oldOrder->getQuoteId());
         $quote->setData('recurring_payment_flag', true);

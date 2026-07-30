@@ -189,6 +189,8 @@ class Payment
     }
 
     /**
+     * Save comment to order.
+     *
      * @param string $transactionComment
      * @param OrderInterface $order
      *
