@@ -11,6 +11,9 @@ class Config
     private const CONFIG_ORDER_CREATION_LEAD_DAYS  = 'sales/recurring_payment/warning_period';
     public const  DEFAULT_ORDER_CREATION_LEAD_DAYS = 7;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
     ) {
@@ -35,7 +38,7 @@ class Config
     }
 
     /**
-     * Is recurring payment feature enable.
+     * Is a recurring payment feature enabled?
      *
      * @return bool
      */
