@@ -29,12 +29,15 @@ class NotifyTest extends TestCase
      */
     private $subscriptionCollection;
 
+    /**
+     * @var SubscriptionLinkRepository
+     */
     private $subscriptionLinkRepository;
 
     protected function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $this->recurringOrderCloner = $objectManager->create(\Paytrail\PaymentService\Model\Recurring\RecurringOrderCloner::class);
+        $this->recurringOrderCloner = $objectManager->create(RecurringOrderCloner::class);
         $this->orderCollection = $objectManager->create(
             \Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class
         );
@@ -59,7 +62,7 @@ class NotifyTest extends TestCase
         );
 
         foreach ($orders as $order) {
-            $this->subscriptionLinkRepository->linkOrderToSubscription($order->getId(),$params['subscription_id']);
+            $this->subscriptionLinkRepository->linkOrderToSubscription($order->getId(), $params['subscription_id']);
             $subscription = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($params['order_id']);
             $this->assertEquals(
                 $expected['subscription_id'],
@@ -127,8 +130,8 @@ class NotifyTest extends TestCase
     {
         return [
             'Save fails without recurring profile' => [
-                'params' => [
-                    'order_id' => '2',
+                'params'   => [
+                    'order_id'        => '2',
                     'subscription_id' => '1'
                 ],
                 'expected' => [
