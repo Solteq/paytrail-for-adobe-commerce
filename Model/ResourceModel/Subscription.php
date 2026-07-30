@@ -2,24 +2,20 @@
 
 namespace Paytrail\PaymentService\Model\ResourceModel;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
-use Magento\Store\Model\ScopeInterface;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
+use Paytrail\PaymentService\Model\Recurring\Config;
 
 class Subscription extends AbstractDb
 {
     public const PAYTRAIL_SUBSCRIPTIONS_TABLENAME = 'paytrail_subscriptions';
-
-    public const CONFIG_ORDER_CREATION_LEAD_DAYS = 'sales/recurring_payment/warning_period';
-
-    private const DEFAULT_ORDER_CREATION_LEAD_DAYS = 7;
 
     /**
      * Subscription constructor.
@@ -27,14 +23,14 @@ class Subscription extends AbstractDb
      * @param Context $context
      * @param Snapshot $entitySnapshot
      * @param RelationComposite $entityRelationComposite
-     * @param ScopeConfigInterface $scopeConfig
-     * @param string|null $connectionName
+     * @param Config $config
+     * @param null $connectionName
      */
     public function __construct(
         Context $context,
         Snapshot $entitySnapshot,
         RelationComposite $entityRelationComposite,
-        private ScopeConfigInterface $scopeConfig,
+        private readonly Config $config,
         $connectionName = null
     ) {
         parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
@@ -69,11 +65,12 @@ class Subscription extends AbstractDb
     /**
      * BeforeSave function
      *
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * @param AbstractModel $object
+     *
      * @return $this|Subscription
      * @throws CouldNotSaveException
      */
-    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
+    protected function _beforeSave(AbstractModel $object)
     {
         if (!$this->canSave($object)) {
             throw new CouldNotSaveException(__('Invalid recurring payment profile'));
@@ -85,11 +82,12 @@ class Subscription extends AbstractDb
     /**
      * CanSave function
      *
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * @param AbstractModel $object
+     *
      * @return bool
      * @throws CouldNotSaveException
      */
-    private function canSave(\Magento\Framework\Model\AbstractModel $object)
+    private function canSave(AbstractModel $object): bool
     {
         if (!$object->getData('recurring_profile_id')) {
             throw new CouldNotSaveException(__('Cannot save recurring payments without profiles'));
@@ -108,6 +106,7 @@ class Subscription extends AbstractDb
      * Updates subscription status to failed with a direct query.
      *
      * @param int $subscriptionId
+     *
      * @return void
      */
     public function forceFailedStatus($subscriptionId)
@@ -136,7 +135,7 @@ class Subscription extends AbstractDb
             ['sublink' => 'paytrail_subscription_link'],
             [
                 'subscription_id' => 'subscription_id',
-                'order_id' => 'MAX(order_id)'
+                'order_id'        => 'MAX(order_id)'
             ]
         );
         $select->join(
@@ -151,7 +150,7 @@ class Subscription extends AbstractDb
 
         if ($addDateFilter) {
             $date = new \DateTime();
-            $date->modify(sprintf('+%d day', $this->getOrderCreationLeadDays()));
+            $date->modify(sprintf('+%d day', $this->config->getOrderCreationLeadDays()));
             $select->where(
                 'sub.next_order_date < ?',
                 $date->format('Y-m-d H:i:s')
@@ -163,23 +162,6 @@ class Subscription extends AbstractDb
         return $this->getConnection()->fetchPairs($select);
     }
 
-    /**
-     * Number of days ahead of the next order date that recurring orders are cloned for upcoming billing.
-     *
-     * Shares the "Recurring order lead time" (warning_period) setting so the customer notification
-     * and the actual clone-to-billing gap always stay in sync.
-     *
-     * @return int
-     */
-    private function getOrderCreationLeadDays(): int
-    {
-        $value = $this->scopeConfig->getValue(
-            self::CONFIG_ORDER_CREATION_LEAD_DAYS,
-            ScopeInterface::SCOPE_STORE
-        );
-
-        return $value === null ? self::DEFAULT_ORDER_CREATION_LEAD_DAYS : (int)$value;
-    }
 
     /**
      * FilterUnPaidIds function

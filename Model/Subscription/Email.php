@@ -3,60 +3,42 @@
 namespace Paytrail\PaymentService\Model\Subscription;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Mail\Template\TransportBuilder;
-use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address\Renderer;
-use Magento\Sales\Model\Order\Email\Container\OrderIdentity;
+use Magento\Store\Model\App\Emulation;
+use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
+use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
+use Paytrail\PaymentService\Model\Recurring\Config;
+use Psr\Log\LoggerInterface;
 
 class Email
 {
-    const XML_PATH_EMAIL_TEMPLATE = 'sales/recurring_payment/email_template';
-    const XML_PATH_EMAIL_ORDER_CREATION_LEAD_DAYS = 'sales/recurring_payment/warning_period';
-    /**
-     * @var TransportBuilder
-     */
-    private $transportBuilder;
+    public const XML_PATH_EMAIL_TEMPLATE                 = 'sales/recurring_payment/email_template';
+    public const XML_PATH_EMAIL_ORDER_CREATION_LEAD_DAYS = 'sales/recurring_payment/warning_period';
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @param TransportBuilder $transportBuilder
+     * @param Emulation $emulation
+     * @param Renderer $addressRenderer
+     * @param ScopeConfigInterface $scopeConfig
+     * @param LoggerInterface $logger
+     * @param SubscriptionRepositoryInterface $subscriptionRepository
+     * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepository
+     *
      */
-    private $logger;
-
-    /**
-     * @var \Magento\Store\Model\App\Emulation
-     */
-    private $emulation;
-
-    /**
-     * @var PaymentHelper
-     */
-    private $paymentHelper;
-
-    /**
-     * @var Renderer
-     */
-    private $addressRenderer;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
-
     public function __construct(
-        TransportBuilder $transportBuilder,
-        \Magento\Store\Model\App\Emulation $emulation,
-        PaymentHelper $paymentHelper,
-        Renderer $addressRenderer,
-        ScopeConfigInterface $scopeConfig,
-        \Psr\Log\LoggerInterface $logger
+        private readonly TransportBuilder $transportBuilder,
+        private readonly Emulation $emulation,
+        private readonly Renderer $addressRenderer,
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly LoggerInterface $logger,
+        private readonly SubscriptionRepositoryInterface $subscriptionRepository,
+        private readonly SubscriptionLinkRepositoryInterface $subscriptionLinkRepository,
+        private readonly Config $recurringConfig
     ) {
-        $this->transportBuilder = $transportBuilder;
-        $this->emulation = $emulation;
-        $this->paymentHelper = $paymentHelper;
-        $this->addressRenderer = $addressRenderer;
-        $this->scopeConfig = $scopeConfig;
-        $this->logger = $logger;
+
     }
 
     /**
@@ -95,6 +77,7 @@ class Email
     /**
      *
      * @param Order $order
+     *
      * @return string
      */
     private function getEmailTemplateId($order)
@@ -108,24 +91,25 @@ class Email
 
     /**
      * @param Order $order
+     *
      * @return string[]
      */
     private function prepareTemplateVars($order): array
     {
         return [
-            'order' => $order,
-            'order_id' => $order->getId(),
-            'billing' => $order->getBillingAddress(),
-            'payment_html' => $this->getPaymentHtml($order),
-            'store' => $order->getStore(),
+            'order'                    => $order,
+            'order_id'                 => $order->getId(),
+            'billing'                  => $order->getBillingAddress(),
+            'payment_html'             => $this->getPaymentHtml($order),
+            'store'                    => $order->getStore(),
             'formattedShippingAddress' => $this->getFormattedShippingAddress($order),
-            'formattedBillingAddress' => $this->getFormattedBillingAddress($order),
-            'created_at_formatted' => $order->getCreatedAtFormatted(2),
-            'warning_period' => $this->getOrderCreationLeadDays($order),
-            'order_data' => [
-                'customer_name' => $order->getCustomerName(),
-                'is_not_virtual' => $order->getIsNotVirtual(),
-                'email_customer_note' => $order->getEmailCustomerNote(),
+            'formattedBillingAddress'  => $this->getFormattedBillingAddress($order),
+            'created_at_formatted'     => $order->getCreatedAtFormatted(2),
+            'warning_period'           => $this->getTimeToNextOrder($order),
+            'order_data'               => [
+                'customer_name'         => $order->getCustomerName(),
+                'is_not_virtual'        => $order->getIsNotVirtual(),
+                'email_customer_note'   => $order->getEmailCustomerNote(),
                 'frontend_status_label' => $order->getFrontendStatusLabel()
             ]
         ];
@@ -135,6 +119,7 @@ class Email
      * Get payment info block as html
      *
      * @param Order $order
+     *
      * @return string
      */
     private function getPaymentHtml(Order $order)
@@ -146,6 +131,7 @@ class Email
      * Render shipping address into html.
      *
      * @param Order $order
+     *
      * @return string|null
      */
     private function getFormattedShippingAddress($order)
@@ -159,6 +145,7 @@ class Email
      * Render billing address into html.
      *
      * @param Order $order
+     *
      * @return string|null
      */
     private function getFormattedBillingAddress($order)
@@ -168,28 +155,35 @@ class Email
 
     /**
      * @param Order $order
+     *
      * @return array
      */
     private function getTemplateOptions(Order $order): array
     {
         return [
-            'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
+            'area'  => \Magento\Framework\App\Area::AREA_FRONTEND,
             'store' => $order->getStoreId(),
         ];
     }
 
     /**
-     * Number of days before the next order date that the recurring order is created and billed.
+     * Get time to next order for the subscription associated with the given order.
      *
      * @param Order $order
-     * @return string|null
+     *
+     * @return string
+     * @throws NoSuchEntityException
      */
-    private function getOrderCreationLeadDays($order)
+    private function getTimeToNextOrder(Order $order): string
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_EMAIL_ORDER_CREATION_LEAD_DAYS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
+        $subscriptionLink = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($order->getId());
+        $subscription = $this->subscriptionRepository->get($subscriptionLink->getSubscriptionId());
+        $nextOrderDate = $subscription->getNextOrderDate();
+        if ($nextOrderDate) {
+            $nowDate = new \DateTime();
+            $interval = $nowDate->diff($nextOrderDate);
+            return $interval->format('%a days');
+        }
+        return $this->recurringConfig->getOrderCreationLeadDays() . ' days';
     }
 }

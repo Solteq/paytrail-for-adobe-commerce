@@ -2,8 +2,8 @@
 
 namespace Paytrail\PaymentService\Cron;
 
+use Paytrail\PaymentService\Model\Recurring\Config;
 use Paytrail\PaymentService\Model\Recurring\RecurringOrderCloner;
-use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
 
 class RecurringPaymentNotify
 {
@@ -11,11 +11,11 @@ class RecurringPaymentNotify
      * RecurringPaymentNotify constructor.
      *
      * @param RecurringOrderCloner $recurringOrderCloner
-     * @param TotalConfigProvider $totalConfigProvider
+     * @param Config $recurringConfig
      */
     public function __construct(
         private readonly RecurringOrderCloner $recurringOrderCloner,
-        private readonly TotalConfigProvider $totalConfigProvider
+        private readonly Config $recurringConfig
     ) {
     }
 
@@ -26,7 +26,7 @@ class RecurringPaymentNotify
      */
     public function execute(): void
     {
-        if ($this->totalConfigProvider->isRecurringPaymentEnabled()) {
+        if ($this->recurringConfig->isRecurringPaymentEnabled()) {
             $this->recurringOrderCloner->process();
         }
     }

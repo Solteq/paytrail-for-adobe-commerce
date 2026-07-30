@@ -4,24 +4,19 @@ namespace Paytrail\PaymentService\Model\Ui\DataProvider\Product\Form\Modifier;
 
 use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
 use Magento\Framework\Stdlib\ArrayManager;
-use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
+use Paytrail\PaymentService\Model\Recurring\Config;
 
 class Attributes extends AbstractModifier
 {
-    private ArrayManager $arrayManager;
-
-    private TotalConfigProvider $totalConfigProvider;
 
     /**
      * @param ArrayManager $arrayManager
-     * @param TotalConfigProvider $totalConfigProvider
+     * @param Config $configProvider
      */
     public function __construct(
-        ArrayManager        $arrayManager,
-        TotalConfigProvider $totalConfigProvider
+        private readonly ArrayManager $arrayManager,
+        private readonly Config $configProvider
     ) {
-        $this->arrayManager        = $arrayManager;
-        $this->totalConfigProvider = $totalConfigProvider;
     }
 
     /**
@@ -49,7 +44,7 @@ class Attributes extends AbstractModifier
             $attribute = 'recurring_payment_schedule';
             $path = $this->arrayManager->findPath($attribute, $meta, null, 'children');
 
-            if (!$this->totalConfigProvider->isRecurringPaymentEnabled()) {
+            if (!$this->configProvider->isRecurringPaymentEnabled()) {
                 $meta = $this->arrayManager->set(
                     "{$path}/arguments/data/config/visible",
                     $meta,
