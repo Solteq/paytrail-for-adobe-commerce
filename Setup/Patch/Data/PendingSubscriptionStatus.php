@@ -74,7 +74,7 @@ class PendingSubscriptionStatus implements DataPatchInterface
             'status'           => self::ORDER_STATUS_PENDING_SUBSCRIPTION,
             'state'            => Order::STATE_PENDING_PAYMENT,
             'is_default'       => 0,
-            'visible_on_front' => 1,
+            'visible_on_front' => 0,
         ];
 
         $this->moduleDataSetup->getConnection()->insertOnDuplicate(
