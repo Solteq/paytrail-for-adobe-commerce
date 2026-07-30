@@ -2,6 +2,8 @@
 
 namespace Paytrail\PaymentService\Model\Subscription;
 
+use DateMalformedStringException;
+use DateTime;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Mail\Template\TransportBuilder;
@@ -36,7 +38,7 @@ class Email
         private readonly LoggerInterface $logger,
         private readonly SubscriptionRepositoryInterface $subscriptionRepository,
         private readonly SubscriptionLinkRepositoryInterface $subscriptionLinkRepository,
-        private readonly Config $recurringConfig
+        private readonly Config $recurringConfig,
     ) {
     }
 
@@ -182,17 +184,21 @@ class Email
      *
      * @return string
      * @throws NoSuchEntityException
+     * @throws DateMalformedStringException
      */
     private function getTimeToNextOrder(Order $order): string
     {
-        $subscriptionLink = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($order->getId());
-        $subscription = $this->subscriptionRepository->get($subscriptionLink->getSubscriptionId());
-        $nextOrderDate = $subscription->getNextOrderDate();
-        if ($nextOrderDate) {
-            $nowDate = new \DateTime();
-            $interval = $nowDate->diff($nextOrderDate);
+        $subscriptionLinkId = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($order->getId());
+        $subscription = $this->subscriptionRepository->get($subscriptionLinkId);
+        if ($subscription->getNextOrderDate()) {
+            $nowDate = new DateTime();
+            $nowDate->setTime(0, 0);
+            $nextDate = new DateTime($subscription->getNextOrderDate());
+            $nextDate->setTime(0, 0);
+            $interval = $nowDate->diff($nextDate);
             return $interval->format('%a days');
         }
+
         return $this->recurringConfig->getOrderCreationLeadDays() . ' days';
     }
 }
