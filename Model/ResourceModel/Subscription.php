@@ -10,7 +10,6 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
-use Magento\Tests\NamingConvention\true\string;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Model\Recurring\Config;
 
