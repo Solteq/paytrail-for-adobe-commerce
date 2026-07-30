@@ -23,14 +23,14 @@ class Subscription extends AbstractDb
      * @param Context $context
      * @param Snapshot $entitySnapshot
      * @param RelationComposite $entityRelationComposite
-     * @param Config $config
+     * @param Config $recurringConfig
      * @param string|null $connectionName
      */
     public function __construct(
         Context $context,
         Snapshot $entitySnapshot,
         RelationComposite $entityRelationComposite,
-        private readonly Config $config,
+        private readonly Config $recurringConfig,
         ?string $connectionName = null
     ) {
         parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
@@ -150,7 +150,7 @@ class Subscription extends AbstractDb
 
         if ($addDateFilter) {
             $date = new \DateTime();
-            $date->modify(sprintf('+%d day', $this->config->getOrderCreationLeadDays()));
+            $date->modify(sprintf('+%d day', $this->recurringConfig->getOrderCreationLeadDays()));
             $select->where(
                 'sub.next_order_date < ?',
                 $date->format('Y-m-d H:i:s')

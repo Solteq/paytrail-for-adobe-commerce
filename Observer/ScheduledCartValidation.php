@@ -16,11 +16,11 @@ class ScheduledCartValidation implements ObserverInterface
      * ScheduledCartValidation constructor.
      *
      * @param CartRepositoryInterface $cartRepository
-     * @param Config $config
+     * @param Config $recurringConfig
      */
     public function __construct(
         private readonly CartRepositoryInterface $cartRepository,
-        private readonly Config $config
+        private readonly Config $recurringConfig
     ) {
     }
 
@@ -39,7 +39,7 @@ class ScheduledCartValidation implements ObserverInterface
         $cartId = $observer->getEvent()->getOrder()->getQuoteId();
         $cart = $this->cartRepository->get($cartId);
 
-        if ($cart->getItems() && $this->config->isRecurringPaymentEnabled()) {
+        if ($cart->getItems() && $this->recurringConfig->isRecurringPaymentEnabled()) {
             foreach ($cart->getItems() as $cartItem) {
                 $cartItemSchedule = $cartItem
                     ->getProduct()

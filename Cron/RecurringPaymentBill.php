@@ -11,11 +11,11 @@ class RecurringPaymentBill
      * RecurringPaymentBill constructor.
      *
      * @param Bill $bill
-     * @param Config $config
+     * @param Config $recurringConfig
      */
     public function __construct(
         private readonly Bill $bill,
-        private readonly Config $config
+        private readonly Config $recurringConfig
     ) {
     }
 
@@ -27,7 +27,7 @@ class RecurringPaymentBill
      */
     public function execute()
     {
-        if ($this->config->isRecurringPaymentEnabled()) {
+        if ($this->recurringConfig->isRecurringPaymentEnabled()) {
             $this->bill->process();
         }
     }

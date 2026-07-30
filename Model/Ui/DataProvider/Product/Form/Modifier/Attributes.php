@@ -11,11 +11,11 @@ class Attributes extends AbstractModifier
 
     /**
      * @param ArrayManager $arrayManager
-     * @param Config $configProvider
+     * @param Config $recurringConfig
      */
     public function __construct(
         private readonly ArrayManager $arrayManager,
-        private readonly Config $configProvider
+        private readonly Config $recurringConfig
     ) {
     }
 
@@ -44,7 +44,7 @@ class Attributes extends AbstractModifier
             $attribute = 'recurring_payment_schedule';
             $path = $this->arrayManager->findPath($attribute, $meta, null, 'children');
 
-            if (!$this->configProvider->isRecurringPaymentEnabled()) {
+            if (!$this->recurringConfig->isRecurringPaymentEnabled()) {
                 $meta = $this->arrayManager->set(
                     "{$path}/arguments/data/config/visible",
                     $meta,
