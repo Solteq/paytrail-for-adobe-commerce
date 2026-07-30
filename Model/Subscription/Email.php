@@ -196,9 +196,9 @@ class Email
             $nextDate = new DateTime($subscription->getNextOrderDate());
             $nextDate->setTime(0, 0);
             $interval = $nowDate->diff($nextDate);
-            return $interval->format('%a days');
+            return $interval->format('%a');
         }
 
-        return $this->recurringConfig->getOrderCreationLeadDays() . ' days';
+        return $this->recurringConfig->getOrderCreationLeadDays();
     }
 }
