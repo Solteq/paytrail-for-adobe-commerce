@@ -10,7 +10,7 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class NotifyTest extends TestCase
 {
-    const VALID_STATUSES = [
+    public const VALID_STATUSES = [
         SubscriptionInterface::STATUS_ACTIVE
     ];
 
