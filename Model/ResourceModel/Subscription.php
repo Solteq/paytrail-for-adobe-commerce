@@ -162,7 +162,6 @@ class Subscription extends AbstractDb
         return $this->getConnection()->fetchPairs($select);
     }
 
-
     /**
      * FilterUnPaidIds function
      *

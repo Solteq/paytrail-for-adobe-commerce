@@ -47,7 +47,6 @@ class OrderCloner
      *
      * @return OrderInterface[]
      * @see \Paytrail\PaymentService\Model\ResourceModel\Subscription::getClonableOrderIds
-     *
      */
     public function cloneOrders(array $orderIds): array
     {
@@ -78,6 +77,8 @@ class OrderCloner
     }
 
     /**
+     * Clone order.
+     *
      * @param OrderInterface $oldOrder
      *
      * @return OrderInterface
@@ -102,6 +103,8 @@ class OrderCloner
     }
 
     /**
+     * Remove non-scheduled products from quote.
+     *
      * @param $quote
      *
      * @return void
@@ -120,6 +123,8 @@ class OrderCloner
     }
 
     /**
+     * Validate order.
+     *
      * @param OrderInterface $order
      *
      * @return void
@@ -140,6 +145,8 @@ class OrderCloner
     }
 
     /**
+     * Get quote by order.
+     *
      * @param Order $oldOrder
      *
      * @return \Magento\Quote\Model\Quote
