@@ -114,7 +114,7 @@ class Email
             'formattedShippingAddress' => $this->getFormattedShippingAddress($order),
             'formattedBillingAddress'  => $this->getFormattedBillingAddress($order),
             'created_at_formatted'     => $order->getCreatedAtFormatted(2),
-            'warning_period'           => $this->getTimeToNextOrder($order),
+            'warning_period'           => $this->getDaysToNextOrder($order),
             'order_data'               => [
                 'customer_name'         => $order->getCustomerName(),
                 'is_not_virtual'        => $order->getIsNotVirtual(),
@@ -182,11 +182,11 @@ class Email
      *
      * @param Order $order
      *
-     * @return string
-     * @throws NoSuchEntityException
+     * @return int
      * @throws DateMalformedStringException
+     * @throws NoSuchEntityException
      */
-    private function getTimeToNextOrder(Order $order): string
+    private function getDaysToNextOrder(Order $order): int
     {
         $subscriptionLinkId = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($order->getId());
         $subscription = $this->subscriptionRepository->get($subscriptionLinkId);
@@ -196,7 +196,7 @@ class Email
             $nextDate = new DateTime($subscription->getNextOrderDate());
             $nextDate->setTime(0, 0);
             $interval = $nowDate->diff($nextDate);
-            return $interval->format('%a');
+            return (int)$interval->format('%a');
         }
 
         return $this->recurringConfig->getOrderCreationLeadDays();
