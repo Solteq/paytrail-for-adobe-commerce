@@ -12,6 +12,7 @@ use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Model\Recurring\Config;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 
 class Subscription extends AbstractDb
 {
@@ -100,6 +101,38 @@ class Subscription extends AbstractDb
             ->where('profile_id = ?', $object->getData('recurring_profile_id'));
 
         return !empty($this->getConnection()->fetchRow($select));
+    }
+
+    /**
+     * Fetches order ids of cloned orders that are still pending while their subscription is already closed.
+     *
+     * These orders are created by the recurring-payment notify cron and never get cancelled through the
+     * regular cancellation flow, because that flow only targets the "pending_payment"/"pending" order
+     * statuses and not the "pending_subscription" status used for cloned orders.
+     *
+     * @return int[]
+     */
+    public function getHangingClosedSubscriptionOrderIds(): array
+    {
+        $select = $this->getConnection()->select();
+        $select->from(
+            ['sublink' => 'paytrail_subscription_link'],
+            ['order_id']
+        );
+        $select->join(
+            ['sub' => self::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
+            'sub.entity_id = sublink.subscription_id',
+            []
+        );
+        $select->join(
+            ['so' => 'sales_order'],
+            'so.entity_id = sublink.order_id',
+            []
+        );
+        $select->where('sub.status = ?', SubscriptionInterface::STATUS_CLOSED);
+        $select->where('so.status = ?', PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION);
+
+        return array_map('intval', $this->getConnection()->fetchCol($select));
     }
 
     /**

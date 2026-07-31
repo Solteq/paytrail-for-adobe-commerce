@@ -8,5 +8,8 @@
         <job name="recurring_payments_notify" instance="Paytrail\PaymentService\Cron\RecurringPaymentNotify" method="execute">
             <config_path>sales/recurring_payment/notify_cron_schedule</config_path>
         </job>
+        <job name="recurring_payments_cancel_hanging_orders" instance="Paytrail\PaymentService\Cron\CancelHangingSubscriptionOrders" method="execute">
+            <config_path>sales/recurring_payment/cancel_hanging_orders_cron_schedule</config_path>
+        </job>
     </group>
 </config>
