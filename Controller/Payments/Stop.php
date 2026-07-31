@@ -79,9 +79,10 @@ class Stop implements Action\HttpGetActionInterface
                 if (!$this->customerSession->getId() || $this->customerSession->getId() != $order->getCustomerId()) {
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
+                $subscription->setStatus(self::STATUS_CLOSED);
                 try {
                     if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
-                        || $order->getStatus() === SubscriptionManagement::ORDER_PENDING_STATUS
+                        || $order->getStatus() === self::ORDER_PENDING_STATUS
                         || $order->getStatus() === PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
                     ) {
                         $this->orderManagementInterface->cancel($order->getId());
