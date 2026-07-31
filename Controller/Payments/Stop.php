@@ -13,6 +13,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
 use Paytrail\PaymentService\Model\Validation\PreventAdminActions;
@@ -21,7 +22,6 @@ use Psr\Log\LoggerInterface;
 
 class Stop implements Action\HttpGetActionInterface
 {
-    public const STATUS_CLOSED        = 'closed';
     public const ORDER_PENDING_STATUS = 'pending';
 
 
@@ -75,7 +75,7 @@ class Stop implements Action\HttpGetActionInterface
                 if (!$this->customerSession->getId() || $this->customerSession->getId() != $order->getCustomerId()) {
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
-                $subscription->setStatus(self::STATUS_CLOSED);
+                $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
                 try {
                     if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
                         || $order->getStatus() === self::ORDER_PENDING_STATUS
