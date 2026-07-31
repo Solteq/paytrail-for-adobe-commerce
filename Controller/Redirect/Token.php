@@ -25,7 +25,7 @@ use Paytrail\PaymentService\Gateway\Validator\HmacValidator;
 use Paytrail\PaymentService\Model\PaymentMethod\OrderPaymentMethodData;
 use Paytrail\PaymentService\Model\Receipt\ProcessService;
 use Paytrail\PaymentService\Model\ReceiptDataProvider;
-use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
+use Paytrail\PaymentService\Model\Recurring\Config as RecurringConfig;
 use Paytrail\PaymentService\Model\Subscription\SubscriptionCreate;
 
 class Token implements HttpPostActionInterface
@@ -50,24 +50,24 @@ class Token implements HttpPostActionInterface
      * @param SubscriptionCreate $subscriptionCreate
      * @param CommandManagerPoolInterface $commandManagerPool
      * @param ProcessService $processService
-     * @param TotalConfigProvider $totalConfigProvider
+     * @param RecurringConfig $recurringConfig
      * @param OrderPaymentMethodData $paymentMethodData
      */
     public function __construct(
-        private ReceiptDataProvider      $receiptDataProvider,
-        private Config                   $gatewayConfig,
-        private RequestInterface         $request,
-        private OrderFactory             $orderFactory,
-        private Session                  $checkoutSession,
-        private CustomerSession          $customerSession,
-        private JsonFactory              $jsonFactory,
-        private OrderRepositoryInterface $orderRepository,
-        private OrderManagementInterface $orderManagementInterface,
-        private SubscriptionCreate       $subscriptionCreate,
-        private CommandManagerPoolInterface $commandManagerPool,
-        private ProcessService $processService,
-        private TotalConfigProvider $totalConfigProvider,
-        private OrderPaymentMethodData $paymentMethodData
+        private readonly ReceiptDataProvider $receiptDataProvider,
+        private readonly Config $gatewayConfig,
+        private readonly RequestInterface $request,
+        private readonly OrderFactory $orderFactory,
+        private readonly Session $checkoutSession,
+        private readonly CustomerSession $customerSession,
+        private readonly JsonFactory $jsonFactory,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly OrderManagementInterface $orderManagementInterface,
+        private readonly SubscriptionCreate $subscriptionCreate,
+        private readonly CommandManagerPoolInterface $commandManagerPool,
+        private readonly ProcessService $processService,
+        private readonly RecurringConfig $recurringConfig,
+        private readonly OrderPaymentMethodData $paymentMethodData
     ) {
     }
 
@@ -111,7 +111,7 @@ class Token implements HttpPostActionInterface
         $customer = $this->customerSession->getCustomer();
         try {
             $responseData = $this->getTokenResponseData($order, $selectedTokenId, $customer);
-            if ($this->totalConfigProvider->isRecurringPaymentEnabled()) {
+            if ($this->recurringConfig->isRecurringPaymentEnabled()) {
                 if ($this->subscriptionCreate->getSubscriptionSchedule($order) && $responseData->getTransactionId()) {
                     $orderSchedule = $this->subscriptionCreate->getSubscriptionSchedule($order);
                     $this->subscriptionCreate->createSubscription(
@@ -148,8 +148,8 @@ class Token implements HttpPostActionInterface
         if ($redirectUrl) {
             return $resultJson->setData(
                 [
-                    'success' => true,
-                    'data' => 'redirect',
+                    'success'  => true,
+                    'data'     => 'redirect',
                     'redirect' => $redirectUrl
                 ]
             );
@@ -159,25 +159,25 @@ class Token implements HttpPostActionInterface
         $response = $this->getPaymentData($responseData->getTransactionId());
 
         $receiptData = [
-            'checkout-account' => $this->gatewayConfig->getMerchantId(),
-            'checkout-algorithm' => 'sha256',
-            'checkout-amount' => $response['data']->getAmount(),
-            'checkout-stamp' => $response['data']->getStamp(),
-            'checkout-reference' => $response['data']->getReference(),
+            'checkout-account'        => $this->gatewayConfig->getMerchantId(),
+            'checkout-algorithm'      => 'sha256',
+            'checkout-amount'         => $response['data']->getAmount(),
+            'checkout-stamp'          => $response['data']->getStamp(),
+            'checkout-reference'      => $response['data']->getReference(),
             'checkout-transaction-id' => $response['data']->getTransactionId(),
-            'checkout-status' => $response['data']->getStatus(),
-            'checkout-provider' => $response['data']->getProvider(),
-            'signature' => HmacValidator::SKIP_HMAC_VALIDATION
+            'checkout-status'         => $response['data']->getStatus(),
+            'checkout-provider'       => $response['data']->getProvider(),
+            'signature'               => HmacValidator::SKIP_HMAC_VALIDATION
         ];
 
         $this->receiptDataProvider->execute($receiptData);
 
         return $resultJson->setData(
             [
-                'success' => true,
-                'data' => 'redirect',
+                'success'   => true,
+                'data'      => 'redirect',
                 'reference' => $response['data']->getReference(),
-                'redirect' => $redirectUrl
+                'redirect'  => $redirectUrl
             ]
         );
     }
@@ -188,6 +188,7 @@ class Token implements HttpPostActionInterface
      * @param Order $order
      * @param string $tokenId
      * @param Customer $customer
+     *
      * @return mixed
      * @throws CheckoutException
      * @throws \Magento\Framework\Exception\NotFoundException
@@ -200,7 +201,7 @@ class Token implements HttpPostActionInterface
             'token_payment',
             null,
             [
-                'order' => $order,
+                'order'    => $order,
                 'token_id' => $tokenId,
                 'customer' => $customer
             ]
@@ -220,6 +221,7 @@ class Token implements HttpPostActionInterface
      * GetPaymentData function
      *
      * @param string $transactionId
+     *
      * @return mixed
      * @throws CheckoutException
      * @throws \Magento\Framework\Exception\NotFoundException

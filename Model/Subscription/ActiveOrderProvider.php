@@ -2,39 +2,48 @@
 
 namespace Paytrail\PaymentService\Model\Subscription;
 
+use DateTime;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Config;
+use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection;
+use Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
+
 class ActiveOrderProvider
 {
-    /**
-     * @var \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory
-     */
-    private $linkFactory;
-    private \Magento\Sales\Model\Order\Config $orderConfig;
 
+    /**
+     * @param CollectionFactory $linkCollectionFactory
+     * @param Config $orderConfig
+     */
     public function __construct(
-        \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\CollectionFactory $collectionFactory,
-        \Magento\Sales\Model\Order\Config $orderConfig
+        private readonly CollectionFactory $linkCollectionFactory,
+        private readonly Config $orderConfig
     ) {
-        $this->linkFactory = $collectionFactory;
-        $this->orderConfig = $orderConfig;
     }
 
     /**
+     * Get order ids of orders that are payable.
+     *
      * @return int[]
      */
-    public function getPayableOrderIds()
+    public function getPayableOrderIds(): array
     {
-        return $this->getCollection()->getColumnValues('order_id');
+        return $this->getSubscriptionLinkCollection()->getColumnValues('order_id');
     }
 
     /**
-     * @return \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection
+     * Get a subscription link collection for orders that are payable.
+     *
+     * @return Collection
      */
-    private function getCollection(): \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection
+    private function getSubscriptionLinkCollection(): Collection
     {
-        /** @var \Paytrail\PaymentService\Model\ResourceModel\Subscription\SubscriptionLink\Collection $subscriptionLinks */
-        $subscriptionLinks = $this->linkFactory->create();
+        $subscriptionLinks = $this->linkCollectionFactory->create();
         $subscriptionLinks->join(
-            ['sub' =>\Paytrail\PaymentService\Model\ResourceModel\Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
+            ['sub' => Subscription::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
             'main_table.subscription_id = sub.entity_id',
         );
         $subscriptionLinks->join(
@@ -44,16 +53,22 @@ class ActiveOrderProvider
         $select = $subscriptionLinks->getSelect();
         $select->where(
             'sub.status IN (?)',
-            \Paytrail\PaymentService\Api\Data\SubscriptionInterface::CLONEABLE_STATUSES
+            SubscriptionInterface::CLONEABLE_STATUSES
         );
         $select->where(
             'sales_order.status IN (?)',
-            $this->orderConfig->getStateDefaultStatus(
-                \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT
-            )
+            [
+                $this->orderConfig->getStateDefaultStatus(Order::STATE_PENDING_PAYMENT),
+                PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
+                ]
         );
 
-        $currentDate = new \DateTime();
+        //add filter to fetch only not paid orders
+        $select->where(
+            'sales_order.total_paid = 0 OR sales_order.total_paid IS NULL'
+        );
+
+        $currentDate = new DateTime();
         $select->where(
             'sub.next_order_date <= ?',
             $currentDate->format('Y-m-d H:i:s')

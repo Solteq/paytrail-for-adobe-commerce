@@ -5,51 +5,23 @@ namespace Paytrail\PaymentService\Model\Recurring;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Store\Model\ScopeInterface;
 
 class TotalConfigProvider implements ConfigProviderInterface
 {
     private const NO_SCHEDULE_VALUE = null;
-    private const IS_RECURRING_PAYMENT_ENABLED = 'sales/recurring_payment/active_recurring_payment';
-
-    /**
-     * @var Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
 
     /**
      * TotalConfigProvider constructor.
      *
      * @param Session $checkoutSession
-     * @param ScopeConfigInterface $scopeConfig
+     * @param Config $config
      */
     public function __construct(
-        Session $checkoutSession,
-        ScopeConfigInterface $scopeConfig
+        private readonly Session $checkoutSession,
+        private readonly Config $config
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->scopeConfig = $scopeConfig;
-    }
-
-    /**
-     * Is recurring payment feature enable.
-     *
-     * @return bool
-     */
-    public function isRecurringPaymentEnabled(): bool
-    {
-        return (bool)$this->scopeConfig->getValue(
-            self::IS_RECURRING_PAYMENT_ENABLED,
-            ScopeInterface::SCOPE_STORE
-        );
     }
 
     /**
@@ -63,8 +35,8 @@ class TotalConfigProvider implements ConfigProviderInterface
     {
         return [
             'isRecurringScheduled' => $this->isRecurringScheduled(),
-            'recurringSubtotal' => $this->getRecurringSubtotal()
-            ];
+            'recurringSubtotal'    => $this->getRecurringSubtotal()
+        ];
     }
 
     /**
@@ -97,7 +69,7 @@ class TotalConfigProvider implements ConfigProviderInterface
      */
     private function getRecurringSubtotal(): float
     {
-        if ($this->isRecurringPaymentEnabled()) {
+        if ($this->config->isRecurringPaymentEnabled()) {
             $recurringSubtotal = 0.00;
             if ($this->isRecurringScheduled()) {
                 $quoteItems = $this->checkoutSession->getQuote()->getAllItems();
