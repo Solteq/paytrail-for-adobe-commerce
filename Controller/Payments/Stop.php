@@ -16,6 +16,7 @@ use Magento\Sales\Model\Order;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
 use Paytrail\PaymentService\Model\Validation\PreventAdminActions;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 use Psr\Log\LoggerInterface;
 
 class Stop implements Action\HttpGetActionInterface
@@ -36,15 +37,15 @@ class Stop implements Action\HttpGetActionInterface
      * @param ManagerInterface $messageManager
      */
     public function __construct(
-        private Context                             $context,
-        private Session                             $customerSession,
-        private SubscriptionRepositoryInterface     $subscriptionRepositoryInterface,
-        private OrderRepositoryInterface            $orderRepositoryInterface,
-        private OrderManagementInterface            $orderManagementInterface,
-        private LoggerInterface                     $logger,
+        private Context $context,
+        private Session $customerSession,
+        private SubscriptionRepositoryInterface $subscriptionRepositoryInterface,
+        private OrderRepositoryInterface $orderRepositoryInterface,
+        private OrderManagementInterface $orderManagementInterface,
+        private LoggerInterface $logger,
         private SubscriptionLinkRepositoryInterface $subscriptionLinkRepositoryInterface,
-        private PreventAdminActions                 $preventAdminActions,
-        private ManagerInterface                    $messageManager
+        private PreventAdminActions $preventAdminActions,
+        private ManagerInterface $messageManager
     ) {
     }
 
@@ -65,7 +66,7 @@ class Stop implements Action\HttpGetActionInterface
 
         try {
             $subscription = $this->subscriptionRepositoryInterface->get((int)$subscriptionId);
-            $orderIds     = $this->subscriptionLinkRepositoryInterface->getOrderIdsBySubscriptionId(
+            $orderIds = $this->subscriptionLinkRepositoryInterface->getOrderIdsBySubscriptionId(
                 (int)$subscriptionId
             );
 
@@ -76,7 +77,9 @@ class Stop implements Action\HttpGetActionInterface
                 }
                 $subscription->setStatus(self::STATUS_CLOSED);
                 if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
-                    || $order->getStatus() === self::ORDER_PENDING_STATUS) {
+                    || $order->getStatus() === self::ORDER_PENDING_STATUS
+                    || $order->getStatus() === PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
+                ) {
                     $this->orderManagementInterface->cancel($order->getId());
                 }
             }
