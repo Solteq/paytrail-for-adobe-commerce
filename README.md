@@ -78,6 +78,9 @@ Assigned to an order when customer is redirected to the payment provider of thei
 __Pending Paytrail Payment Service__<br/>
 Assigned to an order if Paytrail for Adobe Commerce is still waiting for a confirmation of payment. Applies to invoices, such as Collector.
 
+__Pending Paytrail Subscription__<br/>
+Assigned to an order if Paytrail for Adobe Commerce is still waiting for a confirmation of subscription payment.
+
 __Processing__<br/>
 Assigned to an order once payment is completed and items are ready for shipping.
 
