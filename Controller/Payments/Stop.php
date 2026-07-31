@@ -6,8 +6,6 @@ namespace Paytrail\PaymentService\Controller\Payments;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -15,16 +13,17 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
-use Paytrail\PaymentService\Model\SubscriptionManagement;
 use Paytrail\PaymentService\Model\Validation\PreventAdminActions;
 use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 use Psr\Log\LoggerInterface;
 
 class Stop implements Action\HttpGetActionInterface
 {
+    public const ORDER_PENDING_STATUS = 'pending';
+
+
     /**
      * Stop constructor.
      *
@@ -79,7 +78,7 @@ class Stop implements Action\HttpGetActionInterface
                 if (!$this->customerSession->getId() || $this->customerSession->getId() != $order->getCustomerId()) {
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
-                $subscription->setStatus(self::STATUS_CLOSED);
+                $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
                 try {
                     if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
                         || $order->getStatus() === self::ORDER_PENDING_STATUS
