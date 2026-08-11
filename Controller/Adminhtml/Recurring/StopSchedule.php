@@ -4,18 +4,28 @@ namespace Paytrail\PaymentService\Controller\Adminhtml\Recurring;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderManagementInterface;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
+use Paytrail\PaymentService\Model\SubscriptionManagement;
 
 class StopSchedule implements HttpGetActionInterface
 {
-    const ORDER_PENDING_STATUS = 'pending';
-
+    /**
+     * StopSchedule constructor.
+     *
+     * @param Context $context
+     * @param SubscriptionRepositoryInterface $subscriptionRepository
+     * @param OrderManagementInterface $orderManagement
+     * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepoInterface
+     */
     public function __construct(
         private Context                             $context,
         private SubscriptionRepositoryInterface     $subscriptionRepository,
@@ -24,10 +34,15 @@ class StopSchedule implements HttpGetActionInterface
     ) {
     }
 
+    /**
+     * Execute the stop schedule action for a recurring payment subscription.
+     *
+     * @return ResponseInterface|Redirect|(Redirect&ResultInterface)|ResultInterface
+     */
     public function execute()
     {
         $resultRedirect = $this->context->getResultFactory()->create(ResultFactory::TYPE_REDIRECT);
-        $resultRedirect->setPath($this->_redirect->getRefererUrl());
+        $resultRedirect->setUrl($this->context->getRedirect()->getRefererUrl());
         $id = $this->context->getRequest()->getParam('id');
 
         $subscription = $this->getRecurringPayment($id);
@@ -41,7 +56,9 @@ class StopSchedule implements HttpGetActionInterface
     }
 
     /**
-     * @param $id
+     * Get recurring payment.
+     *
+     * @param int $subscriptionId
      *
      * @return false|SubscriptionInterface
      */
@@ -62,6 +79,8 @@ class StopSchedule implements HttpGetActionInterface
     }
 
     /**
+     * Cancel order.
+     *
      * @param SubscriptionInterface $subscription
      */
     private function cancelOrder(SubscriptionInterface $subscription): void
@@ -76,10 +95,11 @@ class StopSchedule implements HttpGetActionInterface
             } else {
                 $this->context->getMessageManager()->addWarningMessage(
                     \__(
-                        'Order ID %id has a status other than %status, automatic order cancel disabled. If the order is unpaid please cancel it manually',
+                        'Order ID %id has a status other than %status, automatic order cancel disabled.
+                            If the order is unpaid please cancel it manually',
                         [
-                            'id'     => array_shift($ordersId),
-                            'status' => self::ORDER_PENDING_STATUS
+                            'id' => array_shift($ordersId),
+                            'status' => SubscriptionManagement::ORDER_PENDING_STATUS
                         ]
                     )
                 );
@@ -94,11 +114,16 @@ class StopSchedule implements HttpGetActionInterface
         }
     }
 
-    private function updateRecurringStatus(SubscriptionInterface $subscription)
+    /**
+     * Update recurring status.
+     *
+     * @param SubscriptionInterface $subscription
+     * @return void
+     */
+    private function updateRecurringStatus(SubscriptionInterface $subscription): void
     {
-        $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
-
         try {
+            $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
             $this->subscriptionRepository->save($subscription);
             $this->context->getMessageManager()->addSuccessMessage(
                 \__(

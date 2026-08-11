@@ -40,10 +40,11 @@ class Notify extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @return int
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_CRONTAB);
         $this->notify->process();

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-06-30
+
+- Remove Stop Schedule button for stopped subscriptions.
+- Fix undefined property while stopping subscription.
+- Update commands for Symfony standards.
+- Fix 500 error on API.
+- Compatibility for Magento/Adobe Commerce 2.4.9.
+
 ## [2.2.17] - 2026-04-14
 
 - Change require version for paytrail-php-sdk.
