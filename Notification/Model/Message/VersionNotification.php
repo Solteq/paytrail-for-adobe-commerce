@@ -106,7 +106,10 @@ class VersionNotification implements MessageInterface
         }
 
         $content = $this->gatewayConfig->getDecodedContentFromGithub();
-        $this->cache->save(json_encode($content), self::GITHUB_VERSION_CACHE_KEY, [], self::GITHUB_VERSION_CACHE_TTL);
+
+        if (!empty($content)) {
+            $this->cache->save(json_encode($content), self::GITHUB_VERSION_CACHE_KEY, [], self::GITHUB_VERSION_CACHE_TTL);
+        }
 
         return is_array($content) ? $content : [];
     }
