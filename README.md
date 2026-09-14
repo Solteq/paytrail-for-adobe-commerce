@@ -41,8 +41,8 @@ Steps:
    ```bin/magento setup:static-content:deploy```
 6. Navigate to Adobe Commerce admin interface and select __Stores -> Store Configuration -> Sales -> Payment Methods ->
    Paytrail for Adobe Commerce__
-7. Enter your credentials and enable the
-   module ([Test credentials](https://paytrail.github.io/api-documentation/#/?id=test-credentials))
+7. Enter your credentials and enable the module
+   ([Test credentials](https://paytrail.github.io/api-documentation/#/?id=test-credentials))
 8. Clear the cache
 
 ## Usage
