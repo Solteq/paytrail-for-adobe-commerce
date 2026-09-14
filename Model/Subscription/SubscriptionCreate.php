@@ -70,9 +70,13 @@ class SubscriptionCreate
     }
 
     /**
-     * @param $orderSchedule
-     * @param $selectedToken
-     * @param $customerId
+     * Creates a subscription for the given order schedule, selected token, customer ID, and order ID.
+     *
+     * @param array $orderSchedule
+     * @param string $selectedToken
+     * @param string $customerId
+     * @param string $orderId
+     *
      * @return void
      * @throws CouldNotSaveException
      */
@@ -87,7 +91,8 @@ class SubscriptionCreate
             $subscription->setRepeatCountLeft(Config::REPEAT_COUNT_STATIC_VALUE);
             $subscription->setRetryCount(Config::REPEAT_COUNT_STATIC_VALUE);
             $subscription->setSelectedToken(
-                (int)$this->paymentToken->getByPublicHash($selectedToken,$customerId)[SubscriptionInterface::FIELD_ENTITY_ID]);
+                (int)$this->paymentToken->getByPublicHash($selectedToken, $customerId)[SubscriptionInterface::FIELD_ENTITY_ID]
+            );
 
             $this->subscriptionRepository->save($subscription);
 
