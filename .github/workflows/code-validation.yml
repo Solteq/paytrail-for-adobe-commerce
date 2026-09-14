@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 20
+          - 24
         php-version: ["8.1", "8.2", "8.3", "8.4", "8.5"]
         dependencies:
           - "highest"
@@ -71,7 +71,7 @@ jobs:
       - name: Validate Composer Files
         run: composer validate
       - name: Run Composer install
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v4"
         with:
           dependency-versions: "${{ matrix.dependencies }}"
           composer-options: "${{ matrix.composer-options }}"
