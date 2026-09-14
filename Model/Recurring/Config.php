@@ -9,6 +9,8 @@ class Config
 {
     private const IS_RECURRING_PAYMENT_ENABLED     = 'sales/recurring_payment/active_recurring_payment';
     private const CONFIG_ORDER_CREATION_LEAD_DAYS  = 'sales/recurring_payment/warning_period';
+    public const SCHEDULED_ATTRIBUTE_CODE = 'recurring_payment_schedule';
+    public const REPEAT_COUNT_STATIC_VALUE = 5;
     public const  DEFAULT_ORDER_CREATION_LEAD_DAYS = 7;
 
     /**

@@ -20,7 +20,7 @@ class TotalConfigProvider implements ConfigProviderInterface
      */
     public function __construct(
         private readonly Session $checkoutSession,
-        private readonly Config $config
+        private readonly Config  $config
     ) {
     }
 
@@ -35,7 +35,7 @@ class TotalConfigProvider implements ConfigProviderInterface
     {
         return [
             'isRecurringScheduled' => $this->isRecurringScheduled(),
-            'recurringSubtotal'    => $this->getRecurringSubtotal()
+            'recurringSubtotal' => $this->getRecurringSubtotal()
         ];
     }
 
@@ -51,7 +51,9 @@ class TotalConfigProvider implements ConfigProviderInterface
         $quoteItems = $this->checkoutSession->getQuote()->getAllItems();
         if ($quoteItems) {
             foreach ($quoteItems as $item) {
-                if ($item->getProduct()->getCustomAttribute('recurring_payment_schedule') != self::NO_SCHEDULE_VALUE) {
+                if ($item->getProduct()->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE)
+                    != self::NO_SCHEDULE_VALUE
+                ) {
                     return true;
                 }
             }
@@ -75,7 +77,7 @@ class TotalConfigProvider implements ConfigProviderInterface
                 $quoteItems = $this->checkoutSession->getQuote()->getAllItems();
                 foreach ($quoteItems as $item) {
                     if ($item->getProduct()
-                            ->getCustomAttribute('recurring_payment_schedule') != self::NO_SCHEDULE_VALUE) {
+                            ->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE) != self::NO_SCHEDULE_VALUE) {
                         $recurringSubtotal = $recurringSubtotal + ($item->getPrice() * $item->getQty());
                     }
                 }

@@ -9,14 +9,12 @@ use Magento\Vault\Model\ResourceModel\PaymentToken;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterfaceFactory;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
+use Paytrail\PaymentService\Model\Recurring\Config;
 use Paytrail\PaymentService\Model\Subscription\NextDateCalculator;
 use Paytrail\PaymentService\Model\Subscription\SubscriptionLinkRepository;
 
 class SubscriptionCreate
 {
-    private const SCHEDULED_ATTRIBUTE_CODE = 'recurring_payment_schedule';
-    private const REPEAT_COUNT_STATIC_VALUE = 5;
-
     /**
      * @var SubscriptionRepositoryInterface
      */
@@ -72,9 +70,13 @@ class SubscriptionCreate
     }
 
     /**
-     * @param $orderSchedule
-     * @param $selectedToken
-     * @param $customerId
+     * Creates a subscription for the given order schedule, selected token, customer ID, and order ID.
+     *
+     * @param array $orderSchedule
+     * @param string $selectedToken
+     * @param string $customerId
+     * @param string $orderId
+     *
      * @return void
      * @throws CouldNotSaveException
      */
@@ -86,10 +88,11 @@ class SubscriptionCreate
             $subscription->setCustomerId($customerId);
             $subscription->setNextOrderDate($this->dateCalculator->getNextDate(reset($orderSchedule)));
             $subscription->setRecurringProfileId((int)reset($orderSchedule));
-            $subscription->setRepeatCountLeft(self::REPEAT_COUNT_STATIC_VALUE);
-            $subscription->setRetryCount(self::REPEAT_COUNT_STATIC_VALUE);
+            $subscription->setRepeatCountLeft(Config::REPEAT_COUNT_STATIC_VALUE);
+            $subscription->setRetryCount(Config::REPEAT_COUNT_STATIC_VALUE);
             $subscription->setSelectedToken(
-                (int)$this->paymentToken->getByPublicHash($selectedToken,$customerId)[SubscriptionInterface::FIELD_ENTITY_ID]);
+                (int)$this->paymentToken->getByPublicHash($selectedToken, $customerId)[SubscriptionInterface::FIELD_ENTITY_ID]
+            );
 
             $this->subscriptionRepository->save($subscription);
 
@@ -109,9 +112,9 @@ class SubscriptionCreate
         try {
             foreach ($order->getItems() as $item) {
                 $product = $this->productRepositoryInterface->getById($item->getProductId());
-                if (is_object($product->getCustomAttribute(self::SCHEDULED_ATTRIBUTE_CODE))){
-                    if ($product->getCustomAttribute(self::SCHEDULED_ATTRIBUTE_CODE)->getValue() >= 0) {
-                        $orderSchedule[] = $product->getCustomAttribute(self::SCHEDULED_ATTRIBUTE_CODE)->getValue();
+                if (is_object($product->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE))){
+                    if ($product->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE)->getValue() >= 0) {
+                        $orderSchedule[] = $product->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE)->getValue();
                     }
                 }
             }

@@ -43,7 +43,7 @@ class ScheduledCartValidation implements ObserverInterface
             foreach ($cart->getItems() as $cartItem) {
                 $cartItemSchedule = $cartItem
                     ->getProduct()
-                    ->getCustomAttribute(PreventDifferentScheduledCart::SCHEDULE_CODE);
+                    ->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE);
 
                 if ($cartItemSchedule && $cartItemSchedule->getValue()) {
                     if (null !== $cartSchedule && $cartSchedule !== $cartItemSchedule->getValue()) {
