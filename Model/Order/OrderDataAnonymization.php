@@ -7,7 +7,7 @@ use Paytrail\PaymentService\Gateway\Config\Config;
 
 class OrderDataAnonymization
 {
-    public const ANONYMIZED_DATA = '%()+,-./0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    public const ANONYMIZED_DATA = 'hidden';
 
     /**
      * OrderAnonymization constructor.
