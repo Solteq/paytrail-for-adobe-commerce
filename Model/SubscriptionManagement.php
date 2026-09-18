@@ -56,7 +56,6 @@ class SubscriptionManagement implements SubscriptionManagementInterface
         private CustomerData                        $customerData,
         private ShowSubscriptionsDataProvider       $showSubscriptionsDataProvider
     ) {
-
     }
 
     /**
