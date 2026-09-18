@@ -15,6 +15,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
 use Paytrail\PaymentService\Model\SubscriptionManagement;
@@ -78,6 +79,8 @@ class Stop implements Action\HttpGetActionInterface
                 if (!$this->customerSession->getId() || $this->customerSession->getId() != $order->getCustomerId()) {
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
+
+                $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
                 try {
                     if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
                         || $order->getStatus() === SubscriptionManagement::ORDER_PENDING_STATUS
