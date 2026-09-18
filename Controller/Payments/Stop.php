@@ -6,6 +6,8 @@ namespace Paytrail\PaymentService\Controller\Payments;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -15,15 +17,13 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Paytrail\PaymentService\Api\SubscriptionLinkRepositoryInterface;
 use Paytrail\PaymentService\Api\SubscriptionRepositoryInterface;
+use Paytrail\PaymentService\Model\SubscriptionManagement;
 use Paytrail\PaymentService\Model\Validation\PreventAdminActions;
 use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 use Psr\Log\LoggerInterface;
 
 class Stop implements Action\HttpGetActionInterface
 {
-    public const ORDER_PENDING_STATUS = 'pending';
-
-
     /**
      * Stop constructor.
      *
@@ -38,15 +38,15 @@ class Stop implements Action\HttpGetActionInterface
      * @param ManagerInterface $messageManager
      */
     public function __construct(
-        private Context $context,
-        private Session $customerSession,
-        private SubscriptionRepositoryInterface $subscriptionRepositoryInterface,
-        private OrderRepositoryInterface $orderRepositoryInterface,
-        private OrderManagementInterface $orderManagementInterface,
-        private LoggerInterface $logger,
+        private Context                             $context,
+        private Session                             $customerSession,
+        private SubscriptionRepositoryInterface     $subscriptionRepositoryInterface,
+        private OrderRepositoryInterface            $orderRepositoryInterface,
+        private OrderManagementInterface            $orderManagementInterface,
+        private LoggerInterface                     $logger,
         private SubscriptionLinkRepositoryInterface $subscriptionLinkRepositoryInterface,
-        private PreventAdminActions $preventAdminActions,
-        private ManagerInterface $messageManager
+        private PreventAdminActions                 $preventAdminActions,
+        private ManagerInterface                    $messageManager
     ) {
     }
 
@@ -79,16 +79,9 @@ class Stop implements Action\HttpGetActionInterface
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
                 $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
-                try {
-                    if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
-                        || $order->getStatus() === self::ORDER_PENDING_STATUS
-                        || $order->getStatus() === PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION
-                    ) {
-                        $this->orderManagementInterface->cancel($order->getId());
-                    }
-                } catch (\Exception $e) {
-                    $this->logger->error($e->getMessage());
-                    $this->messageManager->addErrorMessage(__('Unable to cancel order with ID: %1', $orderId));
+                if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
+                    || $order->getStatus() === SubscriptionManagement::ORDER_PENDING_STATUS) {
+                    $this->orderManagementInterface->cancel($order->getId());
                 }
             }
 
