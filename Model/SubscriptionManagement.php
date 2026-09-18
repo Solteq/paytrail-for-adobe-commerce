@@ -24,10 +24,11 @@ use Psr\Log\LoggerInterface;
 
 class SubscriptionManagement implements SubscriptionManagementInterface
 {
-    private const STATUS_CLOSED        = 'closed';
     public const ORDER_PENDING_STATUS = 'pending';
 
     /**
+     * SubscriptionManagement constructor.
+     *
      * @param UserContextInterface $userContext
      * @param SubscriptionRepositoryInterface $subscriptionRepository
      * @param SubscriptionLinkRepositoryInterface $subscriptionLinkRepository
@@ -70,7 +71,7 @@ class SubscriptionManagement implements SubscriptionManagementInterface
 
         try {
             $subscription = $this->subscriptionRepository->get((int)$subscriptionId);
-            if ($subscription->getStatus() === self::STATUS_CLOSED) {
+            if ($subscription->getStatus() === SubscriptionInterface::STATUS_CLOSED) {
                 return __('Subscription is closed')->render();
             }
 
@@ -85,7 +86,7 @@ class SubscriptionManagement implements SubscriptionManagementInterface
                 if ($customerId != $order->getCustomerId()) {
                     throw new LocalizedException(__('Customer is not authorized for this operation'));
                 }
-                $subscription->setStatus(self::STATUS_CLOSED);
+                $subscription->setStatus(SubscriptionInterface::STATUS_CLOSED);
                 if ($order->getStatus() === Order::STATE_PENDING_PAYMENT
                     || $order->getStatus() === self::ORDER_PENDING_STATUS) {
                     $this->orderManagementInterface->cancel($order->getId());
