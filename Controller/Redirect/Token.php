@@ -169,7 +169,11 @@ class Token implements HttpPostActionInterface
             'checkout-status' => $response['data']->getStatus(),
             'checkout-provider' => $response['data']->getProvider(),
         ];
-        $receiptData['signature'] = Signature::calculateHmac($receiptData, "", $this->gatewayConfig->getMerchantSecret());
+        $receiptData['signature'] = Signature::calculateHmac(
+            $receiptData,
+            "",
+            $this->gatewayConfig->getMerchantSecret()
+        );
 
         $this->receiptDataProvider->execute($receiptData);
 
