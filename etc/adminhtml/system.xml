@@ -141,6 +141,23 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     </field>
                 </group>
+                <group id="paytrail_klarna_express" translate="label" type="text" sortOrder="90" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Klarna Express Checkout</label>
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1"
+                           showInStore="0" canRestore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="client_id" translate="label comment" type="text" sortOrder="2" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Klarna Client ID</label>
+                        <comment>Client identifier from Klarna Partner Portal. The storefront domain must be registered as an allowed origin for this client id.</comment>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                </group>
                 <group id="paytrail_anonymization" translate="label" type="text" sortOrder="90" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Anonymization Order Data</label>

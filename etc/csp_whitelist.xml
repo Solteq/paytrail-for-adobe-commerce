@@ -36,11 +36,20 @@
                 <value id="paytrail-form" type="hash" algorithm="sha256">nyuJ902j4bh+Bk201CS4WCVJJWHk9Pd0Qy4EZla4CeA=</value>
                 <value id="services-paytrail-script" type="host">services.paytrail.com</value>
                 <value id="resources-paytrail-script" type="host">resources.paytrail.com</value>
+                <value id="klarna-js" type="host">js.klarna.com</value>
+                <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
                 <value id="services-paytrail" type="host">*.paytrail.com</value>
+                <value id="klarna-connect" type="host">*.klarna.com</value>
+                <value id="klarna-cdn-connect" type="host">*.klarnacdn.net</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="klarna-frame" type="host">*.klarna.com</value>
             </values>
         </policy>
     </policies>

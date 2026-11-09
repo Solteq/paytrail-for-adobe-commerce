@@ -77,6 +77,7 @@
                 <item name="invoice_cancellation" xsi:type="string">
                     Paytrail\PaymentService\Gateway\Command\InvoiceCancellation
                 </item>
+                <item name="klarna_express_charge" xsi:type="string">PaytrailKlarnaChargeCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -146,6 +147,30 @@
             <argument name="builders" xsi:type="array">
                 <item name="paymentBuilder" xsi:type="string">
                     Paytrail\PaymentService\Gateway\Request\PaymentDataBuilder
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Command section for Klarna Express Checkout charge action  -->
+    <virtualType name="PaytrailKlarnaChargeCommand" type="Paytrail\PaymentService\Gateway\Command\Payment">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">PaytrailKlarnaChargeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Paytrail\PaymentService\Gateway\Http\TransferFactory
+            </argument>
+            <argument name="client" xsi:type="object">
+                Paytrail\PaymentService\Gateway\Http\Client\TransactionKlarnaCharge
+            </argument>
+            <argument name="handler" xsi:type="object">Paytrail\PaymentService\Gateway\Response\KlarnaChargeHandler
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="PaytrailKlarnaChargeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="klarnaChargeBuilder" xsi:type="string">
+                    Paytrail\PaymentService\Gateway\Request\KlarnaChargeDataBuilder
                 </item>
             </argument>
         </arguments>

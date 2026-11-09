@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="paytrail.klarna.express.checkout"
+                   template="Paytrail_PaymentService::klarna/expresscheckout.phtml"
+                   after="checkout.cart">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Paytrail\PaymentService\ViewModel\KlarnaExpressCheckout</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,34 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Paytrail\PaymentService\ViewModel\KlarnaExpressCheckout $viewModel */
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel->isEnabled()) {
+    return '';
+}
+
+$config = [
+    'clientId' => $viewModel->getClientId(),
+    'currency' => $viewModel->getCurrency(),
+    'amount' => $viewModel->getAmount(),
+    'locale' => $viewModel->getLocale(),
+    'estimateShippingUrl' => $block->getUrl('paytrail/klarna/estimateshipping'),
+    'selectShippingOptionUrl' => $block->getUrl('paytrail/klarna/selectshippingoption'),
+    'completeUrl' => $block->getUrl('paytrail/klarna/complete'),
+    'successUrl' => $block->getUrl('checkout/onepage/success'),
+];
+?>
+<div class="paytrail-klarna-express-checkout"
+     data-mage-init='<?= $escaper->escapeHtmlAttr(
+         json_encode(['Paytrail_PaymentService/js/klarna-express-checkout' => $config])
+     ) ?>'>
+    <div id="klarna-payment-presentation">
+        <div id="klarna-payment-icon"></div>
+        <div>
+            <div id="klarna-payment-header"></div>
+            <div id="klarna-payment-subheader"></div>
+        </div>
+    </div>
+    <div id="klarna-button-container"></div>
+</div>

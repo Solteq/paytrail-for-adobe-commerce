@@ -73,6 +73,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public const NEW_UI_CONFIG_PATH = 'paytrail_ui_settings/new_ui_active';
     public const ANONYMIZATION_DATA_CONFIG_PATH = 'paytrail_anonymization/active';
     public const ANONYMIZATION_PRODUCT_TYPE_CONFIG_PATH = 'paytrail_anonymization/anonymization_product_type';
+    public const KLARNA_EXPRESS_ACTIVE_CONFIG_PATH = 'paytrail_klarna_express/active';
+    public const KLARNA_EXPRESS_CLIENT_ID_CONFIG_PATH = 'paytrail_klarna_express/client_id';
 
     /**
      * @var array
@@ -696,5 +698,29 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     public function getAnonymizationProductType($storeId = null): string
     {
         return (string)$this->getValue(self::ANONYMIZATION_PRODUCT_TYPE_CONFIG_PATH, $storeId);
+    }
+
+    /**
+     * Is Klarna Express Checkout button enabled.
+     *
+     * @param string $storeId
+     *
+     * @return bool
+     */
+    public function isKlarnaExpressCheckoutEnabled($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::KLARNA_EXPRESS_ACTIVE_CONFIG_PATH, $storeId);
+    }
+
+    /**
+     * Get Klarna client id used for Klarna Express Checkout Web SDK.
+     *
+     * @param string $storeId
+     *
+     * @return string
+     */
+    public function getKlarnaExpressClientId($storeId = null): string
+    {
+        return (string)$this->getValue(self::KLARNA_EXPRESS_CLIENT_ID_CONFIG_PATH, $storeId);
     }
 }
