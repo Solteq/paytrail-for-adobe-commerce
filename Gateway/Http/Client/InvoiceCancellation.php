@@ -58,6 +58,12 @@ class InvoiceCancellation implements ClientInterface
         $response["data"] = null;
         $response["error"] = null;
 
+        if (!isset($transactionId) || $transactionId === '') {
+            $response["error"] = 'Missing transaction ID for invoice cancellation';
+
+            return $response;
+        }
+
         try {
             $paytrailClient = $this->paytrailAdapter->initPaytrailMerchantClient();
 
