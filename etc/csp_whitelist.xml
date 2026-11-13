@@ -20,6 +20,7 @@
                 <value id="poppankki" type="host">verkkomaksu.poppankki.fi</value>
                 <value id="omasp" type="host">verkkomaksu.omasp.fi</value>
                 <value id="aktia" type="host">auth.aktia.fi</value>
+                <value id="aktia_ebank" type="host">ebank.aktia.fi</value>
                 <value id="handelsbanken" type="host">verkkomaksu.handelsbanken.fi</value>
                 <value id="saastopankki" type="host">verkkomaksu.saastopankki.fi</value>
                 <value id="alandsbanken" type="host">online.alandsbanken.fi</value>
@@ -35,6 +36,7 @@
             <values>
                 <value id="paytrail-form" type="hash" algorithm="sha256">nyuJ902j4bh+Bk201CS4WCVJJWHk9Pd0Qy4EZla4CeA=</value>
                 <value id="services-paytrail-script" type="host">services.paytrail.com</value>
+                <value id="resources-paytrail-script" type="host">resources.paytrail.com</value>
             </values>
         </policy>
         <policy id="connect-src">

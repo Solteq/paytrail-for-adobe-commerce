@@ -42,10 +42,11 @@ class Bill extends Command
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @return int
      * @throws LocalizedException
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->state->setAreaCode(Area::AREA_CRONTAB);
         $this->bill->process();

@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2026-10-22
+
+- change anonymization characters
+- move css files to use only when needed
+- improve module version check
+- add aktia ebank to CSP whitelist
+
+## [2.3.1] - 2026-10-08
+
+- Improve security for payment processing.
+
+## [2.3.0] - 2026-06-30
+
+- Remove Stop Schedule button for stopped subscriptions.
+- Fix undefined property while stopping subscription.
+- Update commands for Symfony standards.
+- Fix 500 error on API.
+- Compatibility for Magento/Adobe Commerce 2.4.9.
+
+## [2.2.17] - 2026-04-14
+
+- Change require version for paytrail-php-sdk.
+
+## [2.2.16] - 2026-03-24
+
+- Change 'No recurring payment' in admin to empty value.
+- Add support for Klarna invoice cancellation.
+- Refactor DI
+
+## [2.2.15] - 2026-03-02
+
+- Improve error handling for adding credit card.
+
+## [2.2.14] - 2026-02-11
+
+- Fix issues with Manual Invoice Activation.
+- Allow using Klarna with Manual Invoice Activation.
+
+## [2.2.13] - 2026-01-26
+
+- Fix issue on Adobe Commerce 2.4.6 and older.
+
+## [2.2.12] - 2025-11-21
+
+- Improve receipt controller.
+- Improve accessibility of payment page.
+- Change paytrail script link.
+- Fix partial refund issue.
+
 ## [2.2.11] - 2025-07-01
 
 - Fix Adobe App Assurance Program issues.
