@@ -16,7 +16,7 @@ use Magento\Theme\Block\Html\Pager;
 use Magento\Vault\Model\PaymentTokenRepository;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
 use Paytrail\PaymentService\Gateway\Config\Config;
-use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
+use Paytrail\PaymentService\Model\Recurring\Config as RecurringConfig;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
 use Paytrail\PaymentService\Model\ResourceModel\Subscription\CollectionFactory;
 
@@ -36,22 +36,22 @@ class Payments extends Template
      * @param StoreManagerInterface $storeManager
      * @param PaymentTokenRepository $paymentTokenRepository
      * @param SerializerInterface $serializer
-     * @param TotalConfigProvider $totalConfigProvider
+     * @param RecurringConfig $recurringConfig
      * @param Config $config
      * @param CheckoutSession $checkoutSession
      * @param array $data
      */
     public function __construct(
-        Context                                 $context,
-        private readonly CollectionFactory      $subscriptionCollectionFactory,
-        private readonly Session                $customerSession,
-        private readonly StoreManagerInterface  $storeManager,
+        Context $context,
+        private readonly CollectionFactory $subscriptionCollectionFactory,
+        private readonly Session $customerSession,
+        private readonly StoreManagerInterface $storeManager,
         private readonly PaymentTokenRepository $paymentTokenRepository,
-        private readonly SerializerInterface    $serializer,
-        private readonly TotalConfigProvider    $totalConfigProvider,
-        private readonly Config                 $config,
-        private readonly CheckoutSession        $checkoutSession,
-        array                                   $data = []
+        private readonly SerializerInterface $serializer,
+        private readonly RecurringConfig $recurringConfig,
+        private readonly Config $config,
+        private readonly CheckoutSession $checkoutSession,
+        array $data = []
     ) {
         parent::__construct($context, $data);
     }
@@ -74,7 +74,7 @@ class Payments extends Template
      */
     public function isSubscriptionsEnabled(): bool
     {
-        return $this->totalConfigProvider->isRecurringPaymentEnabled();
+        return $this->recurringConfig->isRecurringPaymentEnabled();
     }
 
     /**

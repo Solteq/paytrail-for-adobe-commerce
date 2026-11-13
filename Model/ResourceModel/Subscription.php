@@ -5,12 +5,37 @@ namespace Paytrail\PaymentService\Model\ResourceModel;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
+use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
 use Paytrail\PaymentService\Api\Data\SubscriptionInterface;
+use Paytrail\PaymentService\Model\Recurring\Config;
+use Paytrail\PaymentService\Setup\Patch\Data\PendingSubscriptionStatus;
 
 class Subscription extends AbstractDb
 {
     public const PAYTRAIL_SUBSCRIPTIONS_TABLENAME = 'paytrail_subscriptions';
+
+    /**
+     * Subscription constructor.
+     *
+     * @param Context $context
+     * @param Snapshot $entitySnapshot
+     * @param RelationComposite $entityRelationComposite
+     * @param Config $recurringConfig
+     * @param string|null $connectionName
+     */
+    public function __construct(
+        Context $context,
+        Snapshot $entitySnapshot,
+        RelationComposite $entityRelationComposite,
+        private readonly Config $recurringConfig,
+        ?string $connectionName = null
+    ) {
+        parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
+    }
 
     /**
      * Subscription constructor.
@@ -41,11 +66,12 @@ class Subscription extends AbstractDb
     /**
      * BeforeSave function
      *
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * @param AbstractModel $object
+     *
      * @return $this|Subscription
      * @throws CouldNotSaveException
      */
-    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
+    protected function _beforeSave(AbstractModel $object)
     {
         if (!$this->canSave($object)) {
             throw new CouldNotSaveException(__('Invalid recurring payment profile'));
@@ -57,11 +83,12 @@ class Subscription extends AbstractDb
     /**
      * CanSave function
      *
-     * @param \Magento\Framework\Model\AbstractModel $object
+     * @param AbstractModel $object
+     *
      * @return bool
      * @throws CouldNotSaveException
      */
-    private function canSave(\Magento\Framework\Model\AbstractModel $object)
+    private function canSave(AbstractModel $object): bool
     {
         if (!$object->getData('recurring_profile_id')) {
             throw new CouldNotSaveException(__('Cannot save recurring payments without profiles'));
@@ -77,9 +104,42 @@ class Subscription extends AbstractDb
     }
 
     /**
+     * Fetches order ids of cloned orders that are still pending while their subscription is already closed.
+     *
+     * These orders are created by the recurring-payment notify cron and never get cancelled through the
+     * regular cancellation flow, because that flow only targets the "pending_payment"/"pending" order
+     * statuses and not the "pending_subscription" status used for cloned orders.
+     *
+     * @return int[]
+     */
+    public function getHangingClosedSubscriptionOrderIds(): array
+    {
+        $select = $this->getConnection()->select();
+        $select->from(
+            ['sublink' => 'paytrail_subscription_link'],
+            ['order_id']
+        );
+        $select->join(
+            ['sub' => self::PAYTRAIL_SUBSCRIPTIONS_TABLENAME],
+            'sub.entity_id = sublink.subscription_id',
+            []
+        );
+        $select->join(
+            ['so' => 'sales_order'],
+            'so.entity_id = sublink.order_id',
+            []
+        );
+        $select->where('sub.status = ?', SubscriptionInterface::STATUS_CLOSED);
+        $select->where('so.status = ?', PendingSubscriptionStatus::ORDER_STATUS_PENDING_SUBSCRIPTION);
+
+        return array_map('intval', $this->getConnection()->fetchCol($select));
+    }
+
+    /**
      * Updates subscription status to failed with a direct query.
      *
      * @param int $subscriptionId
+     *
      * @return void
      */
     public function forceFailedStatus($subscriptionId)
@@ -97,16 +157,18 @@ class Subscription extends AbstractDb
      * GetNewestOrderIds function
      *
      * @param bool $addDateFilter
+     *
      * @return array
+     * @throws \DateMalformedStringException
      */
-    public function getNewestOrderIds($addDateFilter = false)
+    public function getNewestOrderIds(bool $addDateFilter = false): array
     {
         $select = $this->getConnection()->select();
         $select->from(
             ['sublink' => 'paytrail_subscription_link'],
             [
                 'subscription_id' => 'subscription_id',
-                'order_id' => 'MAX(order_id)'
+                'order_id'        => 'MAX(order_id)'
             ]
         );
         $select->join(
@@ -121,7 +183,7 @@ class Subscription extends AbstractDb
 
         if ($addDateFilter) {
             $date = new \DateTime();
-            $date->modify('+7 day'); // consider making this configurable.
+            $date->modify(sprintf('+%d day', $this->recurringConfig->getOrderCreationLeadDays()));
             $select->where(
                 'sub.next_order_date < ?',
                 $date->format('Y-m-d H:i:s')
@@ -136,11 +198,12 @@ class Subscription extends AbstractDb
     /**
      * FilterUnPaidIds function
      *
-     * @param AdapterInterface|false $connection
+     * @param AdapterInterface $connection
      * @param array $newestOrderIds
-     * @return mixed
+     *
+     * @return array
      */
-    private function filterUnPaidIds($connection, array $newestOrderIds)
+    private function filterUnPaidIds(AdapterInterface $connection, array $newestOrderIds): array
     {
         $select = $connection->select();
         $select->from(

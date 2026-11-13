@@ -3,7 +3,7 @@
 namespace Paytrail\PaymentService\Cron;
 
 use Paytrail\PaymentService\Model\Recurring\Bill;
-use Paytrail\PaymentService\Model\Recurring\TotalConfigProvider;
+use Paytrail\PaymentService\Model\Recurring\Config;
 
 class RecurringPaymentBill
 {
@@ -11,11 +11,11 @@ class RecurringPaymentBill
      * RecurringPaymentBill constructor.
      *
      * @param Bill $bill
-     * @param TotalConfigProvider $totalConfigProvider config provider
+     * @param Config $recurringConfig
      */
     public function __construct(
-        private Bill $bill,
-        private TotalConfigProvider $totalConfigProvider
+        private readonly Bill $bill,
+        private readonly Config $recurringConfig
     ) {
     }
 
@@ -27,7 +27,7 @@ class RecurringPaymentBill
      */
     public function execute()
     {
-        if ($this->totalConfigProvider->isRecurringPaymentEnabled()) {
+        if ($this->recurringConfig->isRecurringPaymentEnabled()) {
             $this->bill->process();
         }
     }

@@ -8,11 +8,10 @@ use Magento\Catalog\Model\Product\Type\AbstractType;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
+use Paytrail\PaymentService\Model\Recurring\Config;
 
 class PreventDifferentScheduledCart
 {
-    public const SCHEDULE_CODE = 'recurring_payment_schedule';
-
     /**
      * BeforeAddProduct plugin.
      *
@@ -31,12 +30,12 @@ class PreventDifferentScheduledCart
                 $processMode = AbstractType::PROCESS_MODE_FULL
     ) {
         $cartItems       = $subject->getItems() ?: [];
-        $addItemSchedule = $product->getCustomAttribute(self::SCHEDULE_CODE);
+        $addItemSchedule = $product->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE);
         if (!$addItemSchedule) {
             return [$product, $request, $processMode];
         }
         foreach ($cartItems as $item) {
-            $cartItemSchedule = $item->getProduct()->getCustomAttribute(self::SCHEDULE_CODE);
+            $cartItemSchedule = $item->getProduct()->getCustomAttribute(Config::SCHEDULED_ATTRIBUTE_CODE);
             if ($cartItemSchedule && $cartItemSchedule->getValue() != $addItemSchedule->getValue()) {
                 throw new LocalizedException(__("Can't add product with different payment schedule"));
             }

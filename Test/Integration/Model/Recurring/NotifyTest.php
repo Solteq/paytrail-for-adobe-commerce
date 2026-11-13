@@ -10,14 +10,14 @@ use Magento\TestFramework\Helper\Bootstrap;
 
 class NotifyTest extends TestCase
 {
-    const VALID_STATUSES = [
+    public const VALID_STATUSES = [
         SubscriptionInterface::STATUS_ACTIVE
     ];
 
     /**
-     * @var mixed|Notify
+     * @var mixed|RecurringOrderCloner
      */
-    private $notify;
+    private $recurringOrderCloner;
 
     /**
      * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory
@@ -29,12 +29,15 @@ class NotifyTest extends TestCase
      */
     private $subscriptionCollection;
 
+    /**
+     * @var SubscriptionLinkRepository
+     */
     private $subscriptionLinkRepository;
 
     protected function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $this->notify = $objectManager->create(\Paytrail\PaymentService\Model\Recurring\Notify::class);
+        $this->recurringOrderCloner = $objectManager->create(RecurringOrderCloner::class);
         $this->orderCollection = $objectManager->create(
             \Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class
         );
@@ -49,7 +52,7 @@ class NotifyTest extends TestCase
      */
     public function testProcess($params, $expected)
     {
-        $this->notify->process();
+        $this->recurringOrderCloner->process();
         $subscriptions = $this->subscriptionCollection->create();
         $orders = $this->validateOrders();
         $this->assertEquals(
@@ -59,7 +62,7 @@ class NotifyTest extends TestCase
         );
 
         foreach ($orders as $order) {
-            $this->subscriptionLinkRepository->linkOrderToSubscription($order->getId(),$params['subscription_id']);
+            $this->subscriptionLinkRepository->linkOrderToSubscription($order->getId(), $params['subscription_id']);
             $subscription = $this->subscriptionLinkRepository->getSubscriptionIdFromOrderId($params['order_id']);
             $this->assertEquals(
                 $expected['subscription_id'],
@@ -127,8 +130,8 @@ class NotifyTest extends TestCase
     {
         return [
             'Save fails without recurring profile' => [
-                'params' => [
-                    'order_id' => '2',
+                'params'   => [
+                    'order_id'        => '2',
                     'subscription_id' => '1'
                 ],
                 'expected' => [
