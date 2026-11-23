@@ -16,9 +16,7 @@ use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Service\InvoiceService;
-use Paytrail\PaymentService\Gateway\Request\TokenRequestDataBuilder;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
-use Paytrail\PaymentService\Model\Adapter\Adapter;
 use Paytrail\SDK\Request\MitPaymentRequest;
 use Paytrail\SDK\Response\MitPaymentResponse;
 
@@ -28,8 +26,6 @@ class Payment
      * Payment constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
-     * @param Adapter $adapter
-     * @param RequestData $requestData
      * @param CustomerRepositoryInterface $customerRepository
      * @param InvoiceService $invoiceService
      * @param Transaction $transaction
@@ -38,13 +34,10 @@ class Payment
      * @param OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      * @param PaytrailLogger $paytrailLogger
-     * @param TokenRequestDataBuilder $tokenRequestDataBuilder
      * @param CommandManagerPool $commandManagerPool
      */
     public function __construct(
         private OrderRepositoryInterface              $orderRepository,
-        private Adapter                               $adapter,
-        private RequestData                           $requestData,
         private CustomerRepositoryInterface           $customerRepository,
         private InvoiceService                        $invoiceService,
         private Transaction                           $transaction,
@@ -53,7 +46,6 @@ class Payment
         private OrderStatusHistoryInterfaceFactory    $orderStatusHistoryFactory,
         private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
         private PaytrailLogger                        $paytrailLogger,
-        private TokenRequestDataBuilder               $tokenRequestDataBuilder,
         private CommandManagerPool                    $commandManagerPool
     ) {
     }
