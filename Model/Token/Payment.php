@@ -13,12 +13,12 @@ use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Service\InvoiceService;
 use Paytrail\PaymentService\Gateway\Request\TokenRequestDataBuilder;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
 use Paytrail\PaymentService\Model\Adapter\Adapter;
-use Paytrail\PaymentService\Model\Subscription;
 use Paytrail\SDK\Request\MitPaymentRequest;
 use Paytrail\SDK\Response\MitPaymentResponse;
 
@@ -73,15 +73,15 @@ class Payment
     public function makeMitPayment($orderId, $cardToken)
     {
         try {
-            $order           = $this->orderRepository->get($orderId);
-            $customer        = $this->customerRepository->getById((int)$order->getCustomerId());
+            $order = $this->orderRepository->get($orderId);
+            $customer = $this->customerRepository->getById((int)$order->getCustomerId());
             $commandExecutor = $this->commandManagerPool->get('paytrail');
 
             $mitResponse = $commandExecutor->executeByCode(
                 'token_payment_mit',
                 null,
                 [
-                    'order'    => $order,
+                    'order' => $order,
                     'token_id' => $cardToken,
                     'customer' => $customer,
                 ]
@@ -161,7 +161,7 @@ class Payment
                 [\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array)$mitResponse]
             );
 
-            $trans       = $this->transactionBuilder;
+            $trans = $this->transactionBuilder;
             $transaction = $trans->setPayment($payment)
                 ->setOrder($order)
                 ->setTransactionId($mitResponse->getTransactionId())
@@ -204,28 +204,45 @@ class Payment
      * @param MitPaymentResponse $mitResponse
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws CouldNotSaveException
      */
     private function updateOrder(
         OrderInterface     $order,
         MitPaymentResponse $mitResponse
-    ): void {
+    ): void
+    {
+        // Magento validates the comment status against the order's current state, so the
+        // "processing" comment can only be added after the order has moved to that state.
+        $this->addHistoryComment(
+            $order,
+            Order::STATE_PENDING_PAYMENT,
+            __('Transaction ID: ') . $mitResponse->getTransactionId()
+        );
 
-        $commentsArray = [
-            'pending_payment' => __('Transaction ID: ') . $mitResponse->getTransactionId(),
-            'processing'      => __('Payment has been completed')
-        ];
-
-        foreach ($commentsArray as $status => $comment) {
-            $historyComment = $this->orderStatusHistoryFactory->create();
-            $historyComment
-                ->setStatus($status)
-                ->setComment($comment);
-            $this->orderManagement->addComment($order->getEntityId(), $historyComment);
-            $this->orderStatusHistoryRepository->save($historyComment);
-        }
-
-        $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+        $order->setState(Order::STATE_PROCESSING)
+            ->setStatus(Order::STATE_PROCESSING);
         $this->orderRepository->save($order);
+
+        $this->addHistoryComment($order, Order::STATE_PROCESSING, (string)__('Payment has been completed'));
+    }
+
+    /**
+     * Add a status history comment to the order.
+     *
+     * @param OrderInterface $order
+     * @param string $status
+     * @param string $comment
+     *
+     * @return void
+     * @throws CouldNotSaveException
+     */
+    private function addHistoryComment(OrderInterface $order, string $status, string $comment): void
+    {
+        $historyComment = $this->orderStatusHistoryFactory->create();
+        $historyComment
+            ->setStatus($status)
+            ->setComment($comment);
+        $this->orderManagement->addComment($order->getEntityId(), $historyComment);
+        $this->orderStatusHistoryRepository->save($historyComment);
     }
 }
