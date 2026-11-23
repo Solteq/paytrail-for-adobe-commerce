@@ -183,16 +183,15 @@ class Payment
      * Save comment to order.
      *
      * @param string $transactionComment
-     * @param string $status
      * @param OrderInterface $order
      *
      * @return void
      * @throws CouldNotSaveException
      */
-    public function saveHistoryComment(string $transactionComment, string $status, OrderInterface $order): void
+    public function saveHistoryComment(string $transactionComment, OrderInterface $order): void
     {
         $historyComment = $this->orderStatusHistoryFactory->create();
-        $historyComment->setStatus($status)->setComment($transactionComment);
+        $historyComment->setStatus($order->getStatus())->setComment($transactionComment);
         $this->orderManagement->addComment($order->getEntityId(), $historyComment);
         $this->orderStatusHistoryRepository->save($historyComment);
     }
@@ -222,7 +221,6 @@ class Payment
     ): void {
         $this->saveHistoryComment(
             __('Transaction ID: ') . $mitResponse->getTransactionId(),
-            Order::STATE_PENDING_PAYMENT,
             $order
         );
 
@@ -230,6 +228,6 @@ class Payment
         $order->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING));
         $this->orderRepository->save($order);
 
-        $this->saveHistoryComment(__('Payment has been completed')->render(), Order::STATE_PROCESSING, $order);
+        $this->saveHistoryComment(__('Payment has been completed')->render(), $order);
     }
 }
