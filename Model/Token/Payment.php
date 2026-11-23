@@ -16,10 +16,7 @@ use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Sales\Model\Service\InvoiceService;
-use Paytrail\PaymentService\Gateway\Request\TokenRequestDataBuilder;
 use Paytrail\PaymentService\Logger\PaytrailLogger;
-use Paytrail\PaymentService\Model\Adapter\Adapter;
-use Paytrail\PaymentService\Model\Subscription;
 use Paytrail\SDK\Request\MitPaymentRequest;
 use Paytrail\SDK\Response\MitPaymentResponse;
 
@@ -29,8 +26,6 @@ class Payment
      * Payment constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
-     * @param Adapter $adapter
-     * @param RequestData $requestData
      * @param CustomerRepositoryInterface $customerRepository
      * @param InvoiceService $invoiceService
      * @param Transaction $transaction
@@ -39,13 +34,10 @@ class Payment
      * @param OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      * @param PaytrailLogger $paytrailLogger
-     * @param TokenRequestDataBuilder $tokenRequestDataBuilder
      * @param CommandManagerPool $commandManagerPool
      */
     public function __construct(
         private OrderRepositoryInterface $orderRepository,
-        private Adapter $adapter,
-        private RequestData $requestData,
         private CustomerRepositoryInterface $customerRepository,
         private InvoiceService $invoiceService,
         private Transaction $transaction,
@@ -54,7 +46,6 @@ class Payment
         private OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
         private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
         private PaytrailLogger $paytrailLogger,
-        private TokenRequestDataBuilder $tokenRequestDataBuilder,
         private CommandManagerPool $commandManagerPool
     ) {
     }
@@ -197,10 +188,10 @@ class Payment
      * @return void
      * @throws CouldNotSaveException
      */
-    public function saveComment(string $transactionComment, OrderInterface $order): void
+    public function saveHistoryComment(string $transactionComment, OrderInterface $order): void
     {
         $historyComment = $this->orderStatusHistoryFactory->create();
-        $historyComment->setComment($transactionComment);
+        $historyComment->setStatus($order->getStatus())->setComment($transactionComment);
         $this->orderManagement->addComment($order->getEntityId(), $historyComment);
         $this->orderStatusHistoryRepository->save($historyComment);
     }
@@ -222,16 +213,21 @@ class Payment
      * @param MitPaymentResponse $mitResponse
      *
      * @return void
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws CouldNotSaveException
      */
     private function updateOrder(
         OrderInterface $order,
         MitPaymentResponse $mitResponse
     ): void {
-        $this->saveComment(__('Transaction ID: ') . $mitResponse->getTransactionId(), $order);
+        $this->saveHistoryComment(
+            __('Transaction ID: ') . $mitResponse->getTransactionId(),
+            $order
+        );
+
         $order->setState(Order::STATE_PROCESSING);
         $order->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING));
         $this->orderRepository->save($order);
-        $this->saveComment(__('Payment has been completed')->render(), $order);
+
+        $this->saveHistoryComment(__('Payment has been completed')->render(), $order);
     }
 }
